@@ -1519,56 +1519,56 @@ function GetStartedContent() {
                 ) : (
                   /* Final Results (Blurred / Locked to push purchase) */
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '12px', padding: '16px', color: '#fca5a5', position: 'relative', overflow: 'hidden' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-                        <span style={{ fontSize: '1.2rem' }}>⚠️</span>
-                        <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#fca5a5', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    <div style={{ backgroundColor: '#FFF5F5', border: '1px solid rgba(239, 68, 68, 0.18)', borderRadius: '12px', padding: '18px', color: '#991B1B', position: 'relative', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                        <span style={{ fontSize: '1.25rem' }}>⚠️</span>
+                        <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#991B1B', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                           Potential Hazard & Contamination Risks
                         </h3>
                       </div>
-                      <p style={{ fontSize: '0.78rem', color: '#e2e8f0', margin: '0 0 12px 0', lineHeight: 1.4 }}>
-                        Querying EPA, FEMA, and CDC records for <strong style={{ color: '#10b981' }}>{addressLine1 || 'the geocoded tract'}</strong> has flagged several regional environmental vectors:
+                      <p style={{ fontSize: '0.8rem', color: '#4B5563', margin: '0 0 14px 0', lineHeight: 1.45, fontWeight: 500 }}>
+                        Querying EPA, FEMA, and CDC records for <strong style={{ color: '#047857', fontWeight: 700 }}>{addressLine1 || 'the geocoded tract'}</strong> has flagged several regional environmental vectors:
                       </p>
                       
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '0.75rem' }}>
-                          <span style={{ color: '#ef4444', fontWeight: 'bold', flexShrink: 0 }}>[HIGH]</span>
-                          <div style={{ color: '#cbd5e1', lineHeight: 1.4 }}>
-                            <strong style={{ color: '#ffffff' }}>County Radon Potential (Zone 1):</strong> Predicted average indoor radon is <span style={{ filter: 'blur(5px)', background: 'rgba(255,255,255,0.1)', padding: '0 4px', borderRadius: '3px', color: '#ffffff', userSelect: 'none', cursor: 'not-allowed' }}>4.8 pCi/L</span> <span style={{ fontSize: '0.65rem', background: '#ef4444', color: '#ffffff', padding: '1px 6px', borderRadius: '4px', marginLeft: '4px', fontWeight: 'bold' }}>LOCKED</span>. Ventilation mapping is highly recommended.
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '0.78rem' }}>
+                          <span style={{ color: '#DC2626', fontWeight: 800, flexShrink: 0, background: 'rgba(220, 38, 38, 0.08)', padding: '2px 6px', borderRadius: '4px', fontSize: '0.65rem', textTransform: 'uppercase' }}>HIGH</span>
+                          <div style={{ color: '#374151', lineHeight: 1.45, fontWeight: 500 }}>
+                            <strong style={{ color: '#111827', fontWeight: 700 }}>County Radon Potential (Zone 1):</strong> Predicted average indoor radon is <span style={{ filter: 'blur(4px)', background: 'rgba(0,0,0,0.06)', padding: '1px 6px', borderRadius: '4px', color: '#111827', userSelect: 'none', cursor: 'not-allowed', fontWeight: 'bold', fontFamily: 'monospace' }}>4.8 pCi/L</span> <span style={{ fontSize: '0.62rem', background: '#EF4444', color: '#ffffff', padding: '2px 6px', borderRadius: '4px', marginLeft: '4px', fontWeight: 800, letterSpacing: '0.5px' }}>LOCKED</span>. Ventilation mapping is highly recommended.
                           </div>
                         </div>
 
-                        <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '0.75rem' }}>
-                          <span style={{ color: '#fbbf24', fontWeight: 'bold', flexShrink: 0 }}>[MODERATE]</span>
-                          <div style={{ color: '#cbd5e1', lineHeight: 1.4 }}>
-                            <strong style={{ color: '#ffffff' }}>Industrial Emissions / Violations:</strong> 2 facilities with recorded Clean Air/Water Act issues found within <span style={{ filter: 'blur(5px)', background: 'rgba(255,255,255,0.1)', padding: '0 4px', borderRadius: '3px', color: '#ffffff', userSelect: 'none', cursor: 'not-allowed' }}>0.4 miles</span> <span style={{ fontSize: '0.65rem', background: '#ef4444', color: '#ffffff', padding: '1px 6px', borderRadius: '4px', marginLeft: '4px', fontWeight: 'bold' }}>LOCKED</span>.
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '0.78rem' }}>
+                          <span style={{ color: '#D97706', fontWeight: 800, flexShrink: 0, background: 'rgba(217, 119, 6, 0.08)', padding: '2px 6px', borderRadius: '4px', fontSize: '0.65rem', textTransform: 'uppercase' }}>MODERATE</span>
+                          <div style={{ color: '#374151', lineHeight: 1.45, fontWeight: 500 }}>
+                            <strong style={{ color: '#111827', fontWeight: 700 }}>Industrial Emissions / Violations:</strong> 2 facilities with recorded Clean Air/Water Act issues found within <span style={{ filter: 'blur(4px)', background: 'rgba(0,0,0,0.06)', padding: '1px 6px', borderRadius: '4px', color: '#111827', userSelect: 'none', cursor: 'not-allowed', fontWeight: 'bold', fontFamily: 'monospace' }}>0.4 miles</span> <span style={{ fontSize: '0.62rem', background: '#EF4444', color: '#ffffff', padding: '2px 6px', borderRadius: '4px', marginLeft: '4px', fontWeight: 800, letterSpacing: '0.5px' }}>LOCKED</span>.
                           </div>
                         </div>
 
-                        <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '0.75rem' }}>
-                          <span style={{ color: '#fbbf24', fontWeight: 'bold', flexShrink: 0 }}>[MODERATE]</span>
-                          <div style={{ color: '#cbd5e1', lineHeight: 1.4 }}>
-                            <strong style={{ color: '#ffffff' }}>EPA Superfund/NPL Proximity:</strong> 1 active groundwater cleanup boundary registered within <span style={{ filter: 'blur(5px)', background: 'rgba(255,255,255,0.1)', padding: '0 4px', borderRadius: '3px', color: '#ffffff', userSelect: 'none', cursor: 'not-allowed' }}>1.2 miles</span> <span style={{ fontSize: '0.65rem', background: '#ef4444', color: '#ffffff', padding: '1px 6px', borderRadius: '4px', marginLeft: '4px', fontWeight: 'bold' }}>LOCKED</span>.
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '0.78rem' }}>
+                          <span style={{ color: '#D97706', fontWeight: 800, flexShrink: 0, background: 'rgba(217, 119, 6, 0.08)', padding: '2px 6px', borderRadius: '4px', fontSize: '0.65rem', textTransform: 'uppercase' }}>MODERATE</span>
+                          <div style={{ color: '#374151', lineHeight: 1.45, fontWeight: 500 }}>
+                            <strong style={{ color: '#111827', fontWeight: 700 }}>EPA Superfund/NPL Proximity:</strong> 1 active groundwater cleanup boundary registered within <span style={{ filter: 'blur(4px)', background: 'rgba(0,0,0,0.06)', padding: '1px 6px', borderRadius: '4px', color: '#111827', userSelect: 'none', cursor: 'not-allowed', fontWeight: 'bold', fontFamily: 'monospace' }}>1.2 miles</span> <span style={{ fontSize: '0.62rem', background: '#EF4444', color: '#ffffff', padding: '2px 6px', borderRadius: '4px', marginLeft: '4px', fontWeight: 800, letterSpacing: '0.5px' }}>LOCKED</span>.
                           </div>
                         </div>
                       </div>
                     </div>
 
                     {/* Premium Locked Call-to-Action Banner */}
-                    <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '12px', padding: '16px', color: '#a7f3d0', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div style={{ backgroundColor: '#F3FAF6', border: '1px solid rgba(16, 185, 129, 0.18)', borderRadius: '12px', padding: '18px', color: '#065F46', display: 'flex', flexDirection: 'column', gap: '12px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '1.2rem' }}>🔒</span>
-                        <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#10b981', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        <span style={{ fontSize: '1.25rem' }}>🔒</span>
+                        <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#065F46', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                           Unlock Exact Hazard Maps & Metrics
                         </h3>
                       </div>
-                      <p style={{ fontSize: '0.78rem', color: '#e2e8f0', margin: 0, lineHeight: 1.45 }}>
+                      <p style={{ fontSize: '0.8rem', color: '#374151', margin: 0, lineHeight: 1.5, fontWeight: 500 }}>
                         To safeguard local property records and coordinate privacy, precise hazard coordinates, EPA facility names, and mitigation reports are locked. Buy a report to instantly unlock the fully unblurred datasets and negotiation guides.
                       </p>
                       <button 
                         type="button" 
                         onClick={scrollToForm}
-                        style={{ marginTop: '4px', background: 'linear-gradient(135deg, #10b981, #059669)', border: 'none', borderRadius: '6px', padding: '10px 14px', color: '#ffffff', fontSize: '0.78rem', fontWeight: 'bold', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '1px', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                        style={{ marginTop: '6px', background: 'linear-gradient(135deg, #10b981, #059669)', border: 'none', borderRadius: '8px', padding: '12px 18px', color: '#ffffff', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '1px', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.25)' }}
                       >
                         Unlock Full Report Details Now ➔
                       </button>

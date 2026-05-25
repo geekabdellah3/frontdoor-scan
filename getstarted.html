@@ -1266,56 +1266,56 @@
                     <!-- State 2: GIS Scan Results (Blurred & Redacted with locked CTA) -->
                     <div id="gis-scan-results" style="display: none; flex-direction: column; gap: 16px; width: 100%;">
                         <!-- Card 1: Potential Hazard & Contamination Risks -->
-                        <div style="background-color: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 12px; padding: 16px; color: #fca5a5; position: relative; overflow: hidden; box-sizing: border-box;">
-                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 10px;">
-                                <span style="font-size: 1.2rem;">⚠️</span>
-                                <h3 style="font-size: 0.95rem; font-weight: 800; color: #fca5a5; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
+                        <div style="background-color: #FFF5F5; border: 1px solid rgba(239, 68, 68, 0.18); border-radius: 12px; padding: 18px; color: #991B1B; position: relative; overflow: hidden; box-sizing: border-box; box-shadow: var(--shadow-soft);">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                                <span style="font-size: 1.25rem;">⚠️</span>
+                                <h3 style="font-size: 0.95rem; font-weight: 800; color: #991B1B; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
                                     Potential Hazard & Contamination Risks
                                 </h3>
                             </div>
-                            <p style="font-size: 0.78rem; color: #e2e8f0; margin: 0 0 12px 0; line-height: 1.4;">
-                                Querying EPA, FEMA, and CDC records for <strong id="gis-hud-text-address" style="color: #10b981;">the geocoded tract</strong> has flagged several regional environmental vectors:
+                            <p style="font-size: 0.8rem; color: #4B5563; margin: 0 0 14px 0; line-height: 1.45; font-weight: 500;">
+                                Querying EPA, FEMA, and CDC records for <strong id="gis-hud-text-address" style="color: #047857; font-weight: 700;">the geocoded tract</strong> has flagged several regional environmental vectors:
                             </p>
                             
-                            <div style="display: flex; flex-direction: column; gap: 10px;">
-                                <div style="display: flex; gap: 10px; align-items: flex-start; font-size: 0.75rem;">
-                                    <span style="color: #ef4444; font-weight: bold; flex-shrink: 0;">[HIGH]</span>
-                                    <div style="color: #cbd5e1; line-height: 1.4;">
-                                        <strong style="color: #ffffff;">County Radon Potential (Zone 1):</strong> Predicted average indoor radon is <span style="filter: blur(5px); background: rgba(255,255,255,0.1); padding: 0 4px; border-radius: 3px; color: #ffffff; user-select: none; cursor: not-allowed;">4.8 pCi/L</span> <span style="font-size: 0.65rem; background: #ef4444; color: #ffffff; padding: 1px 6px; border-radius: 4px; margin-left: 4px; font-weight: bold;">LOCKED</span>. Ventilation mapping is highly recommended.
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                <div style="display: flex; gap: 10px; align-items: flex-start; font-size: 0.78rem;">
+                                    <span style="color: #DC2626; font-weight: 800; flex-shrink: 0; background: rgba(220, 38, 38, 0.08); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; text-transform: uppercase;">HIGH</span>
+                                    <div style="color: #374151; line-height: 1.45; font-weight: 500;">
+                                        <strong style="color: #111827; font-weight: 700;">County Radon Potential (Zone 1):</strong> Predicted average indoor radon is <span style="filter: blur(4px); background: rgba(0,0,0,0.06); padding: 1px 6px; border-radius: 4px; color: #111827; user-select: none; cursor: not-allowed; font-weight: bold; font-family: monospace;">4.8 pCi/L</span> <span style="font-size: 0.62rem; background: #EF4444; color: #ffffff; padding: 2px 6px; border-radius: 4px; margin-left: 4px; font-weight: 800; letter-spacing: 0.5px;">LOCKED</span>. Ventilation mapping is highly recommended.
                                     </div>
                                 </div>
 
-                                <div style="display: flex; gap: 10px; align-items: flex-start; font-size: 0.75rem;">
-                                    <span style="color: #fbbf24; font-weight: bold; flex-shrink: 0;">[MODERATE]</span>
-                                    <div style="color: #cbd5e1; line-height: 1.4;">
-                                        <strong style="color: #ffffff;">Industrial Emissions / Violations:</strong> 2 facilities with recorded Clean Air/Water Act issues found within <span style="filter: blur(5px); background: rgba(255,255,255,0.1); padding: 0 4px; border-radius: 3px; color: #ffffff; user-select: none; cursor: not-allowed;">0.4 miles</span> <span style="font-size: 0.65rem; background: #ef4444; color: #ffffff; padding: 1px 6px; border-radius: 4px; margin-left: 4px; font-weight: bold;">LOCKED</span>.
+                                <div style="display: flex; gap: 10px; align-items: flex-start; font-size: 0.78rem;">
+                                    <span style="color: #D97706; font-weight: 800; flex-shrink: 0; background: rgba(217, 119, 6, 0.08); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; text-transform: uppercase;">MODERATE</span>
+                                    <div style="color: #374151; line-height: 1.45; font-weight: 500;">
+                                        <strong style="color: #111827; font-weight: 700;">Industrial Emissions / Violations:</strong> 2 facilities with recorded Clean Air/Water Act issues found within <span style="filter: blur(4px); background: rgba(0,0,0,0.06); padding: 1px 6px; border-radius: 4px; color: #111827; user-select: none; cursor: not-allowed; font-weight: bold; font-family: monospace;">0.4 miles</span> <span style="font-size: 0.62rem; background: #EF4444; color: #ffffff; padding: 2px 6px; border-radius: 4px; margin-left: 4px; font-weight: 800; letter-spacing: 0.5px;">LOCKED</span>.
                                     </div>
                                 </div>
 
-                                <div style="display: flex; gap: 10px; align-items: flex-start; font-size: 0.75rem;">
-                                    <span style="color: #fbbf24; font-weight: bold; flex-shrink: 0;">[MODERATE]</span>
-                                    <div style="color: #cbd5e1; line-height: 1.4;">
-                                        <strong style="color: #ffffff;">EPA Superfund/NPL Proximity:</strong> 1 active groundwater cleanup boundary registered within <span style="filter: blur(5px); background: rgba(255,255,255,0.1); padding: 0 4px; border-radius: 3px; color: #ffffff; user-select: none; cursor: not-allowed;">1.2 miles</span> <span style="font-size: 0.65rem; background: #ef4444; color: #ffffff; padding: 1px 6px; border-radius: 4px; margin-left: 4px; font-weight: bold;">LOCKED</span>.
+                                <div style="display: flex; gap: 10px; align-items: flex-start; font-size: 0.78rem;">
+                                    <span style="color: #D97706; font-weight: 800; flex-shrink: 0; background: rgba(217, 119, 6, 0.08); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; text-transform: uppercase;">MODERATE</span>
+                                    <div style="color: #374151; line-height: 1.45; font-weight: 500;">
+                                        <strong style="color: #111827; font-weight: 700;">EPA Superfund/NPL Proximity:</strong> 1 active groundwater cleanup boundary registered within <span style="filter: blur(4px); background: rgba(0,0,0,0.06); padding: 1px 6px; border-radius: 4px; color: #111827; user-select: none; cursor: not-allowed; font-weight: bold; font-family: monospace;">1.2 miles</span> <span style="font-size: 0.62rem; background: #EF4444; color: #ffffff; padding: 2px 6px; border-radius: 4px; margin-left: 4px; font-weight: 800; letter-spacing: 0.5px;">LOCKED</span>.
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Premium Locked Call-to-Action Banner -->
-                        <div style="background-color: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px; padding: 16px; color: #a7f3d0; display: flex; flex-direction: column; gap: 10px; box-sizing: border-box;">
+                        <div style="background-color: #F3FAF6; border: 1px solid rgba(16, 185, 129, 0.18); border-radius: 12px; padding: 18px; color: #065F46; display: flex; flex-direction: column; gap: 12px; box-sizing: border-box; box-shadow: var(--shadow-soft);">
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="font-size: 1.2rem;">🔒</span>
-                                <h3 style="font-size: 0.9rem; font-weight: 800; color: #10b981; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
+                                <span style="font-size: 1.25rem;">🔒</span>
+                                <h3 style="font-size: 0.9rem; font-weight: 800; color: #065F46; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
                                     Unlock Exact Hazard Maps & Metrics
                                 </h3>
                             </div>
-                            <p style="font-size: 0.78rem; color: #e2e8f0; margin: 0; line-height: 1.45;">
+                            <p style="font-size: 0.8rem; color: #374151; margin: 0; line-height: 1.5; font-weight: 500;">
                                 To safeguard local property records and coordinate privacy, precise hazard coordinates, EPA facility names, and mitigation reports are locked. Buy a report to instantly unlock the fully unblurred datasets and negotiation guides.
                             </p>
                             <button 
                                 type="button" 
                                 onclick="scrollToForm()"
-                                style="margin-top: 4px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 6px; padding: 10px 14px; color: #ffffff; font-size: 0.78rem; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;"
+                                style="margin-top: 6px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 8px; padding: 12px 18px; color: #ffffff; font-size: 0.8rem; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);"
                             >
                                 Unlock Full Report Details Now ➔
                             </button>

@@ -29,10 +29,14 @@ function GetStartedContent() {
   const searchParams = useSearchParams();
   const address = searchParams.get('address') || '';
   const lastScannedAddress = useRef('');
+  const lastScannedFullAddress = useRef('');
 
   // Preparation Progress Simulator (runs dynamic 4.6s loading timer)
-  const [prepProgress, setPrepProgress] = useState(0);
-  const [prepFinished, setPrepFinished] = useState(false);
+  const [prepProgress, setPrepProgress] = useState(100);
+  const [prepFinished, setPrepFinished] = useState(true);
+  const [isScanning, setIsScanning] = useState(false);
+  const [scanningStatus, setScanningStatus] = useState('Querying localized hazard layers...');
+  const [scanningSubtext, setScanningSubtext] = useState('FIPS: Locating target tract...');
 
   // Countdown timer state (starts at 09:39 as seen in html mockup)
   const [timeLeft, setTimeLeft] = useState(579); // 579 seconds = 09:39
@@ -71,19 +75,46 @@ function GetStartedContent() {
   const [shippingState, setShippingState] = useState('');
   const [zipCode, setZipCode] = useState('');
 
+  const getFullAddressForMap = () => {
+    const parts = [];
+    if (addressLine1) parts.push(addressLine1);
+    if (city) parts.push(city);
+    if (shippingState) parts.push(shippingState);
+    if (zipCode) parts.push(zipCode);
+    if (country && country !== 'United States') parts.push(country);
+    else if (addressLine1) parts.push('USA');
+    return parts.length > 0 ? parts.join(', ') : (address || 'United States');
+  };
+
+
   // Address Suggestions Autocomplete States
   const [suggestions, setSuggestions] = useState<typeof FRONT_DOOR_MOCK_ADDRESSES>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  // Expose suggestion panel logic
+  // Expose suggestion panel logic with robust fallback and dynamic address suggestions
   const handleAddressChange = (val: string) => {
     setAddressLine1(val);
-    if (val.trim().length >= 2) {
+    const query = val.trim();
+    if (query.length >= 2) {
+      // 1. Filter local hardcoded mock database
       const filtered = FRONT_DOOR_MOCK_ADDRESSES.filter(addr => 
-        addr.street.toLowerCase().includes(val.toLowerCase())
+        addr.street.toLowerCase().includes(query.toLowerCase())
       );
-      setSuggestions(filtered);
-      setShowSuggestions(filtered.length > 0);
+
+      // 2. Generate premium, high-fidelity dynamic suggestions on the fly
+      const queryClean = query.replace(/,\s*$/, '');
+      const dynamicMatches = [
+        { street: queryClean, city: "Austin", state: "TX", zip: "78701" },
+        { street: queryClean, city: "New York", state: "NY", zip: "10011" },
+        { street: queryClean, city: "Los Angeles", state: "CA", zip: "90015" },
+        { street: queryClean, city: "Chicago", state: "IL", zip: "60606" },
+        { street: queryClean, city: "Miami", state: "FL", zip: "33101" }
+      ];
+
+      // Combine both so suggestions are NEVER empty for the user
+      const combined = [...filtered, ...dynamicMatches].slice(0, 5);
+      setSuggestions(combined);
+      setShowSuggestions(true);
     } else {
       setSuggestions([]);
       setShowSuggestions(false);
@@ -117,36 +148,42 @@ function GetStartedContent() {
   // Shipping Form Autofill from Homepage Query
   useEffect(() => {
     if (address) {
-      const parts = address.split(',').map(p => p.trim());
-      let streetName = parts[0] || '';
-      let cityIndex = 1;
-
-      if (parts.length > 1 && (/^\d+$/.test(parts[0]) || /^\d+[a-zA-Z]?$/.test(parts[0]) || parts[0].length <= 5)) {
-        streetName = `${parts[0]} ${parts[1]}`;
-        cityIndex = 2;
-      }
-
-      const parsedCity = parts[cityIndex] || '';
-
+      let streetName = address; // Default to full address
+      let parsedCity = '';
       let parsedState = '';
-      for (let i = cityIndex + 1; i < parts.length; i++) {
-        const part = parts[i];
-        if (part.length === 2 && /^[A-Z]{2}$/i.test(part)) {
-          parsedState = part.toUpperCase();
-          break;
-        }
-      }
-      if (!parsedState && parts.length >= cityIndex + 3) {
-        parsedState = parts[cityIndex + 2];
-      }
+      let zipPart = '';
 
-      const zipPart = parts.find(p => /^\d{5}(-\d{4})?$/.test(p));
+      if (address.includes(',')) {
+        const parts = address.split(',').map(p => p.trim());
+        streetName = parts[0] || address;
+        let cityIndex = 1;
+
+        if (parts.length > 1 && (/^\d+$/.test(parts[0]) || /^\d+[a-zA-Z]?$/.test(parts[0]) || parts[0].length <= 5)) {
+          streetName = `${parts[0]} ${parts[1]}`;
+          cityIndex = 2;
+        }
+
+        parsedCity = parts[cityIndex] || '';
+
+        for (let i = cityIndex + 1; i < parts.length; i++) {
+          const part = parts[i];
+          if (part.length === 2 && /^[A-Z]{2}$/i.test(part)) {
+            parsedState = part.toUpperCase();
+            break;
+          }
+        }
+        if (!parsedState && parts.length >= cityIndex + 3) {
+          parsedState = parts[cityIndex + 2];
+        }
+
+        zipPart = parts.find(p => /^\d{5}(-\d{4})?$/.test(p)) || '';
+      }
 
       // Use a timeout to avoid calling setState synchronously within the effect
       const timer = setTimeout(() => {
         setAddressLine1(streetName);
-        setCity(parsedCity);
-        setShippingState(parsedState);
+        if (parsedCity) setCity(parsedCity);
+        if (parsedState) setShippingState(parsedState);
         if (zipPart) setZipCode(zipPart);
         
         lastScannedAddress.current = streetName.trim();
@@ -447,21 +484,54 @@ function GetStartedContent() {
 
 
 
-  // Preparation Progress Simulator (runs dynamic 4.6s loading timer)
+  const scanTimeoutRef = useRef<NodeJS.Timeout[]>([]);
+
+  const startTelemetryScan = () => {
+    // Clear any pending timeouts
+    scanTimeoutRef.current.forEach(t => clearTimeout(t));
+    scanTimeoutRef.current = [];
+
+    setIsScanning(true);
+    setScanningStatus('Querying localized hazard layers...');
+    setScanningSubtext('FIPS: Locating target tract...');
+
+    const t1 = setTimeout(() => {
+      setScanningStatus('Querying EPA ECHO Compliance Records...');
+      setScanningSubtext('EPA: Connecting database...');
+    }, 350);
+
+    const t2 = setTimeout(() => {
+      setScanningStatus('Mapping FEMA aquifers & flood histories...');
+      setScanningSubtext('FEMA: Querying floodplains...');
+    }, 700);
+
+    const t3 = setTimeout(() => {
+      setScanningStatus('Compiling regional radon vector zones...');
+      setScanningSubtext('CDC: Interpolating Zone 1 values...');
+    }, 1000);
+
+    const t4 = setTimeout(() => {
+      setIsScanning(false);
+    }, 1300);
+
+    scanTimeoutRef.current = [t1, t2, t3, t4];
+  };
+
+  // Reset scan when any address field changes
   useEffect(() => {
-    if (prepFinished) return;
-    const timer = setInterval(() => {
-      setPrepProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(timer);
-          setPrepFinished(true);
-          return 100;
-        }
-        return prev + 2;
-      });
-    }, 80); // Snooth and snappy 4-second loading timer
-    return () => clearInterval(timer);
-  }, [prepFinished]);
+    const full = getFullAddressForMap();
+    if (full.trim() && full.trim() !== lastScannedFullAddress.current) {
+      const isFirstLoad = lastScannedFullAddress.current === '';
+      lastScannedFullAddress.current = full.trim();
+      
+      if (!isFirstLoad) {
+        startTelemetryScan();
+      }
+    }
+    return () => {
+      scanTimeoutRef.current.forEach(t => clearTimeout(t));
+    };
+  }, [addressLine1, city, shippingState, zipCode, country]);
 
   const scrollToForm = () => {
     const form = document.getElementById('shipping-payment-form');
@@ -796,91 +866,209 @@ function GetStartedContent() {
         .results-container {
           display: flex;
           flex-direction: column;
-          gap: 18px;
+          gap: 24px;
           width: 100%;
+          position: relative;
+        }
+        .scanning-overlay {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(250, 253, 251, 0.78);
+          backdrop-filter: blur(4px);
+          -webkit-backdrop-filter: blur(4px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 100;
+          border-radius: 20px;
+          animation: overlay-fade-in 0.25s ease-out forwards;
+        }
+        @keyframes overlay-fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        .scanning-overlay-content {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 16px;
+          text-align: center;
+          padding: 32px;
+          background: rgba(255, 255, 255, 0.9);
+          border: 1px solid rgba(16, 185, 129, 0.12);
+          border-radius: 16px;
+          box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+        }
+        .radar-scan {
+          position: relative;
+          width: 64px;
+          height: 64px;
+          border-radius: 50%;
+          border: 2px solid rgba(16, 185, 129, 0.2);
+          background: radial-gradient(circle, rgba(16, 185, 129, 0.05) 0%, transparent 70%);
+          overflow: hidden;
+        }
+        .radar-scan::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: conic-gradient(from 0deg, rgba(16, 185, 129, 0.4) 0deg, transparent 90deg);
+          border-radius: 50%;
+          animation: radarSweep 1.5s linear infinite;
+        }
+        @keyframes radarSweep {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .scanning-status-text {
+          font-size: 0.92rem;
+          font-weight: 800;
+          color: #0f291b;
+          letter-spacing: 0.3px;
+          text-transform: uppercase;
+        }
+        .scanning-sub-text {
+          font-size: 0.74rem;
+          font-weight: 600;
+          color: #059669;
+          font-family: 'JetBrains Mono', monospace;
         }
         .hazard-card {
-          background: linear-gradient(135deg, rgba(254, 242, 242, 0.7) 0%, rgba(255, 255, 255, 0.4) 100%);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border: 1px solid rgba(239, 68, 68, 0.12);
-          border-left: 4px solid #ef4444;
-          border-radius: 16px;
-          padding: 24px;
+          background: linear-gradient(135deg, rgba(254, 242, 242, 0.9) 0%, rgba(255, 255, 255, 0.95) 100%);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(239, 68, 68, 0.2);
+          border-left: 6px solid #f43f5e;
+          border-radius: 20px;
+          padding: 28px;
           color: #1e293b;
           position: relative;
           overflow: hidden;
-          box-shadow: 0 12px 30px rgba(239, 68, 68, 0.02);
+          box-shadow: 
+            0 20px 40px -15px rgba(239, 68, 68, 0.08),
+            0 4px 12px rgba(239, 68, 68, 0.02),
+            inset 0 1px 0 rgba(255, 255, 255, 0.6);
           box-sizing: border-box;
+          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .hazard-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 
+            0 30px 50px -15px rgba(239, 68, 68, 0.12),
+            0 8px 20px rgba(239, 68, 68, 0.04);
+          border-color: rgba(239, 68, 68, 0.3);
+        }
+        .hazard-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 150px;
+          height: 150px;
+          background: radial-gradient(circle, rgba(239, 68, 68, 0.04) 0%, rgba(239, 68, 68, 0) 70%);
+          pointer-events: none;
+          border-radius: 50%;
         }
         .hazard-title-row {
           display: flex;
           align-items: center;
-          gap: 10px;
-          margin-bottom: 12px;
+          gap: 12px;
+          margin-bottom: 14px;
         }
         .hazard-title {
-          font-size: 0.95rem;
-          font-weight: 700;
+          font-size: 1.15rem;
+          font-weight: 800;
           color: #0f172a;
           margin: 0;
           font-family: 'Inter', system-ui, sans-serif;
-          letter-spacing: -0.01em;
+          letter-spacing: -0.02em;
+          background: linear-gradient(135deg, #0f172a 30%, #ef4444 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
         }
         .hazard-desc {
-          font-size: 0.8rem;
-          color: #64748b;
-          margin: 0 0 18px 0;
-          line-height: 1.5;
+          font-size: 0.88rem;
+          color: #475569;
+          margin: 0 0 24px 0;
+          line-height: 1.6;
           font-weight: 500;
         }
         .hazard-list {
           display: flex;
           flex-direction: column;
-          gap: 16px;
+          gap: 18px;
         }
         .hazard-item {
-          display: flex;
-          gap: 14px;
+          display: grid;
+          grid-template-columns: auto 1fr;
+          gap: 16px;
           align-items: flex-start;
-          font-size: 0.8rem;
+          background: rgba(255, 255, 255, 0.5);
+          border: 1px solid rgba(15, 23, 42, 0.03);
+          padding: 16px;
+          border-radius: 12px;
+          box-shadow: 0 2px 8px rgba(15, 23, 42, 0.01);
+          transition: all 0.2s ease;
+        }
+        .hazard-item:hover {
+          background: rgba(255, 255, 255, 0.95);
+          transform: translateX(2px);
+          border-color: rgba(15, 23, 42, 0.06);
+          box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
         }
         .badge-high {
-          color: #ffffff;
-          font-weight: 700;
+          color: #dc2626;
+          font-weight: 800;
           flex-shrink: 0;
-          background: #ef4444;
-          padding: 2px 8px;
-          border-radius: 6px;
-          font-size: 0.65rem;
-          letter-spacing: 0.5px;
+          background: rgba(239, 68, 68, 0.08);
+          border: 1px solid rgba(239, 68, 68, 0.2);
+          padding: 4px 10px;
+          border-radius: 8px;
+          font-size: 0.68rem;
+          letter-spacing: 0.8px;
+          text-transform: uppercase;
+          display: inline-flex;
+          align-items: center;
+          box-shadow: 0 2px 4px rgba(239, 68, 68, 0.02);
         }
         .badge-moderate {
-          color: #b45309;
-          font-weight: 700;
+          color: #d97706;
+          font-weight: 800;
           flex-shrink: 0;
-          background: #fffbeb;
+          background: rgba(245, 158, 11, 0.06);
           border: 1px solid rgba(245, 158, 11, 0.2);
-          padding: 2px 8px;
-          border-radius: 6px;
-          font-size: 0.65rem;
-          letter-spacing: 0.5px;
+          padding: 4px 10px;
+          border-radius: 8px;
+          font-size: 0.68rem;
+          letter-spacing: 0.8px;
+          text-transform: uppercase;
+          display: inline-flex;
+          align-items: center;
+          box-shadow: 0 2px 4px rgba(245, 158, 11, 0.02);
         }
         .hazard-text {
           color: #334155;
-          line-height: 1.5;
+          line-height: 1.6;
+          font-size: 0.82rem;
           font-weight: 500;
         }
         .hazard-label {
           color: #0f172a;
           font-weight: 700;
+          margin-right: 4px;
         }
         .redacted-value {
           filter: blur(4px);
-          background: rgba(15, 23, 42, 0.04);
-          padding: 2px 8px;
+          background: rgba(15, 23, 42, 0.06);
+          padding: 2px 10px;
           border-radius: 6px;
-          color: #0f172a;
+          color: #475569;
           user-select: none;
           cursor: not-allowed;
           font-weight: 700;
@@ -888,78 +1076,139 @@ function GetStartedContent() {
           display: inline-flex;
           align-items: center;
           gap: 4px;
+          transition: filter 0.3s ease;
         }
         .badge-locked {
-          font-size: 0.6rem;
-          background: #ef4444;
+          font-size: 0.65rem;
+          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
           color: #ffffff;
-          padding: 2px 6px;
-          border-radius: 4px;
+          padding: 4px 10px;
+          border-radius: 6px;
           margin-left: 6px;
-          font-weight: 700;
-          letter-spacing: 0.5px;
-          display: inline-block;
+          font-weight: 800;
+          letter-spacing: 0.8px;
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          box-shadow: 0 4px 10px rgba(239, 68, 68, 0.2);
+          text-transform: uppercase;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          vertical-align: middle;
         }
         /* CTA Banner */
         .cta-unlock-banner {
-          background: linear-gradient(135deg, rgba(20, 184, 166, 0.05) 0%, rgba(16, 185, 129, 0.02) 100%);
-          border: 1px solid rgba(16, 185, 129, 0.18);
-          border-left: 4px solid #10b981;
-          border-radius: 16px;
-          padding: 24px;
-          color: #0f291b;
+          background: linear-gradient(135deg, rgba(16, 185, 129, 0.06) 0%, rgba(5, 150, 105, 0.02) 50%, rgba(255, 255, 255, 0.9) 100%);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(16, 185, 129, 0.25);
+          border-left: 6px solid #10b981;
+          border-radius: 20px;
+          padding: 28px;
+          color: #064e3b;
           display: flex;
           flex-direction: column;
-          gap: 16px;
-          box-shadow: 0 15px 35px -10px rgba(16, 185, 129, 0.03);
+          gap: 20px;
+          position: relative;
+          overflow: hidden;
+          box-shadow: 
+            0 20px 45px -12px rgba(16, 185, 129, 0.08),
+            0 4px 12px rgba(16, 185, 129, 0.01),
+            inset 0 1px 0 rgba(255, 255, 255, 0.6);
           box-sizing: border-box;
+          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .cta-unlock-banner:hover {
+          transform: translateY(-2px);
+          box-shadow: 
+            0 30px 55px -12px rgba(16, 185, 129, 0.14),
+            0 8px 22px rgba(16, 185, 129, 0.03);
+          border-color: rgba(16, 185, 129, 0.35);
+        }
+        .cta-unlock-banner::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 180px;
+          height: 180px;
+          background: radial-gradient(circle, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0) 70%);
+          pointer-events: none;
+          border-radius: 50%;
         }
         .cta-title-row {
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 12px;
         }
         .cta-title {
-          font-size: 0.95rem;
-          font-weight: 700;
-          color: #059669;
+          font-size: 1.15rem;
+          font-weight: 800;
+          color: #047857;
           margin: 0;
-          letter-spacing: -0.01em;
+          letter-spacing: -0.02em;
+          background: linear-gradient(135deg, #047857 30%, #10b981 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
         }
         .cta-desc {
-          font-size: 0.8rem;
-          color: #475569;
+          font-size: 0.88rem;
+          color: #374151;
           margin: 0;
-          line-height: 1.55;
+          line-height: 1.6;
           font-weight: 500;
         }
         .cta-button {
           background: linear-gradient(135deg, #10b981 0%, #059669 100%);
           color: #ffffff;
-          font-weight: 700;
-          font-size: 0.82rem;
+          font-weight: 800;
+          font-size: 0.9rem;
           letter-spacing: 0.5px;
           border: none;
-          padding: 14px 24px;
-          border-radius: 10px;
+          padding: 16px 28px;
+          border-radius: 12px;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 8px;
-          box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.3);
-          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          gap: 10px;
+          box-shadow: 0 12px 30px -5px rgba(16, 185, 129, 0.4);
+          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
           width: 100%;
           text-decoration: none;
           box-sizing: border-box;
+          position: relative;
+          overflow: hidden;
+        }
+        .cta-button::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 50%;
+          height: 100%;
+          background: linear-gradient(
+            to right,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.3) 50%,
+            rgba(255, 255, 255, 0) 100%
+          );
+          transform: skewX(-25deg);
+          transition: none;
         }
         .cta-button:hover {
           transform: translateY(-2px);
-          box-shadow: 0 15px 30px -5px rgba(16, 185, 129, 0.45);
+          box-shadow: 0 18px 35px -5px rgba(16, 185, 129, 0.5);
           background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+        }
+        .cta-button:hover::after {
+          animation: button-shimmer 1.5s infinite;
+        }
+        @keyframes button-shimmer {
+          100% { left: 200%; }
         }
         .cta-button:active {
           transform: translateY(0);
+          box-shadow: 0 8px 20px -5px rgba(16, 185, 129, 0.35);
         }
         .cta-button svg {
           transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1533,7 +1782,7 @@ function GetStartedContent() {
             {/* 5. GIS Localization Map Panel */}
             {/* 5. GIS Localization Map Panel */}
             <div className="before-after-card-wrapper">
-              <div className={`gis-map-container ${!prepFinished ? 'scanning' : ''}`}>
+              <div className={`gis-map-container ${isScanning ? 'scanning' : ''}`}>
                 {/* Glowing Sweep Scan Animation Line */}
                 <div className="gis-scanner-sweep"></div>
 
@@ -1550,7 +1799,7 @@ function GetStartedContent() {
                   <div className="gis-hud-row">
                     <span className="gis-hud-label">TARGET ADDR:</span>
                     <span className="gis-hud-value" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '120px' }} title={addressLine1 || "Target Coordinate"}>
-                      {addressLine1 || "SCANNING..."}
+                      {addressLine1 ? addressLine1.substring(0, 15) + (addressLine1.length > 15 ? '...' : '') : "TARGET ACQUIRED"}
                     </span>
                   </div>
                   <div className="gis-hud-row">
@@ -1574,137 +1823,86 @@ function GetStartedContent() {
                 <iframe
                   title="Google Maps"
                   className="google-map-iframe"
-                  src={`https://maps.google.com/maps?q=${encodeURIComponent(addressLine1 || 'United States')}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                  src={`https://maps.google.com/maps?q=${encodeURIComponent(getFullAddressForMap())}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
                   allowFullScreen
                 ></iframe>
               </div>
 
               {/* Text Points Next to Graphics */}
               <div className="ba-text-pane">
-                {!prepFinished ? (
-                  /* Loading / Scanning Terminal HUD */
-                  <div className="terminal-container">
-                    <div>
-                      <div className="terminal-header">
-                        <div className="terminal-title-block">
-                          <span className="terminal-pulse-dot"></span>
-                          <span style={{ fontWeight: 700, letterSpacing: '0.5px' }}>Processing Telemetry</span>
-                        </div>
-                        <span className="terminal-progress-pct">{prepProgress}%</span>
-                      </div>
-                      
-                      <div className="terminal-log-list">
-                        <div className="terminal-log-row">
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '3px' }}><polyline points="20 6 9 17 4 12"/></svg>
-                          <span>Initializing local GIS parcel tracking...</span>
-                        </div>
-                        {prepProgress > 15 && (
-                          <div className="terminal-log-row">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '3px' }}><polyline points="20 6 9 17 4 12"/></svg>
-                            <span>Pinpointing coordinates via FIPS geocode... [SUCCESS]</span>
-                          </div>
-                        )}
-                        {prepProgress > 35 && (
-                          <div className="terminal-log-row">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '3px' }}><polyline points="20 6 9 17 4 12"/></svg>
-                            <span>Pulling EPA ECHO Compliance Records database... [CONNECTED]</span>
-                          </div>
-                        )}
-                        {prepProgress > 55 && (
-                          <div className="terminal-log-row">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '3px' }}><polyline points="20 6 9 17 4 12"/></svg>
-                            <span>Querying FEMA flood history maps &amp; aquifers... [OK]</span>
-                          </div>
-                        )}
-                        {prepProgress > 75 && (
-                          <div className="terminal-log-row">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '3px' }}><polyline points="20 6 9 17 4 12"/></svg>
-                            <span>Compiling regional CDC radon vector zones... [MAPPED]</span>
-                          </div>
-                        )}
-                        {prepProgress > 90 && (
-                          <div className="terminal-log-row">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '3px' }}><polyline points="20 6 9 17 4 12"/></svg>
-                            <span>Assembling buyer negotiation talking points...</span>
-                          </div>
-                        )}
+                {/* Always render results-container */}
+                <div className="results-container">
+                  {/* Highly-Premium Glassmorphic Scanning/Geocoding Overlay */}
+                  {isScanning && (
+                    <div className="scanning-overlay">
+                      <div className="scanning-overlay-content">
+                        <div className="radar-scan"></div>
+                        <div className="scanning-status-text">{scanningStatus}</div>
+                        <div className="scanning-sub-text">{scanningSubtext}</div>
                       </div>
                     </div>
+                  )}
+
+                  {/* Final Results (Blurred / Locked to push purchase) */}
+                  <div className="hazard-card">
+                    <div className="hazard-title-row">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }}>
+                        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/>
+                        <line x1="12" y1="17" x2="12.01" y2="17"/>
+                      </svg>
+                      <h3 className="hazard-title">Potential Hazard & Contamination Risks</h3>
+                    </div>
+                    <p className="hazard-desc">
+                      Querying EPA, FEMA, and CDC records for <strong style={{ color: '#059669', fontWeight: 700 }}>{addressLine1 || 'the geocoded tract'}</strong> has flagged several regional environmental vectors:
+                    </p>
                     
-                    <div className="terminal-footer">
-                      {/* Elegant progress bar */}
-                      <div style={{ width: '100%', height: '6px', background: 'rgba(0, 0, 0, 0.04)', borderRadius: '4px', overflow: 'hidden', margin: '4px 0 10px 0' }}>
-                        <div style={{ width: `${prepProgress}%`, height: '100%', background: 'linear-gradient(90deg, #10b981 0%, #059669 100%)', borderRadius: '4px', transition: 'width 0.1s linear' }}></div>
+                    <div className="hazard-list">
+                      <div className="hazard-item">
+                        <span className="badge-high">HIGH MATCH</span>
+                        <div className="hazard-text">
+                          <strong className="hazard-label">County Radon Potential (Zone 1):</strong> Predicted average indoor radon is <span className="redacted-value">4.8 pCi/L</span> <span className="badge-locked"><Lock size={10} style={{ marginRight: '4px', display: 'inline-block', verticalAlign: 'middle', marginTop: '-2px' }} />LOCKED</span>. Ventilation mapping is highly recommended.
+                        </div>
                       </div>
-                      <div className="terminal-footer-info">
-                        <span className="terminal-spin-loader"></span>
-                        <span style={{ fontSize: '0.72rem', letterSpacing: '0.5px', fontWeight: 500 }}>SECURE DATA COMPILING IN PROGRESS...</span>
+
+                      <div className="hazard-item">
+                        <span className="badge-moderate">MODERATE MATCH</span>
+                        <div className="hazard-text">
+                          <strong className="hazard-label">Industrial Emissions / Violations:</strong> 2 facilities with recorded Clean Air/Water Act issues found within <span className="redacted-value">0.4 miles</span> <span className="badge-locked"><Lock size={10} style={{ marginRight: '4px', display: 'inline-block', verticalAlign: 'middle', marginTop: '-2px' }} />LOCKED</span>.
+                        </div>
+                      </div>
+
+                      <div className="hazard-item">
+                        <span className="badge-moderate">MODERATE MATCH</span>
+                        <div className="hazard-text">
+                          <strong className="hazard-label">EPA Superfund/NPL Proximity:</strong> 1 active groundwater cleanup boundary registered within <span className="redacted-value">1.2 miles</span> <span className="badge-locked"><Lock size={10} style={{ marginRight: '4px', display: 'inline-block', verticalAlign: 'middle', marginTop: '-2px' }} />LOCKED</span>.
+                        </div>
                       </div>
                     </div>
                   </div>
-                ) : (
-                  /* Final Results (Blurred / Locked to push purchase) */
-                  <div className="results-container">
-                    <div className="hazard-card">
-                      <div className="hazard-title-row">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }}>
-                          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
-                          <line x1="12" y1="9" x2="12" y2="13"/>
-                          <line x1="12" y1="17" x2="12.01" y2="17"/>
-                        </svg>
-                        <h3 className="hazard-title">Potential Hazard & Contamination Risks</h3>
-                      </div>
-                      <p className="hazard-desc">
-                        Querying EPA, FEMA, and CDC records for <strong style={{ color: '#059669', fontWeight: 700 }}>{addressLine1 || 'the geocoded tract'}</strong> has flagged several regional environmental vectors:
-                      </p>
-                      
-                      <div className="hazard-list">
-                        <div className="hazard-item">
-                          <span className="badge-high">HIGH</span>
-                          <div className="hazard-text">
-                            <strong className="hazard-label">County Radon Potential (Zone 1):</strong> Predicted average indoor radon is <span className="redacted-value">4.8 pCi/L</span> <span className="badge-locked">LOCKED</span>. Ventilation mapping is highly recommended.
-                          </div>
-                        </div>
 
-                        <div className="hazard-item">
-                          <span className="badge-moderate">MODERATE</span>
-                          <div className="hazard-text">
-                            <strong className="hazard-label">Industrial Emissions / Violations:</strong> 2 facilities with recorded Clean Air/Water Act issues found within <span className="redacted-value">0.4 miles</span> <span className="badge-locked">LOCKED</span>.
-                          </div>
-                        </div>
-
-                        <div className="hazard-item">
-                          <span className="badge-moderate">MODERATE</span>
-                          <div className="hazard-text">
-                            <strong className="hazard-label">EPA Superfund/NPL Proximity:</strong> 1 active groundwater cleanup boundary registered within <span className="redacted-value">1.2 miles</span> <span className="badge-locked">LOCKED</span>.
-                          </div>
-                        </div>
-                      </div>
+                  {/* Premium Locked Call-to-Action Banner */}
+                  <div className="cta-unlock-banner">
+                    <div className="cta-title-row">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }}>
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                      </svg>
+                      <h3 className="cta-title">Unlock Exact Hazard Maps & Metrics</h3>
                     </div>
-
-                    {/* Premium Locked Call-to-Action Banner */}
-                    <div className="cta-unlock-banner">
-                      <div className="cta-title-row">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }}>
-                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                        </svg>
-                        <h3 className="cta-title">Unlock Exact Hazard Maps & Metrics</h3>
-                      </div>
-                      <p className="cta-desc">
-                        To safeguard local property records and coordinate privacy, precise hazard coordinates, EPA facility names, and mitigation reports are locked. Buy a report to instantly unlock the fully unblurred datasets and negotiation guides.
-                      </p>
-                      <button 
-                        type="button" 
-                        onClick={scrollToForm}
-                        className="cta-button"
-                      >
-                        Unlock Full Report Details Now
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', marginLeft: '6px', verticalAlign: 'middle' }}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                      </button>
-                    </div>
+                    <p className="cta-desc">
+                      To safeguard local property records and coordinate privacy, precise hazard coordinates, EPA facility names, and mitigation reports are locked. Buy a report to instantly unlock the fully unblurred datasets and negotiation guides.
+                    </p>
+                    <button 
+                      type="button" 
+                      onClick={scrollToForm}
+                      className="cta-button"
+                    >
+                      Unlock Full Report Details Now
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', marginLeft: '6px', verticalAlign: 'middle' }}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </button>
                   </div>
-                )}
+                </div>
               </div>
             </div>
 
@@ -1969,6 +2167,7 @@ function GetStartedContent() {
                         onBlur={() => {
                           if (addressLine1.trim() && addressLine1.trim() !== lastScannedAddress.current) {
                             lastScannedAddress.current = addressLine1.trim();
+                            setPrepProgress(0);
                             setPrepFinished(false);
                           }
                         }}
@@ -1977,6 +2176,7 @@ function GetStartedContent() {
                             e.preventDefault();
                             if (addressLine1.trim() && addressLine1.trim() !== lastScannedAddress.current) {
                               lastScannedAddress.current = addressLine1.trim();
+                              setPrepProgress(0);
                               setPrepFinished(false);
                             }
                           }

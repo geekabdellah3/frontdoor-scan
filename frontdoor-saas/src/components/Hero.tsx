@@ -68,14 +68,15 @@ export default function Hero() {
 
   // Debounced search for address suggestions
   // Debounced search for address suggestions with instant local suggestions
+  // Debounced search for address suggestions with instant local fallback and dynamic generation
   useEffect(() => {
     const query = address.trim();
-    if (query.length < 3 || isValidAddress) {
-      const timer = setTimeout(() => {
-        setSuggestions([]);
-        setShowSuggestions(false);
-      }, 0);
-      return () => clearTimeout(timer);
+    
+    // If the address is already selected (valid) or too short, clear suggestions and hide dropdown
+    if (isValidAddress || query.length < 3) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
     }
 
     // 1. Generate local fallback suggestions + dynamic suggestions instantly
@@ -101,21 +102,14 @@ export default function Hero() {
     const combinedMatches = [...fallbackMatches, ...dynamicMatches].slice(0, 5);
     
     // Set suggestions instantly to eliminate any lag or API blocking issues
-    const instantTimer = setTimeout(() => {
-      setSuggestions(combinedMatches);
-      setShowSuggestions(true);
-    }, 0);
+    setSuggestions(combinedMatches);
+    setShowSuggestions(true);
 
     // Check query cache first for instant cache hits (skip background fetch if cached)
     const cacheKey = query.toLowerCase();
     if (cacheRef.current[cacheKey]) {
-      const cacheTimer = setTimeout(() => {
-        setSuggestions(cacheRef.current[cacheKey]);
-      }, 0);
-      return () => {
-        clearTimeout(instantTimer);
-        clearTimeout(cacheTimer);
-      };
+      setSuggestions(cacheRef.current[cacheKey]);
+      return;
     }
 
     // 2. Fetch from Nominatim API in the background with an AbortController

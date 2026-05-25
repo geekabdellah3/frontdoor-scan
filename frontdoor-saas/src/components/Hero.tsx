@@ -96,14 +96,28 @@ export default function Hero() {
         if (Array.isArray(data) && data.length > 0) {
           setSuggestions(data);
         } else {
-          // Local fallback suggestions when API yields no results
+          // Local fallback suggestions + dynamic suggestions when API yields no results
           const fallbackMatches = FALLBACK_ADDRESSES.filter(addr => 
             addr.toLowerCase().includes(query.toLowerCase())
           ).map((addr, index) => ({
             place_id: 1000000 + index,
             display_name: addr
           }));
-          setSuggestions(fallbackMatches);
+
+          const queryClean = query.replace(/,\s*$/, '');
+          const dynamicMatches = [
+            `${queryClean}, Austin, TX 78701`,
+            `${queryClean}, New York, NY 10011`,
+            `${queryClean}, Los Angeles, CA 90015`,
+            `${queryClean}, Chicago, IL 60606`,
+            `${queryClean}, Miami, FL 33101`
+          ].map((addr, index) => ({
+            place_id: 2000000 + index,
+            display_name: addr
+          }));
+
+          const combinedMatches = [...fallbackMatches, ...dynamicMatches].slice(0, 5);
+          setSuggestions(combinedMatches);
         }
         setShowSuggestions(true);
       } catch (err) {
@@ -114,8 +128,22 @@ export default function Hero() {
           place_id: 1000000 + index,
           display_name: addr
         }));
-        setSuggestions(fallbackMatches);
-        setShowSuggestions(fallbackMatches.length > 0);
+
+        const queryClean = query.replace(/,\s*$/, '');
+        const dynamicMatches = [
+          `${queryClean}, Austin, TX 78701`,
+          `${queryClean}, New York, NY 10011`,
+          `${queryClean}, Los Angeles, CA 90015`,
+          `${queryClean}, Chicago, IL 60606`,
+          `${queryClean}, Miami, FL 33101`
+        ].map((addr, index) => ({
+          place_id: 2000000 + index,
+          display_name: addr
+        }));
+
+        const combinedMatches = [...fallbackMatches, ...dynamicMatches].slice(0, 5);
+        setSuggestions(combinedMatches);
+        setShowSuggestions(combinedMatches.length > 0);
       } finally {
         setIsLoading(false);
       }

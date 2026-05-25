@@ -7,12 +7,9 @@ import {
   Check, 
   Clock, 
   Star,
-  ChevronLeft,
-  ChevronRight,
   Sparkles,
   ShieldAlert,
-  FileText,
-  Terminal
+  FileText
 } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense, useState, useEffect, useRef } from 'react';
@@ -32,6 +29,10 @@ function GetStartedContent() {
   const searchParams = useSearchParams();
   const address = searchParams.get('address') || '';
   const lastScannedAddress = useRef('');
+
+  // Preparation Progress Simulator (runs dynamic 4.6s loading timer)
+  const [prepProgress, setPrepProgress] = useState(0);
+  const [prepFinished, setPrepFinished] = useState(false);
 
   // Countdown timer state (starts at 09:39 as seen in html mockup)
   const [timeLeft, setTimeLeft] = useState(579); // 579 seconds = 09:39
@@ -97,6 +98,7 @@ function GetStartedContent() {
     setCountry("United States");
     setShowSuggestions(false);
     lastScannedAddress.current = addr.street.trim();
+    setPrepProgress(0);
     setPrepFinished(false);
   };
 
@@ -148,6 +150,7 @@ function GetStartedContent() {
         if (zipPart) setZipCode(zipPart);
         
         lastScannedAddress.current = streetName.trim();
+        setPrepProgress(0);
         setPrepFinished(false);
       }, 0);
       return () => clearTimeout(timer);
@@ -445,11 +448,8 @@ function GetStartedContent() {
 
 
   // Preparation Progress Simulator (runs dynamic 4.6s loading timer)
-  const [prepProgress, setPrepProgress] = useState(0);
-  const [prepFinished, setPrepFinished] = useState(false);
   useEffect(() => {
     if (prepFinished) return;
-    setPrepProgress(0);
     const timer = setInterval(() => {
       setPrepProgress((prev) => {
         if (prev >= 100) {

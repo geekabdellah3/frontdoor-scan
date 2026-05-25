@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MemoryBloom | Secure Heirloom Book Checkout</title>
-    <meta name="description" content="Preserve your family's precious digital photos in a luxurious, layflat gold-embossed heirloom memory book. Secure checkout.">
+    <title>Front Door Fax | Premium Property Environmental Hazards Audit</title>
+    <meta name="description" content="Know what's in your water, air, and soil before you sign. Instantly audit EPA, FEMA, and CDC records for property hazards.">
     
     <!-- Premium Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,16 +17,16 @@
     <style>
         /* Modern, High-Converting checkout-specific overrides */
         :root {
-            --bg-primary: #FAF8F5;
-            --bg-rose-tint: #FBF0EE;
-            --accent: #D4857A;
-            --accent-hover: #C4756A;
-            --accent-secondary: #8FAE9A; /* Sage Green */
-            --text-primary: #1C1C1C;
-            --text-muted: #6B6B6B;
+            --bg-primary: #FAFDFB;
+            --bg-rose-tint: #F1FBF4;
+            --accent: #10b981;
+            --accent-hover: #059669;
+            --accent-secondary: #3b82f6;
+            --text-primary: #0F291B;
+            --text-muted: #475569;
             --surface: #FFFFFF;
-            --border-soft: #EBE6E1;
-            --shadow-premium: 0 10px 30px -5px rgba(212, 133, 122, 0.08);
+            --border-soft: #e4e4e7;
+            --shadow-premium: 0 10px 30px -5px rgba(16, 185, 129, 0.08);
             --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.03);
         }
 
@@ -134,106 +134,459 @@
         }
 
         /* Before & After Panel */
+        /* Premium Light Glassmorphic GIS Telemetry & Diagnostics Styling */
         .before-after-card-wrapper {
             max-width: 1000px;
-            margin: 16px auto 40px auto;
-            background: var(--surface);
-            border: 1px solid var(--border-soft);
-            border-radius: 16px;
-            padding: 24px;
+            margin: 24px auto 48px auto;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.55) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-radius: 24px;
+            padding: 32px;
             display: grid;
             grid-template-columns: 1.15fr 0.85fr;
-            gap: 32px;
-            box-shadow: var(--shadow-premium);
+            gap: 36px;
+            box-shadow: 
+                0 30px 60px -15px rgba(15, 23, 42, 0.04), 
+                0 10px 30px -10px rgba(15, 23, 42, 0.02), 
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         /* GIS Localization Map Styles */
         .gis-map-container {
             position: relative;
-            background: #090d16; /* Sophisticated dark radar/map background */
-            border-radius: 12px;
+            background: #f8fafc;
+            border-radius: 16px;
             overflow: hidden;
             aspect-ratio: 1.25;
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            box-shadow: inset 0 0 40px rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 
+                0 8px 30px rgba(15, 23, 42, 0.03),
+                inset 0 2px 8px rgba(15, 23, 42, 0.02);
         }
+
         .google-map-iframe {
             width: 100%;
             height: 100%;
             border: none;
-            filter: invert(90%) hue-rotate(180deg) brightness(95%) contrast(90%);
-            opacity: 0.85;
-            transition: opacity 0.3s ease;
+            filter: grayscale(100%) contrast(1.1) brightness(1.01) saturate(0.8);
+            opacity: 0.9;
+            transition: filter 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
         }
-        .google-map-iframe:hover {
+
+        .gis-map-container:hover .google-map-iframe {
+            opacity: 1;
+            filter: grayscale(0%) contrast(1.0) brightness(1.0) saturate(1.0);
+        }
+
+        /* Glowing Sweep Scan Animation Line */
+        .gis-scanner-sweep {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, 
+                rgba(16, 185, 129, 0) 0%, 
+                rgba(16, 185, 129, 0) 40%, 
+                rgba(16, 185, 129, 0.08) 48%, 
+                rgba(16, 185, 129, 0.25) 50%, 
+                rgba(16, 185, 129, 0.08) 52%, 
+                rgba(16, 185, 129, 0) 60%, 
+                rgba(16, 185, 129, 0) 100%
+            );
+            background-size: 100% 200%;
+            background-position: 100% -100%;
+            z-index: 5;
+            pointer-events: none;
+            animation: sweep 3.5s infinite linear;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .gis-map-container.scanning .gis-scanner-sweep {
             opacity: 1;
         }
+
+        @keyframes sweep {
+            0% { background-position: 100% -100%; }
+            100% { background-position: 100% 100%; }
+        }
+
         .gis-hud-panel {
             position: absolute;
-            top: 14px;
-            left: 14px;
-            background: rgba(9, 13, 22, 0.85);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-left: 3px solid #10b981;
-            border-radius: 8px;
-            padding: 10px 12px;
-            font-family: 'Courier New', monospace;
-            color: #e2e8f0;
+            top: 16px;
+            left: 16px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            border-left: 4px solid #10b981;
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-family: 'Inter', system-ui, sans-serif;
+            color: #1e293b;
             z-index: 10;
             pointer-events: none;
-            min-width: 175px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            min-width: 200px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
         }
+
         .gis-hud-title {
-            font-size: 0.65rem;
-            color: #10b981;
-            font-weight: bold;
+            font-size: 0.72rem;
+            color: #059669;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-            display: block;
+            letter-spacing: 1.2px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
+
         .gis-hud-row {
-            font-size: 0.7rem;
+            font-size: 0.72rem;
             display: flex;
             justify-content: space-between;
-            margin: 3px 0;
-            gap: 12px;
+            margin: 6px 0;
+            gap: 16px;
+            font-family: 'JetBrains Mono', monospace;
         }
+
         .gis-hud-label {
-            color: #94a3b8;
+            color: #64748b;
+            font-weight: 500;
+            font-family: 'Inter', system-ui, sans-serif;
         }
+
         .gis-hud-value {
-            color: #10b981;
-            font-weight: bold;
-        }
-        @keyframes gis-pulse {
-            0% {
-                transform: scale(0.6);
-                opacity: 1;
-            }
-            50% {
-                opacity: 0.6;
-            }
-            100% {
-                transform: scale(2.2);
-                opacity: 0;
-            }
-        }
-        .gis-marker-pulse {
-            animation: gis-pulse 2s infinite linear;
-            transform-origin: 175px 135px;
+            color: #1e293b;
+            font-weight: 600;
         }
 
         .ba-text-pane {
             display: flex;
             flex-direction: column;
             justify-content: center;
-            gap: 18px;
+            gap: 20px;
         }
 
-        .ba-benefit-title {
+        /* High-Tech Premium Processing Telemetry Card */
+        .terminal-container {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(16, 185, 129, 0.15);
+            border-radius: 16px;
+            padding: 24px;
+            color: #1e293b;
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 0.82rem;
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 15px 35px -10px rgba(15, 23, 42, 0.04);
+            box-sizing: border-box;
+            width: 100%;
+        }
+
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(16, 185, 129, 0.08);
+            padding-bottom: 14px;
+            margin-bottom: 18px;
+        }
+
+        .terminal-title-block {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #0f291b;
+            font-weight: 700;
+            font-size: 0.85rem;
+            letter-spacing: 0.3px;
+        }
+
+        .terminal-pulse-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #10b981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+            animation: terminal-dot-pulse 1.5s infinite ease-in-out;
+        }
+
+        @keyframes terminal-dot-pulse {
+            0%, 100% { opacity: 0.5; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.15); box-shadow: 0 0 14px rgba(16, 185, 129, 0.7); }
+        }
+
+        .terminal-progress-pct {
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: #059669;
+        }
+
+        .terminal-log-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .terminal-log-row {
+            color: #475569;
+            line-height: 1.5;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            animation: log-fade-in 0.4s ease-out forwards;
+        }
+
+        @keyframes log-fade-in {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .terminal-log-arrow {
+            color: #10b981;
+            font-weight: bold;
+            user-select: none;
+        }
+
+        .terminal-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border-top: 1px solid rgba(16, 185, 129, 0.08);
+            padding-top: 16px;
+            margin-top: 18px;
+        }
+
+        .terminal-footer-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #64748b;
+            font-size: 0.74rem;
+            letter-spacing: 0.3px;
+            font-weight: 500;
+        }
+
+        .terminal-spin-loader {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(16, 185, 129, 0.15);
+            border-top-color: #10b981;
+            border-radius: 50%;
+            animation: spin-anim 1s infinite linear;
+        }
+
+        @keyframes spin-anim {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Results Section Styling */
+        .results-container {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            width: 100%;
+        }
+
+        .hazard-card {
+            background: linear-gradient(135deg, rgba(254, 242, 242, 0.7) 0%, rgba(255, 255, 255, 0.4) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(239, 68, 68, 0.12);
+            border-left: 4px solid #ef4444;
+            border-radius: 16px;
+            padding: 24px;
+            color: #1e293b;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 12px 30px rgba(239, 68, 68, 0.02);
+            box-sizing: border-box;
+        }
+
+        .hazard-title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .hazard-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 0;
+            font-family: 'Inter', system-ui, sans-serif;
+            letter-spacing: -0.01em;
+        }
+
+        .hazard-desc {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin: 0 0 18px 0;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .hazard-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .hazard-item {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            font-size: 0.8rem;
+        }
+
+        .badge-high {
+            color: #ffffff;
+            font-weight: 700;
+            flex-shrink: 0;
+            background: #ef4444;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-moderate {
+            color: #b45309;
+            font-weight: 700;
+            flex-shrink: 0;
+            background: #fffbeb;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            letter-spacing: 0.5px;
+        }
+
+        .hazard-text {
+            color: #334155;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .hazard-label {
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .redacted-value {
+            filter: blur(4px);
+            background: rgba(15, 23, 42, 0.04);
+            padding: 2px 8px;
+            border-radius: 6px;
+            color: #0f172a;
+            user-select: none;
+            cursor: not-allowed;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .badge-locked {
+            font-size: 0.6rem;
+            background: #ef4444;
+            color: #ffffff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: inline-block;
+        }
+
+        /* CTA Banner */
+        .cta-unlock-banner {
+            background: linear-gradient(135deg, rgba(20, 184, 166, 0.05) 0%, rgba(16, 185, 129, 0.02) 100%);
+            border: 1px solid rgba(16, 185, 129, 0.18);
+            border-left: 4px solid #10b981;
+            border-radius: 16px;
+            padding: 24px;
+            color: #0f291b;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: 0 15px 35px -10px rgba(16, 185, 129, 0.03);
+            box-sizing: border-box;
+        }
+
+        .cta-title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cta-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #059669;
+            margin: 0;
+            letter-spacing: -0.01em;
+        }
+
+        .cta-desc {
+            font-size: 0.8rem;
+            color: #475569;
+            margin: 0;
+            line-height: 1.55;
+            font-weight: 500;
+        }
+
+        .cta-button {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.82rem;
+            letter-spacing: 0.5px;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.3);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            width: 100%;
+            text-decoration: none;
+            box-sizing: border-box;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(16, 185, 129, 0.45);
+            background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+        }
+
+        .cta-button:active {
+            transform: translateY(0);
+        }
+
+\n        .ba-benefit-title {
             font-family: var(--font-display), 'Playfair Display', serif;
             font-size: 1.1rem;
             font-weight: 600;
@@ -453,7 +806,7 @@
 
         /* Today you saved badge */
         .saved-card-dotted {
-            border: 2px dashed var(--accent);
+            border: 1.5px dashed var(--accent);
             background: var(--bg-rose-tint);
             border-radius: 12px;
             padding: 16px 24px;
@@ -466,43 +819,44 @@
         }
 
         .saved-card-badge {
-            background-color: #FFD43A;
-            border: 2px solid #111111;
-            color: #111111;
+            background-color: var(--accent);
+            border: 1px solid var(--accent-hover);
+            color: #ffffff;
             font-family: 'Inter', sans-serif;
-            font-size: 0.8rem;
-            font-weight: 900;
-            padding: 6px 14px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 6px 12px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transform: rotate(-4deg);
-            box-shadow: 2px 2px 0px #111111;
+            letter-spacing: 1px;
+            border-radius: 6px;
             text-align: center;
-            line-height: 1.1;
+            line-height: 1.2;
             flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15);
         }
 
         .saved-card-amount-pane {
             text-align: right;
         }
 
-        /* Gold Guarantee Stamp Seal */
-        .guarantee-gold-card {
+        /* Emerald Guarantee Card */
+        .guarantee-emerald-card {
             margin-top: 24px;
-            background: #FFFDF2;
-            border: 1px solid #F6E2B3;
+            background: #FAFDFB;
+            border: 1px solid #A7F3D0;
             border-radius: 12px;
             padding: 20px;
             display: flex;
             gap: 20px;
             align-items: center;
-            box-shadow: var(--shadow-soft);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
         }
 
-        .gold-stamp-seal-svg {
-            width: 64px;
-            height: 64px;
+        .emerald-stamp-seal-svg {
+            width: 56px;
+            height: 56px;
             flex-shrink: 0;
+            color: var(--accent);
         }
 
         .trust-check-list {
@@ -520,15 +874,16 @@
         .trust-check-list li {
             display: flex;
             align-items: flex-start;
-            gap: 8px;
+            gap: 10px;
+            line-height: 1.4;
         }
 
         .trust-check-list li::before {
             content: "✓";
-            color: var(--accent-secondary);
+            color: var(--accent);
             font-weight: 900;
             font-size: 1.1rem;
-            line-height: 1;
+            line-height: 1.2;
         }
 
         /* Right Column Form Inputs */
@@ -678,16 +1033,16 @@
         .complete-purchase-btn-green {
             background-color: var(--accent);
             color: #ffffff;
-            font-family: var(--font-display), 'Playfair Display', serif;
-            font-weight: 600;
-            font-size: 1.15rem;
-            letter-spacing: 0.5px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 1.05rem;
+            letter-spacing: 0.3px;
             padding: 16px;
             border-radius: 8px;
             width: 100%;
             border: none;
             cursor: pointer;
-            box-shadow: 0 6px 20px rgba(212, 133, 122, 0.2);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.2);
             transition: all 0.2s ease;
             display: flex;
             align-items: center;
@@ -698,7 +1053,7 @@
         .complete-purchase-btn-green:hover {
             background-color: var(--accent-hover);
             transform: translateY(-1px);
-            box-shadow: 0 8px 24px rgba(212, 133, 122, 0.25);
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25);
         }
 
         .secure-badge-footer {
@@ -909,13 +1264,7 @@
     <header class="checkout-header">
         <div class="container">
             <a href="index.html" class="checkout-logo-link">
-                <!-- Inline premium floral glyph matching MemoryBloom styling -->
-                <svg class="checkout-logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/>
-                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-                    <path d="M2 12h20"/>
-                </svg>
-                <span class="checkout-logo-text">MemoryBloom</span>
+                <img src="logo.svg" alt="Front Door Fax Logo" class="checkout-logo-img" style="height: 38px; width: auto;" />
             </a>
             <br>
             <!-- 3. Countdown Ticking Timer starting at 09:39 -->
@@ -937,19 +1286,29 @@
             <!-- 4. Editorial copy introduction block -->
             <div class="page-intro-header">
                 <h1 class="page-intro-title">
-                    Secure today's promotional pricing on your MemoryBloom album bundle!
+                    Know what's in your water, air, and soil before you sign.
                 </h1>
                 <p class="page-intro-subtitle">
-                    Create your family's custom printed library today and receive <strong style="text-decoration: underline; color: var(--accent);">FREE archival grade shipping</strong> on your checkout.
+                    Secure property-specific reports compiled from <strong style="color: #10b981;">15+ federal, state, and local agencies</strong>. Instantly armed with bargaining chips for pricing negotiation.
                 </p>
             </div>
 
             <!-- 5. Before/After Visual comparison card -->
             <div class="before-after-card-wrapper">
-                <div class="gis-map-container">
+                <div class="gis-map-container scanning">
+                    <!-- Glowing Sweep Scan Animation Line -->
+                    <div class="gis-scanner-sweep"></div>
+
                     <!-- Semi-transparent Glass HUD -->
                     <div class="gis-hud-panel">
-                        <span class="gis-hud-title">📡 GIS Telemetry Scan</span>
+                        <span class="gis-hud-title">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; margin-right: 6px; vertical-align: middle; color: #059669;">
+                                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+                                <path d="M12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12z"/>
+                                <path d="M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>
+                            </svg>
+                            GIS Telemetry Scan
+                        </span>
                         <div class="gis-hud-row">
                             <span class="gis-hud-label">TARGET ADDR:</span>
                             <span class="gis-hud-value" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 120px;" id="gis-hud-address" title="SCANNING...">SCANNING...</span>
@@ -962,7 +1321,7 @@
                             <span class="gis-hud-label">PARCEL TRACT:</span>
                             <span class="gis-hud-value" id="gis-hud-parcel">#TRACT-948-28</span>
                         </div>
-                        <div class="gis-hud-row" style="border-top: 1px solid rgba(255,255,255,0.08); margin-top: 4px; padding-top: 4px;">
+                        <div class="gis-hud-row" style="border-top: 1px solid rgba(0,0,0,0.05); margin-top: 4px; padding-top: 4px;">
                             <span class="gis-hud-label">LAYER STATUS:</span>
                             <span class="gis-hud-value" style="color: #10b981;">VETTED ✓</span>
                         </div>
@@ -977,89 +1336,95 @@
                 </div>
 
                 <!-- Copy Points next to Before/After graphic -->
-                <div class="ba-text-pane" style="display: flex; flex-direction: column; gap: 16px; width: 100%;">
+                <div class="ba-text-pane">
                     <!-- State 1: GIS Scan Loading (Terminal HUD) -->
-                    <div id="gis-scan-loading" style="background-color: #021208; border: 1px solid #10b981; border-radius: 12px; padding: 24px; color: #10b981; font-family: monospace; font-size: 0.8rem; min-height: 340px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 8px 30px rgba(16, 185, 129, 0.05); width: 100%; box-sizing: border-box;">
+                    <div id="gis-scan-loading" class="terminal-container">
                         <div>
-                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(16, 185, 129, 0.2); padding-bottom: 10px; margin-bottom: 16px;">
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <span class="pulse-dot" style="display: inline-block; width: 8px; height: 8px; border-radius: 50%;"></span>
+                            <div class="terminal-header">
+                                <div class="terminal-title-block">
+                                    <span class="terminal-pulse-dot"></span>
                                     <span style="font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">GIS SATELLITE TELEMETRY</span>
                                 </div>
-                                <span id="gis-scan-progress-text" style="font-size: 0.75rem; font-weight: 800;">0%</span>
+                                <span id="gis-scan-progress-text" class="terminal-progress-pct">0%</span>
                             </div>
                             
-                            <div style="display: flex; flex-direction: column; gap: 8px; opacity: 0.85;">
-                                <div id="gis-log-1" style="color: #10b981;">&gt; Initializing local GIS parcel tracking...</div>
-                                <div id="gis-log-2" style="color: #10b981; display: none;">&gt; Pinpointing coordinates via FIPS geocode... [SUCCESS]</div>
-                                <div id="gis-log-3" style="color: #10b981; display: none;">&gt; Pulling EPA ECHO Compliance Records database... [CONNECTED]</div>
-                                <div id="gis-log-4" style="color: #10b981; display: none;">&gt; Querying FEMA flood history maps &amp; aquifers... [OK]</div>
-                                <div id="gis-log-5" style="color: #10b981; display: none;">&gt; Compiling regional CDC radon vector zones... [MAPPED]</div>
-                                <div id="gis-log-6" style="color: #10b981; display: none;">&gt; Assembling buyer negotiation talking points...</div>
+                            <div class="terminal-log-list">
+                                <div id="gis-log-1" class="terminal-log-row"><span class="terminal-log-arrow">❯</span> Initializing local GIS parcel tracking...</div>
+                                <div id="gis-log-2" class="terminal-log-row" style="display: none;"><span class="terminal-log-arrow">❯</span> Pinpointing coordinates via FIPS geocode... [SUCCESS]</div>
+                                <div id="gis-log-3" class="terminal-log-row" style="display: none;"><span class="terminal-log-arrow">❯</span> Pulling EPA ECHO Compliance Records database... [CONNECTED]</div>
+                                <div id="gis-log-4" class="terminal-log-row" style="display: none;"><span class="terminal-log-arrow">❯</span> Querying FEMA flood history maps &amp; aquifers... [OK]</div>
+                                <div id="gis-log-5" class="terminal-log-row" style="display: none;"><span class="terminal-log-arrow">❯</span> Compiling regional CDC radon vector zones... [MAPPED]</div>
+                                <div id="gis-log-6" class="terminal-log-row" style="display: none;"><span class="terminal-log-arrow">❯</span> Assembling buyer negotiation talking points...</div>
                             </div>
                         </div>
                         
-                        <div style="display: flex; align-items: center; gap: 10px; border-top: 1px solid rgba(16, 185, 129, 0.1); padding-top: 12px; margin-top: 16px;">
-                            <span class="spin-loader" style="display: inline-block; width: 16px; height: 16px; border: 2px solid #10b981; border-top-color: transparent; border-radius: 50%;"></span>
-                            <span style="font-size: 0.72rem; letter-spacing: 0.5px;">SECURE DATA COMPILING IN PROGRESS...</span>
+                        <div class="terminal-footer">
+                            <!-- Elegant progress bar -->
+                            <div style="width: 100%; height: 6px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; overflow: hidden; margin: 4px 0 10px 0;">
+                                <div id="gis-progress-bar-fill" style="width: 0%; height: 100%; background: linear-gradient(90deg, #10b981 0%, #3b82f6 100%); border-radius: 4px; box-shadow: 0 0 10px rgba(16, 185, 129, 0.6); transition: width 0.1s linear;"></div>
+                            </div>
+                            <div class="terminal-footer-info">
+                                <span class="terminal-spin-loader"></span>
+                                <span style="font-size: 0.72rem; letter-spacing: 0.5px; font-weight: 500;">SECURE DATA COMPILING IN PROGRESS...</span>
+                            </div>
                         </div>
                     </div>
 
                     <!-- State 2: GIS Scan Results (Blurred & Redacted with locked CTA) -->
-                    <div id="gis-scan-results" style="display: none; flex-direction: column; gap: 16px; width: 100%;">
+                    <div id="gis-scan-results" class="results-container" style="display: none;">
                         <!-- Card 1: Potential Hazard & Contamination Risks -->
-                        <div style="background-color: #FFF5F5; border: 1px solid rgba(239, 68, 68, 0.18); border-radius: 12px; padding: 18px; color: #991B1B; position: relative; overflow: hidden; box-sizing: border-box; box-shadow: var(--shadow-soft);">
-                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-                                <span style="font-size: 1.25rem;">⚠️</span>
-                                <h3 style="font-size: 0.95rem; font-weight: 800; color: #991B1B; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
-                                    Potential Hazard & Contamination Risks
-                                </h3>
+                        <div class="hazard-card">
+                            <div class="hazard-title-row">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
+                                    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+                                    <line x1="12" y1="9" x2="12" y2="13"/>
+                                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                                </svg>
+                                <h3 class="hazard-title">Potential Hazard & Contamination Risks</h3>
                             </div>
-                            <p style="font-size: 0.8rem; color: #4B5563; margin: 0 0 14px 0; line-height: 1.45; font-weight: 500;">
-                                Querying EPA, FEMA, and CDC records for <strong id="gis-hud-text-address" style="color: #047857; font-weight: 700;">the geocoded tract</strong> has flagged several regional environmental vectors:
+                            <p class="hazard-desc">
+                                Querying EPA, FEMA, and CDC records for <strong id="gis-hud-text-address" style="color: #059669; font-weight: 700;">the geocoded tract</strong> has flagged several regional environmental vectors:
                             </p>
                             
-                            <div style="display: flex; flex-direction: column; gap: 12px;">
-                                <div style="display: flex; gap: 10px; align-items: flex-start; font-size: 0.78rem;">
-                                    <span style="color: #DC2626; font-weight: 800; flex-shrink: 0; background: rgba(220, 38, 38, 0.08); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; text-transform: uppercase;">HIGH</span>
-                                    <div style="color: #374151; line-height: 1.45; font-weight: 500;">
-                                        <strong style="color: #111827; font-weight: 700;">County Radon Potential (Zone 1):</strong> Predicted average indoor radon is <span style="filter: blur(4px); background: rgba(0,0,0,0.06); padding: 1px 6px; border-radius: 4px; color: #111827; user-select: none; cursor: not-allowed; font-weight: bold; font-family: monospace;">4.8 pCi/L</span> <span style="font-size: 0.62rem; background: #EF4444; color: #ffffff; padding: 2px 6px; border-radius: 4px; margin-left: 4px; font-weight: 800; letter-spacing: 0.5px;">LOCKED</span>. Ventilation mapping is highly recommended.
+                            <div class="hazard-list">
+                                <div class="hazard-item">
+                                    <span class="badge-high">HIGH</span>
+                                    <div class="hazard-text">
+                                        <strong class="hazard-label">County Radon Potential (Zone 1):</strong> Predicted average indoor radon is <span class="redacted-value">4.8 pCi/L</span> <span class="badge-locked">LOCKED</span>. Ventilation mapping is highly recommended.
                                     </div>
                                 </div>
-
-                                <div style="display: flex; gap: 10px; align-items: flex-start; font-size: 0.78rem;">
-                                    <span style="color: #D97706; font-weight: 800; flex-shrink: 0; background: rgba(217, 119, 6, 0.08); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; text-transform: uppercase;">MODERATE</span>
-                                    <div style="color: #374151; line-height: 1.45; font-weight: 500;">
-                                        <strong style="color: #111827; font-weight: 700;">Industrial Emissions / Violations:</strong> 2 facilities with recorded Clean Air/Water Act issues found within <span style="filter: blur(4px); background: rgba(0,0,0,0.06); padding: 1px 6px; border-radius: 4px; color: #111827; user-select: none; cursor: not-allowed; font-weight: bold; font-family: monospace;">0.4 miles</span> <span style="font-size: 0.62rem; background: #EF4444; color: #ffffff; padding: 2px 6px; border-radius: 4px; margin-left: 4px; font-weight: 800; letter-spacing: 0.5px;">LOCKED</span>.
+ 
+                                <div class="hazard-item">
+                                    <span class="badge-moderate">MODERATE</span>
+                                    <div class="hazard-text">
+                                        <strong class="hazard-label">Industrial Emissions / Violations:</strong> 2 facilities with recorded Clean Air/Water Act issues found within <span class="redacted-value">0.4 miles</span> <span class="badge-locked">LOCKED</span>.
                                     </div>
                                 </div>
-
-                                <div style="display: flex; gap: 10px; align-items: flex-start; font-size: 0.78rem;">
-                                    <span style="color: #D97706; font-weight: 800; flex-shrink: 0; background: rgba(217, 119, 6, 0.08); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; text-transform: uppercase;">MODERATE</span>
-                                    <div style="color: #374151; line-height: 1.45; font-weight: 500;">
-                                        <strong style="color: #111827; font-weight: 700;">EPA Superfund/NPL Proximity:</strong> 1 active groundwater cleanup boundary registered within <span style="filter: blur(4px); background: rgba(0,0,0,0.06); padding: 1px 6px; border-radius: 4px; color: #111827; user-select: none; cursor: not-allowed; font-weight: bold; font-family: monospace;">1.2 miles</span> <span style="font-size: 0.62rem; background: #EF4444; color: #ffffff; padding: 2px 6px; border-radius: 4px; margin-left: 4px; font-weight: 800; letter-spacing: 0.5px;">LOCKED</span>.
+ 
+                                <div class="hazard-item">
+                                    <span class="badge-moderate">MODERATE</span>
+                                    <div class="hazard-text">
+                                        <strong class="hazard-label">EPA Superfund/NPL Proximity:</strong> 1 active groundwater cleanup boundary registered within <span class="redacted-value">1.2 miles</span> <span class="badge-locked">LOCKED</span>.
                                     </div>
                                 </div>
                             </div>
                         </div>
-
+ 
                         <!-- Premium Locked Call-to-Action Banner -->
-                        <div style="background-color: #F3FAF6; border: 1px solid rgba(16, 185, 129, 0.18); border-radius: 12px; padding: 18px; color: #065F46; display: flex; flex-direction: column; gap: 12px; box-sizing: border-box; box-shadow: var(--shadow-soft);">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="font-size: 1.25rem;">🔒</span>
-                                <h3 style="font-size: 0.9rem; font-weight: 800; color: #065F46; margin: 0; text-transform: uppercase; letter-spacing: 0.5px;">
-                                    Unlock Exact Hazard Maps & Metrics
-                                </h3>
+                        <div class="cta-unlock-banner">
+                            <div class="cta-title-row">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
+                                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                                    <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                </svg>
+                                <h3 class="cta-title">Unlock Exact Hazard Maps & Metrics</h3>
                             </div>
-                            <p style="font-size: 0.8rem; color: #374151; margin: 0; line-height: 1.5; font-weight: 500;">
+                            <p class="cta-desc">
                                 To safeguard local property records and coordinate privacy, precise hazard coordinates, EPA facility names, and mitigation reports are locked. Buy a report to instantly unlock the fully unblurred datasets and negotiation guides.
                             </p>
-                            <button 
-                                type="button" 
-                                onclick="scrollToForm()"
-                                style="margin-top: 6px; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 8px; padding: 12px 18px; color: #ffffff; font-size: 0.8rem; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);"
-                            >
-                                Unlock Full Report Details Now ➔
+                            <button type="button" class="cta-button" onclick="scrollToForm()">
+                                Unlock Full Report Details Now
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; margin-left: 6px; vertical-align: middle;"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                             </button>
                         </div>
                     </div>
@@ -1075,133 +1440,110 @@
                     <!-- Step 1 Title -->
                     <div class="step-title-row">
                         <span class="step-number-circle">1</span>
-                        <span>Step 1: Select Your Print Package</span>
+                        <span>Step 1: Select Your Diagnostic Package</span>
                     </div>
 
                     <!-- Toggle tabs -->
                     <div class="tab-toggle-container">
                         <button type="button" class="tab-toggle-button active" id="tab-save" onclick="setTab('save')">
-                            ✨ Save 70% — Multi-Book Bundles
+                            ⚡ Save 42% — 5-Property Bundle
                         </button>
                         <button type="button" class="tab-toggle-button" id="tab-onetime" onclick="setTab('onetime')">
-                            One-time purchase
+                            Single property search
                         </button>
                     </div>
 
                     <!-- Supply Warning Board -->
                     <div class="availability-meter-panel">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="font-size: 0.72rem; font-weight: 900; color: var(--text-primary); letter-spacing: 0.5px; font-family: 'Inter', sans-serif;">PRINT HOUSE CAPACITY</span>
-                            <span style="background: #FEF2F2; border: 1px solid rgba(224,122,95,0.15); color: #E07A5F; font-size: 0.65rem; font-weight: 900; padding: 2px 10px; border-radius: 99px; text-transform: uppercase;">LIMITED SLOTS</span>
+                            <span style="font-size: 0.72rem; font-weight: 900; color: var(--text-primary); letter-spacing: 0.5px; font-family: 'Inter', sans-serif;">RECOVERY DATABASE SERVERS</span>
+                            <span style="background: #FEF2F2; border: 1px solid rgba(16,185,129,0.15); color: #10B981; font-size: 0.65rem; font-weight: 900; padding: 2px 10px; border-radius: 99px; text-transform: uppercase;">HIGH SEARCH VOLUME</span>
                         </div>
                         <div class="availability-bar-grid">
-                            <span class="availability-bar-block active"></span>
-                            <span class="availability-bar-block active"></span>
-                            <span class="availability-bar-block active"></span>
-                            <span class="availability-bar-block inactive"></span>
-                            <span class="availability-bar-block inactive"></span>
-                            <span class="availability-bar-block inactive"></span>
-                            <span class="availability-bar-block inactive"></span>
+                            <span class="availability-bar-block active" style="background-color: #10b981;"></span>
+                            <span class="availability-bar-block active" style="background-color: #10b981;"></span>
+                            <span class="availability-bar-block active" style="background-color: #10b981;"></span>
+                            <span class="availability-bar-block active" style="background-color: #10b981;"></span>
+                            <span class="availability-bar-block active" style="background-color: #10b981;"></span>
+                            <span class="availability-bar-block active" style="background-color: #10b981;"></span>
+                            <span class="availability-bar-block active" style="background-color: #10b981;"></span>
                             <span class="availability-bar-block inactive"></span>
                             <span class="availability-bar-block inactive"></span>
                             <span class="availability-bar-block inactive"></span>
                         </div>
-                        <p style="color: #E07A5F; font-size: 0.75rem; font-weight: 700; margin: 4px 0 0 0; line-height: 1.3;">Warning: Seasonal print orders are surging. Secure checkout slot immediately to guarantee shipping date.</p>
+                        <p style="color: #059669; font-size: 0.75rem; font-weight: 700; margin: 4px 0 0 0; line-height: 1.3;">Warning: Property search volumes are surging. Complete checkout to guarantee immediate 5-minute report dispatch.</p>
                     </div>
 
                     <!-- Selector Cards Grid -->
                     
-                    <!-- 1 Book Card -->
+                    <!-- Single Property Card -->
                     <div class="package-selector-card" id="pkg-single" onclick="selectPackage('single')">
                         <input type="radio" name="printQtyRadio" id="rad-single" style="accent-color: var(--accent); cursor: pointer;">
                         <div style="display: flex; gap: 14px; align-items: center;">
                             <div class="package-image-placeholder">
-                                <img src="assets/images/print_book.png" alt="1 Keepsake Book" onerror="this.style.display='none';">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="placeholder-icon-svg" style="display: none; color: var(--accent);"><path d="M4 19.5V5a2 2 0 0 1 2-2h14v16.5"></path><path d="M6 2H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"></path></svg>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="placeholder-icon-svg" style="color: var(--accent);"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                             </div>
                             <div>
-                                <div style="font-size: 0.9rem; font-weight: 800; color: var(--text-primary);">1 Keepsake Book — Save 60%</div>
-                                <p style="font-size: 0.75rem; color: var(--text-muted); margin: 2px 0 0 0; line-height: 1.3;">Beautiful single catalog. Emailed proof + premium binding.</p>
+                                <div style="font-size: 0.9rem; font-weight: 800; color: var(--text-primary);">Single Property Report — Save 30%</div>
+                                <p style="font-size: 0.75rem; color: var(--text-muted); margin: 2px 0 0 0; line-height: 1.3;">1 full diagnostic report. Emailed PDF download.</p>
                             </div>
                         </div>
                         <div style="text-align: right;">
-                            <div style="font-size: 0.7rem; color: #E07A5F; text-decoration: line-through; font-weight: 700;">Reg $100</div>
-                            <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-primary);">$39.99 each</div>
-                            <div style="font-size: 0.72rem; color: var(--accent-secondary); font-weight: 800;">Saved $60</div>
-                            <div style="font-size: 0.62rem; color: var(--accent-secondary); font-weight: 900; text-transform: uppercase; margin-top: 2px;">FREE PRIORITY SHIPPING</div>
+                            <div style="font-size: 0.7rem; color: #ef4444; text-decoration: line-through; font-weight: 700;">Reg $69</div>
+                            <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-primary);">$49.00 each</div>
+                            <div style="font-size: 0.72rem; color: var(--accent); font-weight: 800;">Saved $20</div>
+                            <div style="font-size: 0.62rem; color: var(--accent-secondary); font-weight: 900; text-transform: uppercase; margin-top: 2px;">FREE PDF CONVERTER</div>
                         </div>
                     </div>
 
-                    <!-- 2 Books Card -->
-                    <div class="package-selector-card" id="pkg-triple" onclick="selectPackage('triple')">
-                        <input type="radio" name="printQtyRadio" id="rad-triple" style="accent-color: var(--accent); cursor: pointer;">
-                        <div style="display: flex; gap: 14px; align-items: center;">
-                            <div class="package-image-placeholder">
-                                <img src="assets/images/print_book.png" alt="2 Heritage Books" onerror="this.style.display='none';">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="placeholder-icon-svg" style="display: none; color: var(--accent);"><path d="M4 19.5V5a2 2 0 0 1 2-2h14v16.5"></path><path d="M6 2H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"></path></svg>
-                            </div>
-                            <div>
-                                <div style="font-size: 0.9rem; font-weight: 800; color: var(--text-primary);">2 Heritage Books — Save 65%</div>
-                                <p style="font-size: 0.75rem; color: var(--text-muted); margin: 2px 0 0 0; line-height: 1.3;">Perfect choice for grandparent gifting. Emailed proofs.</p>
-                            </div>
-                        </div>
-                        <div style="text-align: right;">
-                            <div style="font-size: 0.7rem; color: #E07A5F; text-decoration: line-through; font-weight: 700;">Reg $200</div>
-                            <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-primary);">$34.99 each</div>
-                            <div style="font-size: 0.72rem; color: var(--accent-secondary); font-weight: 800;">Saved $130</div>
-                            <div style="font-size: 0.62rem; color: var(--accent-secondary); font-weight: 900; text-transform: uppercase; margin-top: 2px;">FREE PRIORITY SHIPPING</div>
-                        </div>
-                    </div>
-
-                    <!-- 3 Books Gold Card -->
+                    <!-- 5 Properties Card -->
                     <div class="package-selector-card most-popular active" id="pkg-bundle" onclick="selectPackage('bundle')">
-                        <div class="most-popular-tag-ribbon">
+                        <div class="most-popular-tag-ribbon" style="background-color: #10B981;">
                             <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>
-                            Most Popular
+                            Best Value
                         </div>
-                        <input type="radio" name="printQtyRadio" id="rad-bundle" checked style="accent-color: #D4AF37; cursor: pointer;">
+                        <input type="radio" name="printQtyRadio" id="rad-bundle" checked style="accent-color: #10B981; cursor: pointer;">
                         <div style="display: flex; gap: 14px; align-items: center;">
-                            <div class="package-image-placeholder" style="border-color: #F3E4B8;">
-                                <img src="assets/images/print_book.png" alt="3 Family Heirloom Books" onerror="this.style.display='none';">
-                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="placeholder-icon-svg" style="display: none; color: #D4AF37;"><path d="M4 19.5V5a2 2 0 0 1 2-2h14v16.5"></path><path d="M6 2H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-2"></path></svg>
+                            <div class="package-image-placeholder" style="border-color: #A7F3D0;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="placeholder-icon-svg" style="color: #10b981;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
                             </div>
                             <div>
                                 <div style="font-size: 0.9rem; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
-                                    3 Family Heirloom Books — Save 70%
-                                    <span style="background: #D4AF37; color: #ffffff; font-size: 0.58rem; font-weight: 900; padding: 1px 6px; border-radius: 99px;">BEST VALUE</span>
+                                    5-Property Bundle — Save 42%
+                                    <span style="background: #10b981; color: #ffffff; font-size: 0.58rem; font-weight: 900; padding: 1px 6px; border-radius: 99px;">POPULAR</span>
                                 </div>
-                                <p style="font-size: 0.75rem; color: var(--text-muted); margin: 2px 0 0 0; line-height: 1.3;">Ultimate family archive pack. Full layout proofs.</p>
+                                <p style="font-size: 0.75rem; color: var(--text-muted); margin: 2px 0 0 0; line-height: 1.3;">Compare up to 5 properties side-by-side. Valid 6 months.</p>
                             </div>
                         </div>
                         <div style="text-align: right;">
-                            <div style="font-size: 0.7rem; color: #E07A5F; text-decoration: line-through; font-weight: 700;">Reg $300</div>
-                            <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-primary);">$29.99 each</div>
-                            <div style="font-size: 0.72rem; color: var(--accent-secondary); font-weight: 800;">Saved $210</div>
-                            <div style="font-size: 0.62rem; color: var(--accent-secondary); font-weight: 900; text-transform: uppercase; margin-top: 2px;">FREE PRIORITY SHIPPING</div>
+                            <div style="font-size: 0.7rem; color: #ef4444; text-decoration: line-through; font-weight: 700;">Reg $345</div>
+                            <div style="font-size: 0.95rem; font-weight: 800; color: var(--text-primary);">$39.80 each</div>
+                            <div style="font-size: 0.72rem; color: var(--accent); font-weight: 800;">Saved $146</div>
+                            <div style="font-size: 0.62rem; color: var(--accent-secondary); font-weight: 900; text-transform: uppercase; margin-top: 2px;">FREE COMPARISON TABLE</div>
                         </div>
                     </div>
 
                     <!-- Itemized calculations list -->
                     <div class="itemized-receipt-container">
                         <div class="receipt-row">
-                            <span id="invoice-item-name">MemoryBloom Hardcover Heritage Bundle (3 Books)</span>
-                            <span style="font-weight: 700; color: var(--text-primary);" id="invoice-base-price">$89.97</span>
+                            <span id="invoice-item-name">Front Door Fax Environmental Report Bundle (5 Properties)</span>
+                            <span style="font-weight: 700; color: var(--text-primary);" id="invoice-base-price">$199.00</span>
                         </div>
-                        <div class="receipt-row" id="invoice-coupon-row" style="color: var(--accent-secondary); font-weight: 700; display: none;">
+                        <div class="receipt-row" id="invoice-coupon-row" style="color: var(--accent); font-weight: 700; display: none;">
                             <span>Coupon Discount (<span id="applied-coupon-name">WELCOME10</span>)</span>
                             <span id="invoice-discount-val">-$10.00</span>
                         </div>
                         <div class="receipt-row">
-                            <span>Binding, Sewn Margins &amp; Page Setup</span>
-                            <span style="color: var(--accent-secondary); font-weight: 800; text-transform: uppercase; font-size: 0.75rem;">FREE</span>
+                            <span>Database Querying &amp; GIS Geocoding</span>
+                            <span style="color: var(--accent); font-weight: 800; text-transform: uppercase; font-size: 0.75rem;">FREE</span>
                         </div>
                         <div class="receipt-row">
-                            <span>Archival Secure Shipping</span>
-                            <span style="color: var(--accent-secondary); font-weight: 800; text-transform: uppercase; font-size: 0.75rem;">FREE</span>
+                            <span>Negotiation PDF Builder Tool</span>
+                            <span style="color: var(--accent); font-weight: 800; text-transform: uppercase; font-size: 0.75rem;">FREE</span>
                         </div>
                         <div class="receipt-row receipt-total-row">
                             <span>Total due today:</span>
-                            <span style="color: var(--accent-secondary);" id="invoice-total-due">$89.97</span>
+                            <span style="color: var(--accent);" id="invoice-total-due">$199.00</span>
                         </div>
                     </div>
 
@@ -1211,39 +1553,39 @@
                             TODAY<br>YOU SAVED
                         </div>
                         <div class="saved-card-amount-pane">
-                            <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Total Preservation Savings</div>
-                            <div style="font-size: 1.6rem; font-weight: 900; color: #E07A5F;" id="invoice-savings-total">-$210.00</div>
-                            <div style="font-size: 0.72rem; color: var(--text-muted);" id="invoice-savings-address">on your beautiful memory book bundle</div>
+                            <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Total Environmental Diagnostic Savings</div>
+                            <div style="font-size: 1.6rem; font-weight: 900; color: #059669;" id="invoice-savings-total">-$146.00</div>
+                            <div style="font-size: 0.72rem; color: var(--text-muted);" id="invoice-savings-address">on your complete hazard report suite compiled for your target US address</div>
                         </div>
                     </div>
 
-                    <!-- Gold Seal Card -->
-                    <div class="guarantee-gold-card">
-                        <!-- High Fidelity Gold Badge Ribbon Inline SVG -->
-                        <svg class="gold-stamp-seal-svg" viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="42" fill="#FAF3E3" stroke="#D4AF37" stroke-width="2.5" />
-                            <circle cx="50" cy="50" r="37" fill="none" stroke="#D4AF37" stroke-width="1" stroke-dasharray="2,2" />
-                            <path d="M 38,72 L 32,95 L 48,88 L 64,95 L 58,72 Z" fill="#D4AF37" opacity="0.85" />
-                            <path d="M 44,72 L 50,95 L 56,92 L 62,95 L 54,72 Z" fill="#B38A20" opacity="0.6" />
-                            <circle cx="50" cy="46" r="22" fill="#D4AF37" />
-                            <polygon points="50,34 54.5,42.5 64,43.5 57,50 59,59 50,54 41,59 43,50 36,43.5 45.5,42.5" fill="#FAF3E3" />
-                            <text x="50" y="78" fill="#B38A20" font-family="'Inter', sans-serif" font-size="6.5" font-weight="900" text-anchor="middle" letter-spacing="0.2">100-DAY HEIRLOOM</text>
+                    <!-- Emerald Guarantee Card -->
+                    <div class="guarantee-emerald-card">
+                        <!-- High Fidelity Emerald Badge Ribbon Inline SVG -->
+                        <svg class="emerald-stamp-seal-svg" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="42" fill="#E6F4EA" stroke="#10B981" stroke-width="2.5" />
+                            <circle cx="50" cy="50" r="37" fill="none" stroke="#10B981" stroke-width="1" stroke-dasharray="2,2" />
+                            <path d="M 38,72 L 32,95 L 48,88 L 64,95 L 58,72 Z" fill="#10B981" opacity="0.85" />
+                            <path d="M 44,72 L 50,95 L 56,92 L 62,95 L 54,72 Z" fill="#047857" opacity="0.6" />
+                            <circle cx="50" cy="46" r="22" fill="#10B981" />
+                            <polygon points="50,34 54.5,42.5 64,43.5 57,50 59,59 50,54 41,59 43,50 36,43.5 45.5,42.5" fill="#ffffff" />
+                            <text x="50" y="78" fill="#047857" font-family="'Inter', sans-serif" font-size="6.5" font-weight="900" text-anchor="middle" letter-spacing="0.2">30-DAY GUARANTEE</text>
                         </svg>
                         <div>
-                            <h4 style="font-family: var(--font-display), 'Playfair Display', serif; font-size: 0.9rem; font-weight: 800; color: #B38A20; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px;">100-Day Preservation Guarantee:</h4>
-                            <p style="font-size: 0.75rem; color: #8F6D26; margin: 0; line-height: 1.4;">
-                                Our binders utilize fine textured linen and heavy cover board. Layflat page sheets are triple-coated for absolute water and fingerprint protection. If you aren't absolutely wowed by your printed memories, request an instant refund.
+                            <h4 style="font-family: var(--font-display), 'Playfair Display', serif; font-size: 0.9rem; font-weight: 800; color: #047857; margin: 0 0 4px 0; text-transform: uppercase; letter-spacing: 0.5px;">30-Day Money-Back Guarantee:</h4>
+                            <p style="font-size: 0.75rem; color: #065F46; margin: 0; line-height: 1.4;">
+                                We cross-reference direct government datasets. If our reports fail to reveal hidden hazard risks, highlight air/water contaminants, or strengthen your home purchase/rental bargaining position, simply request a hassle-free, immediate refund.
                             </p>
                         </div>
                     </div>
 
                     <!-- Trust Checkpoints -->
                     <ul class="trust-check-list">
-                        <li>Archival-grade heavy card sheets (will not yellow, curl, or fade for 200+ years)</li>
-                        <li>Layflat seamless binding (gorgeous panoramic photo spreads without middle fold cuts)</li>
-                        <li>Durable reinforced linen covers featuring premium metallic gold foil hot stamping</li>
-                        <li>Eco-friendly organic paper pulp certified by forest safety counsels</li>
-                        <li>Guided AI storytelling assistance included to organize your text effortlessly</li>
+                        <li>Vetted Government Datasets (EPA ECHO, EJScreen, FEMA, NOAA, USGS, CDC)</li>
+                        <li>Deep-dive heavy metals drinking water audits (Lead, PFAS, nitrates, disinfection byproducts)</li>
+                        <li>Real-time local Air Quality Index with 5-year criteria historical averages</li>
+                        <li>Interactive Soil Diagnostics scanning Superfund proximity and toxic spill registries</li>
+                        <li>Property price negotiation toolkit including specific, structured dialogue talking points</li>
                     </ul>
 
                 </div>
@@ -1748,11 +2090,13 @@
             const loadingEl = document.getElementById('gis-scan-loading');
             const resultsEl = document.getElementById('gis-scan-results');
             const progressText = document.getElementById('gis-scan-progress-text');
+            const progressBarFill = document.getElementById('gis-progress-bar-fill');
             if (!loadingEl || !resultsEl) return;
 
             loadingEl.style.display = 'flex';
             resultsEl.style.display = 'none';
             if (progressText) progressText.textContent = '0%';
+            if (progressBarFill) progressBarFill.style.width = '0%';
 
             for (let i = 1; i <= 6; i++) {
                 const log = document.getElementById(`gis-log-${i}`);
@@ -1771,6 +2115,7 @@
                     resultsEl.style.display = 'flex';
                 }
                 if (progressText) progressText.textContent = `${scanProgress}%`;
+                if (progressBarFill) progressBarFill.style.width = `${scanProgress}%`;
 
                 if (scanProgress > 15) {
                     const log = document.getElementById('gis-log-2');

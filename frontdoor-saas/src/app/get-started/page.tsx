@@ -559,99 +559,413 @@ function GetStartedContent() {
         }
         .before-after-card-wrapper {
           max-width: 1000px;
-          margin: 16px auto 40px auto;
-          background: #ffffff;
-          border: 1px solid var(--border-color, rgba(0,0,0,0.05));
-          border-radius: 16px;
-          padding: 24px;
+          margin: 24px auto 48px auto;
+          background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.55) 100%);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(226, 232, 240, 0.8);
+          border-radius: 24px;
+          padding: 32px;
           display: grid;
           grid-template-columns: 1.15fr 0.85fr;
-          gap: 32px;
-          box-shadow: 0 10px 30px -5px rgba(16, 185, 129, 0.05);
+          gap: 36px;
+          box-shadow: 
+            0 30px 60px -15px rgba(15, 23, 42, 0.04), 
+            0 10px 30px -10px rgba(15, 23, 42, 0.02), 
+            inset 0 1px 0 rgba(255, 255, 255, 0.6);
+          position: relative;
+          overflow: hidden;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         /* GIS Localization Map Styles */
         .gis-map-container {
           position: relative;
-          background: #090d16; /* Sophisticated dark radar/map background */
-          border-radius: 12px;
+          background: #f8fafc;
+          border-radius: 16px;
           overflow: hidden;
           aspect-ratio: 1.25;
-          border: 1px solid rgba(16, 185, 129, 0.2);
-          box-shadow: inset 0 0 40px rgba(16, 185, 129, 0.15);
+          border: 1px solid rgba(226, 232, 240, 0.8);
+          box-shadow: 
+            0 8px 30px rgba(15, 23, 42, 0.03),
+            inset 0 2px 8px rgba(15, 23, 42, 0.02);
         }
         .google-map-iframe {
           width: 100%;
           height: 100%;
           border: none;
-          filter: invert(90%) hue-rotate(180deg) brightness(95%) contrast(90%);
-          opacity: 0.85;
-          transition: opacity 0.3s ease;
+          filter: grayscale(100%) contrast(1.1) brightness(1.01) saturate(0.8);
+          opacity: 0.9;
+          transition: filter 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
         }
-        .google-map-iframe:hover {
+        .gis-map-container:hover .google-map-iframe {
           opacity: 1;
+          filter: grayscale(0%) contrast(1.0) brightness(1.0) saturate(1.0);
+        }
+        /* Glowing Sweep Scan Animation Line */
+        .gis-scanner-sweep {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(to bottom, 
+            rgba(16, 185, 129, 0) 0%, 
+            rgba(16, 185, 129, 0) 40%, 
+            rgba(16, 185, 129, 0.08) 48%, 
+            rgba(16, 185, 129, 0.25) 50%, 
+            rgba(16, 185, 129, 0.08) 52%, 
+            rgba(16, 185, 129, 0) 60%, 
+            rgba(16, 185, 129, 0) 100%
+          );
+          background-size: 100% 200%;
+          background-position: 100% -100%;
+          z-index: 5;
+          pointer-events: none;
+          animation: sweep 3.5s infinite linear;
+          opacity: 0;
+          transition: opacity 0.5s ease;
+        }
+        .gis-map-container.scanning .gis-scanner-sweep {
+          opacity: 1;
+        }
+        @keyframes sweep {
+          0% { background-position: 100% -100%; }
+          100% { background-position: 100% 100%; }
         }
         .gis-hud-panel {
           position: absolute;
-          top: 14px;
-          left: 14px;
-          background: rgba(9, 13, 22, 0.85);
-          backdrop-filter: blur(8px);
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          border-left: 3px solid #10b981;
-          border-radius: 8px;
-          padding: 10px 12px;
-          font-family: 'Courier New', monospace;
-          color: #e2e8f0;
+          top: 16px;
+          left: 16px;
+          background: rgba(255, 255, 255, 0.85);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(226, 232, 240, 0.8);
+          border-left: 4px solid #10b981;
+          border-radius: 12px;
+          padding: 14px 16px;
+          font-family: 'Inter', system-ui, sans-serif;
+          color: #1e293b;
           z-index: 10;
           pointer-events: none;
-          min-width: 175px;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+          min-width: 200px;
+          box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
         }
         .gis-hud-title {
-          font-size: 0.65rem;
-          color: #10b981;
-          font-weight: bold;
+          font-size: 0.72rem;
+          color: #059669;
+          font-weight: 800;
           text-transform: uppercase;
-          letter-spacing: 1px;
-          margin-bottom: 5px;
-          display: block;
+          letter-spacing: 1.2px;
+          margin-bottom: 10px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
         }
         .gis-hud-row {
-          font-size: 0.7rem;
+          font-size: 0.72rem;
           display: flex;
           justify-content: space-between;
-          margin: 3px 0;
-          gap: 12px;
+          margin: 6px 0;
+          gap: 16px;
+          font-family: 'JetBrains Mono', monospace;
         }
         .gis-hud-label {
-          color: #94a3b8;
+          color: #64748b;
+          font-weight: 500;
+          font-family: 'Inter', system-ui, sans-serif;
         }
         .gis-hud-value {
-          color: #10b981;
-          font-weight: bold;
-        }
-        @keyframes gis-pulse {
-          0% {
-            transform: scale(0.6);
-            opacity: 1;
-          }
-          50% {
-            opacity: 0.6;
-          }
-          100% {
-            transform: scale(2.2);
-            opacity: 0;
-          }
-        }
-        .gis-marker-pulse {
-          animation: gis-pulse 2s infinite linear;
-          transform-origin: 175px 135px;
+          color: #1e293b;
+          font-weight: 600;
         }
         .ba-text-pane {
           display: flex;
           flex-direction: column;
           justify-content: center;
+          gap: 20px;
+        }
+        /* High-Tech Premium Processing Telemetry Card */
+        .terminal-container {
+          background: rgba(255, 255, 255, 0.7);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          border: 1px solid rgba(16, 185, 129, 0.15);
+          border-radius: 16px;
+          padding: 24px;
+          color: #1e293b;
+          font-family: 'Inter', system-ui, sans-serif;
+          font-size: 0.82rem;
+          min-height: 350px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          box-shadow: 0 15px 35px -10px rgba(15, 23, 42, 0.04);
+          box-sizing: border-box;
+          width: 100%;
+        }
+        .terminal-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-bottom: 1px solid rgba(16, 185, 129, 0.08);
+          padding-bottom: 14px;
+          margin-bottom: 18px;
+        }
+        .terminal-title-block {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          color: #0f291b;
+          font-weight: 700;
+          font-size: 0.85rem;
+          letter-spacing: 0.3px;
+        }
+        .terminal-pulse-dot {
+          display: inline-block;
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background-color: #10b981;
+          box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+          animation: terminal-dot-pulse 1.5s infinite ease-in-out;
+        }
+        @keyframes terminal-dot-pulse {
+          0%, 100% { opacity: 0.5; transform: scale(0.9); }
+          50% { opacity: 1; transform: scale(1.15); box-shadow: 0 0 14px rgba(16, 185, 129, 0.7); }
+        }
+        .terminal-progress-pct {
+          font-size: 0.85rem;
+          font-weight: 800;
+          color: #059669;
+        }
+        .terminal-log-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+        .terminal-log-row {
+          color: #475569;
+          line-height: 1.5;
+          display: flex;
+          align-items: flex-start;
+          gap: 10px;
+          font-size: 0.8rem;
+          font-weight: 500;
+          animation: log-fade-in 0.4s ease-out forwards;
+        }
+        @keyframes log-fade-in {
+          from { opacity: 0; transform: translateY(4px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .terminal-log-arrow {
+          color: #10b981;
+          font-weight: bold;
+          user-select: none;
+        }
+        .terminal-footer {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          border-top: 1px solid rgba(16, 185, 129, 0.08);
+          padding-top: 16px;
+          margin-top: 18px;
+        }
+        .terminal-footer-info {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          color: #64748b;
+          font-size: 0.74rem;
+          letter-spacing: 0.3px;
+          font-weight: 500;
+        }
+        .terminal-spin-loader {
+          display: inline-block;
+          width: 16px;
+          height: 16px;
+          border: 2px solid rgba(16, 185, 129, 0.15);
+          border-top-color: #10b981;
+          border-radius: 50%;
+          animation: spin-anim 1s infinite linear;
+        }
+        @keyframes spin-anim {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        /* Results Section Styling */
+        .results-container {
+          display: flex;
+          flex-direction: column;
           gap: 18px;
+          width: 100%;
+        }
+        .hazard-card {
+          background: linear-gradient(135deg, rgba(254, 242, 242, 0.7) 0%, rgba(255, 255, 255, 0.4) 100%);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(239, 68, 68, 0.12);
+          border-left: 4px solid #ef4444;
+          border-radius: 16px;
+          padding: 24px;
+          color: #1e293b;
+          position: relative;
+          overflow: hidden;
+          box-shadow: 0 12px 30px rgba(239, 68, 68, 0.02);
+          box-sizing: border-box;
+        }
+        .hazard-title-row {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 12px;
+        }
+        .hazard-title {
+          font-size: 0.95rem;
+          font-weight: 700;
+          color: #0f172a;
+          margin: 0;
+          font-family: 'Inter', system-ui, sans-serif;
+          letter-spacing: -0.01em;
+        }
+        .hazard-desc {
+          font-size: 0.8rem;
+          color: #64748b;
+          margin: 0 0 18px 0;
+          line-height: 1.5;
+          font-weight: 500;
+        }
+        .hazard-list {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        .hazard-item {
+          display: flex;
+          gap: 14px;
+          align-items: flex-start;
+          font-size: 0.8rem;
+        }
+        .badge-high {
+          color: #ffffff;
+          font-weight: 700;
+          flex-shrink: 0;
+          background: #ef4444;
+          padding: 2px 8px;
+          border-radius: 6px;
+          font-size: 0.65rem;
+          letter-spacing: 0.5px;
+        }
+        .badge-moderate {
+          color: #b45309;
+          font-weight: 700;
+          flex-shrink: 0;
+          background: #fffbeb;
+          border: 1px solid rgba(245, 158, 11, 0.2);
+          padding: 2px 8px;
+          border-radius: 6px;
+          font-size: 0.65rem;
+          letter-spacing: 0.5px;
+        }
+        .hazard-text {
+          color: #334155;
+          line-height: 1.5;
+          font-weight: 500;
+        }
+        .hazard-label {
+          color: #0f172a;
+          font-weight: 700;
+        }
+        .redacted-value {
+          filter: blur(4px);
+          background: rgba(15, 23, 42, 0.04);
+          padding: 2px 8px;
+          border-radius: 6px;
+          color: #0f172a;
+          user-select: none;
+          cursor: not-allowed;
+          font-weight: 700;
+          font-family: 'JetBrains Mono', monospace;
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+        }
+        .badge-locked {
+          font-size: 0.6rem;
+          background: #ef4444;
+          color: #ffffff;
+          padding: 2px 6px;
+          border-radius: 4px;
+          margin-left: 6px;
+          font-weight: 700;
+          letter-spacing: 0.5px;
+          display: inline-block;
+        }
+        /* CTA Banner */
+        .cta-unlock-banner {
+          background: linear-gradient(135deg, rgba(20, 184, 166, 0.05) 0%, rgba(16, 185, 129, 0.02) 100%);
+          border: 1px solid rgba(16, 185, 129, 0.18);
+          border-left: 4px solid #10b981;
+          border-radius: 16px;
+          padding: 24px;
+          color: #0f291b;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          box-shadow: 0 15px 35px -10px rgba(16, 185, 129, 0.03);
+          box-sizing: border-box;
+        }
+        .cta-title-row {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .cta-title {
+          font-size: 0.95rem;
+          font-weight: 700;
+          color: #059669;
+          margin: 0;
+          letter-spacing: -0.01em;
+        }
+        .cta-desc {
+          font-size: 0.8rem;
+          color: #475569;
+          margin: 0;
+          line-height: 1.55;
+          font-weight: 500;
+        }
+        .cta-button {
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          color: #ffffff;
+          font-weight: 700;
+          font-size: 0.82rem;
+          letter-spacing: 0.5px;
+          border: none;
+          padding: 14px 24px;
+          border-radius: 10px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.3);
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          width: 100%;
+          text-decoration: none;
+          box-sizing: border-box;
+        }
+        .cta-button:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 15px 30px -5px rgba(16, 185, 129, 0.45);
+          background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+        }
+        .cta-button:active {
+          transform: translateY(0);
+        }
+        .cta-button svg {
+          transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .cta-button:hover svg {
+          transform: translateX(4px);
         }
         .ba-benefit-title {
           font-size: 1.05rem;
@@ -1217,11 +1531,22 @@ function GetStartedContent() {
             </div>
 
             {/* 5. GIS Localization Map Panel */}
+            {/* 5. GIS Localization Map Panel */}
             <div className="before-after-card-wrapper">
-              <div className="gis-map-container">
+              <div className={`gis-map-container ${!prepFinished ? 'scanning' : ''}`}>
+                {/* Glowing Sweep Scan Animation Line */}
+                <div className="gis-scanner-sweep"></div>
+
                 {/* Semi-transparent Glass HUD */}
                 <div className="gis-hud-panel">
-                  <span className="gis-hud-title">📡 GIS Telemetry Scan</span>
+                  <span className="gis-hud-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', marginRight: '6px', verticalAlign: 'middle', color: '#059669' }}>
+                      <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+                      <path d="M12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12z"/>
+                      <path d="M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>
+                    </svg>
+                    GIS Telemetry Scan
+                  </span>
                   <div className="gis-hud-row">
                     <span className="gis-hud-label">TARGET ADDR:</span>
                     <span className="gis-hud-value" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '120px' }} title={addressLine1 || "Target Coordinate"}>
@@ -1236,7 +1561,7 @@ function GetStartedContent() {
                     <span className="gis-hud-label">PARCEL TRACT:</span>
                     <span className="gis-hud-value">{getCoordinatesForAddress(addressLine1).parcel}</span>
                   </div>
-                  <div className="gis-hud-row" style={{ borderTop: '1px solid rgba(255,255,255,0.08)', marginTop: '4px', paddingTop: '4px' }}>
+                  <div className="gis-hud-row" style={{ borderTop: '1px solid rgba(0,0,0,0.05)', marginTop: '4px', paddingTop: '4px' }}>
                     <span className="gis-hud-label">LAYER STATUS:</span>
                     <span className="gis-hud-value" style={{ color: '#10b981' }}>VETTED ✓</span>
                   </div>
@@ -1258,86 +1583,124 @@ function GetStartedContent() {
               <div className="ba-text-pane">
                 {!prepFinished ? (
                   /* Loading / Scanning Terminal HUD */
-                  <div style={{ backgroundColor: '#021208', border: '1px solid #10b981', borderRadius: '12px', padding: '24px', color: '#10b981', fontFamily: 'monospace', fontSize: '0.8rem', minHeight: '340px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 8px 30px rgba(16, 185, 129, 0.05)' }}>
+                  <div className="terminal-container">
                     <div>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(16, 185, 129, 0.2)', paddingBottom: '10px', marginBottom: '16px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span className="animate-pulse" style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981' }}></span>
-                          <span style={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>GIS SATELLITE TELEMETRY</span>
+                      <div className="terminal-header">
+                        <div className="terminal-title-block">
+                          <span className="terminal-pulse-dot"></span>
+                          <span style={{ fontWeight: 700, letterSpacing: '0.5px' }}>Processing Telemetry</span>
                         </div>
-                        <span style={{ fontSize: '0.75rem', fontWeight: 800 }}>{prepProgress}%</span>
+                        <span className="terminal-progress-pct">{prepProgress}%</span>
                       </div>
                       
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', opacity: 0.85 }}>
-                        <div style={{ color: '#10b981' }}>&gt; Initializing local GIS parcel tracking...</div>
-                        {prepProgress > 15 && <div style={{ color: '#10b981' }}>&gt; Pinpointing coordinates via FIPS geocode... [SUCCESS]</div>}
-                        {prepProgress > 35 && <div style={{ color: '#10b981' }}>&gt; Pulling EPA ECHO Compliance Records database... [CONNECTED]</div>}
-                        {prepProgress > 55 && <div style={{ color: '#10b981' }}>&gt; Querying FEMA flood history maps &amp; aquifers... [OK]</div>}
-                        {prepProgress > 75 && <div style={{ color: '#10b981' }}>&gt; Compiling regional CDC radon vector zones... [MAPPED]</div>}
-                        {prepProgress > 90 && <div style={{ color: '#10b981' }}>&gt; Assembling buyer negotiation talking points...</div>}
+                      <div className="terminal-log-list">
+                        <div className="terminal-log-row">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '3px' }}><polyline points="20 6 9 17 4 12"/></svg>
+                          <span>Initializing local GIS parcel tracking...</span>
+                        </div>
+                        {prepProgress > 15 && (
+                          <div className="terminal-log-row">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '3px' }}><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Pinpointing coordinates via FIPS geocode... [SUCCESS]</span>
+                          </div>
+                        )}
+                        {prepProgress > 35 && (
+                          <div className="terminal-log-row">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '3px' }}><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Pulling EPA ECHO Compliance Records database... [CONNECTED]</span>
+                          </div>
+                        )}
+                        {prepProgress > 55 && (
+                          <div className="terminal-log-row">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '3px' }}><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Querying FEMA flood history maps &amp; aquifers... [OK]</span>
+                          </div>
+                        )}
+                        {prepProgress > 75 && (
+                          <div className="terminal-log-row">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '3px' }}><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Compiling regional CDC radon vector zones... [MAPPED]</span>
+                          </div>
+                        )}
+                        {prepProgress > 90 && (
+                          <div className="terminal-log-row">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '3px' }}><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Assembling buyer negotiation talking points...</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                     
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', borderTop: '1px solid rgba(16, 185, 129, 0.1)', paddingTop: '12px', marginTop: '16px' }}>
-                      <span className="animate-spin" style={{ display: 'inline-block', width: '16px', height: '16px', border: '2px solid #10b981', borderTopColor: 'transparent', borderRadius: '50%' }}></span>
-                      <span style={{ fontSize: '0.72rem', letterSpacing: '0.5px' }}>SECURE DATA COMPILING IN PROGRESS...</span>
+                    <div className="terminal-footer">
+                      {/* Elegant progress bar */}
+                      <div style={{ width: '100%', height: '6px', background: 'rgba(0, 0, 0, 0.04)', borderRadius: '4px', overflow: 'hidden', margin: '4px 0 10px 0' }}>
+                        <div style={{ width: `${prepProgress}%`, height: '100%', background: 'linear-gradient(90deg, #10b981 0%, #059669 100%)', borderRadius: '4px', transition: 'width 0.1s linear' }}></div>
+                      </div>
+                      <div className="terminal-footer-info">
+                        <span className="terminal-spin-loader"></span>
+                        <span style={{ fontSize: '0.72rem', letterSpacing: '0.5px', fontWeight: 500 }}>SECURE DATA COMPILING IN PROGRESS...</span>
+                      </div>
                     </div>
                   </div>
                 ) : (
                   /* Final Results (Blurred / Locked to push purchase) */
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <div style={{ backgroundColor: '#FFF5F5', border: '1px solid rgba(239, 68, 68, 0.18)', borderRadius: '12px', padding: '18px', color: '#991B1B', position: 'relative', overflow: 'hidden', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                        <span style={{ fontSize: '1.25rem' }}>⚠️</span>
-                        <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#991B1B', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                          Potential Hazard & Contamination Risks
-                        </h3>
+                  <div className="results-container">
+                    <div className="hazard-card">
+                      <div className="hazard-title-row">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }}>
+                          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+                          <line x1="12" y1="9" x2="12" y2="13"/>
+                          <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                        <h3 className="hazard-title">Potential Hazard & Contamination Risks</h3>
                       </div>
-                      <p style={{ fontSize: '0.8rem', color: '#4B5563', margin: '0 0 14px 0', lineHeight: 1.45, fontWeight: 500 }}>
-                        Querying EPA, FEMA, and CDC records for <strong style={{ color: '#047857', fontWeight: 700 }}>{addressLine1 || 'the geocoded tract'}</strong> has flagged several regional environmental vectors:
+                      <p className="hazard-desc">
+                        Querying EPA, FEMA, and CDC records for <strong style={{ color: '#059669', fontWeight: 700 }}>{addressLine1 || 'the geocoded tract'}</strong> has flagged several regional environmental vectors:
                       </p>
                       
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                        <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '0.78rem' }}>
-                          <span style={{ color: '#DC2626', fontWeight: 800, flexShrink: 0, background: 'rgba(220, 38, 38, 0.08)', padding: '2px 6px', borderRadius: '4px', fontSize: '0.65rem', textTransform: 'uppercase' }}>HIGH</span>
-                          <div style={{ color: '#374151', lineHeight: 1.45, fontWeight: 500 }}>
-                            <strong style={{ color: '#111827', fontWeight: 700 }}>County Radon Potential (Zone 1):</strong> Predicted average indoor radon is <span style={{ filter: 'blur(4px)', background: 'rgba(0,0,0,0.06)', padding: '1px 6px', borderRadius: '4px', color: '#111827', userSelect: 'none', cursor: 'not-allowed', fontWeight: 'bold', fontFamily: 'monospace' }}>4.8 pCi/L</span> <span style={{ fontSize: '0.62rem', background: '#EF4444', color: '#ffffff', padding: '2px 6px', borderRadius: '4px', marginLeft: '4px', fontWeight: 800, letterSpacing: '0.5px' }}>LOCKED</span>. Ventilation mapping is highly recommended.
+                      <div className="hazard-list">
+                        <div className="hazard-item">
+                          <span className="badge-high">HIGH</span>
+                          <div className="hazard-text">
+                            <strong className="hazard-label">County Radon Potential (Zone 1):</strong> Predicted average indoor radon is <span className="redacted-value">4.8 pCi/L</span> <span className="badge-locked">LOCKED</span>. Ventilation mapping is highly recommended.
                           </div>
                         </div>
 
-                        <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '0.78rem' }}>
-                          <span style={{ color: '#D97706', fontWeight: 800, flexShrink: 0, background: 'rgba(217, 119, 6, 0.08)', padding: '2px 6px', borderRadius: '4px', fontSize: '0.65rem', textTransform: 'uppercase' }}>MODERATE</span>
-                          <div style={{ color: '#374151', lineHeight: 1.45, fontWeight: 500 }}>
-                            <strong style={{ color: '#111827', fontWeight: 700 }}>Industrial Emissions / Violations:</strong> 2 facilities with recorded Clean Air/Water Act issues found within <span style={{ filter: 'blur(4px)', background: 'rgba(0,0,0,0.06)', padding: '1px 6px', borderRadius: '4px', color: '#111827', userSelect: 'none', cursor: 'not-allowed', fontWeight: 'bold', fontFamily: 'monospace' }}>0.4 miles</span> <span style={{ fontSize: '0.62rem', background: '#EF4444', color: '#ffffff', padding: '2px 6px', borderRadius: '4px', marginLeft: '4px', fontWeight: 800, letterSpacing: '0.5px' }}>LOCKED</span>.
+                        <div className="hazard-item">
+                          <span className="badge-moderate">MODERATE</span>
+                          <div className="hazard-text">
+                            <strong className="hazard-label">Industrial Emissions / Violations:</strong> 2 facilities with recorded Clean Air/Water Act issues found within <span className="redacted-value">0.4 miles</span> <span className="badge-locked">LOCKED</span>.
                           </div>
                         </div>
 
-                        <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '0.78rem' }}>
-                          <span style={{ color: '#D97706', fontWeight: 800, flexShrink: 0, background: 'rgba(217, 119, 6, 0.08)', padding: '2px 6px', borderRadius: '4px', fontSize: '0.65rem', textTransform: 'uppercase' }}>MODERATE</span>
-                          <div style={{ color: '#374151', lineHeight: 1.45, fontWeight: 500 }}>
-                            <strong style={{ color: '#111827', fontWeight: 700 }}>EPA Superfund/NPL Proximity:</strong> 1 active groundwater cleanup boundary registered within <span style={{ filter: 'blur(4px)', background: 'rgba(0,0,0,0.06)', padding: '1px 6px', borderRadius: '4px', color: '#111827', userSelect: 'none', cursor: 'not-allowed', fontWeight: 'bold', fontFamily: 'monospace' }}>1.2 miles</span> <span style={{ fontSize: '0.62rem', background: '#EF4444', color: '#ffffff', padding: '2px 6px', borderRadius: '4px', marginLeft: '4px', fontWeight: 800, letterSpacing: '0.5px' }}>LOCKED</span>.
+                        <div className="hazard-item">
+                          <span className="badge-moderate">MODERATE</span>
+                          <div className="hazard-text">
+                            <strong className="hazard-label">EPA Superfund/NPL Proximity:</strong> 1 active groundwater cleanup boundary registered within <span className="redacted-value">1.2 miles</span> <span className="badge-locked">LOCKED</span>.
                           </div>
                         </div>
                       </div>
                     </div>
 
                     {/* Premium Locked Call-to-Action Banner */}
-                    <div style={{ backgroundColor: '#F3FAF6', border: '1px solid rgba(16, 185, 129, 0.18)', borderRadius: '12px', padding: '18px', color: '#065F46', display: 'flex', flexDirection: 'column', gap: '12px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '1.25rem' }}>🔒</span>
-                        <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#065F46', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                          Unlock Exact Hazard Maps & Metrics
-                        </h3>
+                    <div className="cta-unlock-banner">
+                      <div className="cta-title-row">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }}>
+                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                        <h3 className="cta-title">Unlock Exact Hazard Maps & Metrics</h3>
                       </div>
-                      <p style={{ fontSize: '0.8rem', color: '#374151', margin: 0, lineHeight: 1.5, fontWeight: 500 }}>
+                      <p className="cta-desc">
                         To safeguard local property records and coordinate privacy, precise hazard coordinates, EPA facility names, and mitigation reports are locked. Buy a report to instantly unlock the fully unblurred datasets and negotiation guides.
                       </p>
                       <button 
                         type="button" 
                         onClick={scrollToForm}
-                        style={{ marginTop: '6px', background: 'linear-gradient(135deg, #10b981, #059669)', border: 'none', borderRadius: '8px', padding: '12px 18px', color: '#ffffff', fontSize: '0.8rem', fontWeight: 'bold', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '1px', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', boxShadow: '0 4px 14px rgba(16, 185, 129, 0.25)' }}
+                        className="cta-button"
                       >
-                        Unlock Full Report Details Now ➔
+                        Unlock Full Report Details Now
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', marginLeft: '6px', verticalAlign: 'middle' }}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                       </button>
                     </div>
                   </div>

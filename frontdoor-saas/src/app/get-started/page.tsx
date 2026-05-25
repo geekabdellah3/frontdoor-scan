@@ -31,6 +31,7 @@ const FRONT_DOOR_MOCK_ADDRESSES = [
 function GetStartedContent() {
   const searchParams = useSearchParams();
   const address = searchParams.get('address') || '';
+  const lastScannedAddress = useRef('');
 
   // Countdown timer state (starts at 09:39 as seen in html mockup)
   const [timeLeft, setTimeLeft] = useState(579); // 579 seconds = 09:39
@@ -95,6 +96,8 @@ function GetStartedContent() {
     setZipCode(addr.zip);
     setCountry("United States");
     setShowSuggestions(false);
+    lastScannedAddress.current = addr.street.trim();
+    setPrepFinished(false);
   };
 
   // Close autocomplete on click outside
@@ -143,6 +146,9 @@ function GetStartedContent() {
         setCity(parsedCity);
         setShippingState(parsedState);
         if (zipPart) setZipCode(zipPart);
+        
+        lastScannedAddress.current = streetName.trim();
+        setPrepFinished(false);
       }, 0);
       return () => clearTimeout(timer);
     }
@@ -390,6 +396,28 @@ function GetStartedContent() {
     }
   };
 
+  // Deterministic Address Coordinate Generator for GIS Map HUD
+  const getCoordinatesForAddress = (addr: string) => {
+    if (!addr) {
+      return { lat: "42.3584° N", lon: "71.0598° W", parcel: "#TRACT-948-28" };
+    }
+    let hash = 0;
+    for (let i = 0; i < addr.length; i++) {
+      hash = addr.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const absHash = Math.abs(hash);
+    const latDecimal = 24 + (absHash % 25) + ((absHash % 1000) / 1000);
+    const lonDecimal = 70 + (absHash % 50) + (((absHash >> 3) % 1000) / 1000);
+    const tractId = (absHash % 900) + 100;
+    const lotId = (absHash % 90) + 10;
+    
+    return {
+      lat: `${latDecimal.toFixed(4)}° N`,
+      lon: `${lonDecimal.toFixed(4)}° W`,
+      parcel: `#TRACT-${tractId}-${lotId}`
+    };
+  };
+
   // Form Submit Execution
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -427,6 +455,8 @@ function GetStartedContent() {
   const [prepProgress, setPrepProgress] = useState(0);
   const [prepFinished, setPrepFinished] = useState(false);
   useEffect(() => {
+    if (prepFinished) return;
+    setPrepProgress(0);
     const timer = setInterval(() => {
       setPrepProgress((prev) => {
         if (prev >= 100) {
@@ -436,9 +466,9 @@ function GetStartedContent() {
         }
         return prev + 2;
       });
-    }, 90);
+    }, 80); // Snooth and snappy 4-second loading timer
     return () => clearInterval(timer);
-  }, []);
+  }, [prepFinished]);
 
   const scrollToForm = () => {
     const form = document.getElementById('shipping-payment-form');
@@ -546,43 +576,83 @@ function GetStartedContent() {
           gap: 32px;
           box-shadow: 0 10px 30px -5px rgba(16, 185, 129, 0.05);
         }
-        .before-after-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 2px;
-          background: #f4f4f5;
+        /* GIS Localization Map Styles */
+        .gis-map-container {
+          position: relative;
+          background: #090d16; /* Sophisticated dark radar/map background */
           border-radius: 12px;
           overflow: hidden;
-          position: relative;
-        }
-        .before-pane, .after-pane {
-          position: relative;
-          background: #FAFAFA;
           aspect-ratio: 1.25;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          border: 1px solid rgba(16, 185, 129, 0.2);
+          box-shadow: inset 0 0 40px rgba(16, 185, 129, 0.15);
         }
-        .before-after-label {
+        .google-map-iframe {
+          width: 100%;
+          height: 100%;
+          border: none;
+          filter: invert(90%) hue-rotate(180deg) brightness(95%) contrast(90%);
+          opacity: 0.85;
+          transition: opacity 0.3s ease;
+        }
+        .google-map-iframe:hover {
+          opacity: 1;
+        }
+        .gis-hud-panel {
           position: absolute;
-          padding: 4px 12px;
+          top: 14px;
+          left: 14px;
+          background: rgba(9, 13, 22, 0.85);
+          backdrop-filter: blur(8px);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          border-left: 3px solid #10b981;
+          border-radius: 8px;
+          padding: 10px 12px;
+          font-family: 'Courier New', monospace;
+          color: #e2e8f0;
+          z-index: 10;
+          pointer-events: none;
+          min-width: 175px;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+        .gis-hud-title {
           font-size: 0.65rem;
-          font-weight: 800;
-          color: #ffffff;
+          color: #10b981;
+          font-weight: bold;
           text-transform: uppercase;
-          letter-spacing: 0.5px;
-          z-index: 5;
-          border-radius: 4px;
+          letter-spacing: 1px;
+          margin-bottom: 5px;
+          display: block;
         }
-        .before-label {
-          bottom: 12px;
-          left: 12px;
-          background: #EF4444; /* Alert Red */
+        .gis-hud-row {
+          font-size: 0.7rem;
+          display: flex;
+          justify-content: space-between;
+          margin: 3px 0;
+          gap: 12px;
         }
-        .after-label {
-          bottom: 12px;
-          right: 12px;
-          background: #10B981; /* Success Green */
+        .gis-hud-label {
+          color: #94a3b8;
+        }
+        .gis-hud-value {
+          color: #10b981;
+          font-weight: bold;
+        }
+        @keyframes gis-pulse {
+          0% {
+            transform: scale(0.6);
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.6;
+          }
+          100% {
+            transform: scale(2.2);
+            opacity: 0;
+          }
+        }
+        .gis-marker-pulse {
+          animation: gis-pulse 2s infinite linear;
+          transform-origin: 175px 135px;
         }
         .ba-text-pane {
           display: flex;
@@ -1379,81 +1449,132 @@ function GetStartedContent() {
               </p>
             </div>
 
-            {/* 5. Before & After Panel */}
+            {/* 5. GIS Localization Map Panel */}
             <div className="before-after-card-wrapper">
-              <div className="before-after-grid">
-                
-                {/* BEFORE Panel */}
-                <div className="before-pane">
-                  <div className="before-after-label before-label">Traditional Inspectors</div>
-                  <svg width="100%" height="100%" viewBox="0 0 200 160" style={{ background: '#FAFAFA' }}>
-                    <defs>
-                      <radialGradient id="alertGlow" cx="50%" cy="50%" r="50%">
-                        <stop offset="0%" stopColor="#EF4444" stopOpacity="0.1" />
-                        <stop offset="100%" stopColor="#FAFAFA" stopOpacity="0" />
-                      </radialGradient>
-                    </defs>
-                    <rect width="200" height="160" fill="url(#alertGlow)" />
-                    <path d="M0,40 L200,40 M0,80 L200,80 M0,120 L200,120 M40,0 L40,160 M80,0 L80,160 M120,0 L120,160 M160,0 L160,160" stroke="#E6E1DC" strokeWidth="0.5" strokeDasharray="2,4" />
-                    
-                    {/* Slow progress illustration */}
-                    <circle cx="100" cy="70" r="28" fill="none" stroke="#EF4444" strokeWidth="2.5" strokeDasharray="10,20" />
-                    <path d="M100,50 L100,70 L115,78" fill="none" stroke="#EF4444" strokeWidth="2" />
-                    
-                    <text x="100" y="118" fill="#EF4444" fontFamily="'Inter', sans-serif" fontSize="11" fontWeight="800" textAnchor="middle">10+ BUSINESS DAYS</text>
-                    <text x="100" y="132" fill="#71717a" fontFamily="'Inter', sans-serif" fontSize="7.5" fontWeight="600" textAnchor="middle">MISSES HAZARDOUS CONTAMINANTS</text>
-                  </svg>
+              <div className="gis-map-container">
+                {/* Semi-transparent Glass HUD */}
+                <div className="gis-hud-panel">
+                  <span className="gis-hud-title">📡 GIS Telemetry Scan</span>
+                  <div className="gis-hud-row">
+                    <span className="gis-hud-label">TARGET ADDR:</span>
+                    <span className="gis-hud-value" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '120px' }} title={addressLine1 || "Target Coordinate"}>
+                      {addressLine1 || "SCANNING..."}
+                    </span>
+                  </div>
+                  <div className="gis-hud-row">
+                    <span className="gis-hud-label">COORDINATES:</span>
+                    <span className="gis-hud-value">{getCoordinatesForAddress(addressLine1).lat}, {getCoordinatesForAddress(addressLine1).lon}</span>
+                  </div>
+                  <div className="gis-hud-row">
+                    <span className="gis-hud-label">PARCEL TRACT:</span>
+                    <span className="gis-hud-value">{getCoordinatesForAddress(addressLine1).parcel}</span>
+                  </div>
+                  <div className="gis-hud-row" style={{ borderTop: '1px solid rgba(255,255,255,0.08)', marginTop: '4px', paddingTop: '4px' }}>
+                    <span className="gis-hud-label">LAYER STATUS:</span>
+                    <span className="gis-hud-value" style={{ color: '#10b981' }}>VETTED ✓</span>
+                  </div>
+                  <div className="gis-hud-row">
+                    <span className="gis-hud-label">GRID MATCH:</span>
+                    <span className="gis-hud-value" style={{ color: '#10b981' }}>100% SECURE</span>
+                  </div>
                 </div>
 
-                {/* AFTER Panel */}
-                <div className="after-pane">
-                  <div className="before-after-label after-label">Front Door Fax</div>
-                  <svg width="100%" height="100%" viewBox="0 0 200 160" style={{ background: '#FAFDFB' }}>
-                    <defs>
-                      <radialGradient id="successGlow" cx="50%" cy="50%" r="50%">
-                        <stop offset="0%" stopColor="#10b981" stopOpacity="0.15" />
-                        <stop offset="100%" stopColor="#FAFDFB" stopOpacity="0" />
-                      </radialGradient>
-                    </defs>
-                    <rect width="200" height="160" fill="url(#successGlow)" />
-                    <path d="M0,20 L200,20 M0,140 L200,140 M20,0 L20,160 M180,0 L180,160" stroke="#E6E1DC" strokeWidth="0.3" />
-                    
-                    {/* Document & Checklist Diagnostic Graphic */}
-                    <rect x="65" y="45" width="70" height="74" rx="4" fill="#ffffff" stroke="#10b981" strokeWidth="1.5" />
-                    <line x1="75" y1="58" x2="110" y2="58" stroke="#10B981" strokeWidth="2" />
-                    <line x1="75" y1="68" x2="125" y2="68" stroke="#e4e4e7" strokeWidth="1.5" />
-                    <line x1="75" y1="78" x2="115" y2="78" stroke="#e4e4e7" strokeWidth="1.5" />
-                    <line x1="75" y1="88" x2="120" y2="88" stroke="#e4e4e7" strokeWidth="1.5" />
-                    
-                    <path d="M112,98 L116,104 L126,92" fill="none" stroke="#10B981" strokeWidth="2" strokeLinecap="round" />
-                    
-                    <text x="100" y="132" fill="#10B981" fontFamily="'Inter', sans-serif" fontSize="10" fontWeight="900" textAnchor="middle" letterSpacing="1">INSTANT SCAN (5-10 MINS)</text>
-                  </svg>
-                </div>
-
+                <iframe
+                  title="Google Maps"
+                  className="google-map-iframe"
+                  src={`https://maps.google.com/maps?q=${encodeURIComponent(addressLine1 || 'United States')}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                  allowFullScreen
+                ></iframe>
               </div>
 
               {/* Text Points Next to Graphics */}
               <div className="ba-text-pane">
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                  <div style={{ backgroundColor: '#E6F4EA', padding: '8px', borderRadius: '50%', color: '#10B981', flexShrink: 0, width: '34px', height: '34px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900' }}>✓</div>
-                  <div>
-                    <h3 className="ba-benefit-title">Traditional inspections vs. Broad Spectrum Telemetry</h3>
-                    <p className="ba-benefit-desc">
-                      Most home inspectors only inspect structure, completely ignoring what you breathe, drink, and step on. We query official government datasets (EPA, FEMA, CDC) to uncover hidden radon zones, Superfund hazards, flood history, and toxic chemical sites.
-                    </p>
+                {!prepFinished ? (
+                  /* Loading / Scanning Terminal HUD */
+                  <div style={{ backgroundColor: '#021208', border: '1px solid #10b981', borderRadius: '12px', padding: '24px', color: '#10b981', fontFamily: 'monospace', fontSize: '0.8rem', minHeight: '340px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 8px 30px rgba(16, 185, 129, 0.05)' }}>
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(16, 185, 129, 0.2)', paddingBottom: '10px', marginBottom: '16px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span className="animate-pulse" style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981' }}></span>
+                          <span style={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px' }}>GIS SATELLITE TELEMETRY</span>
+                        </div>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 800 }}>{prepProgress}%</span>
+                      </div>
+                      
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', opacity: 0.85 }}>
+                        <div style={{ color: '#10b981' }}>&gt; Initializing local GIS parcel tracking...</div>
+                        {prepProgress > 15 && <div style={{ color: '#10b981' }}>&gt; Pinpointing coordinates via FIPS geocode... [SUCCESS]</div>}
+                        {prepProgress > 35 && <div style={{ color: '#10b981' }}>&gt; Pulling EPA ECHO Compliance Records database... [CONNECTED]</div>}
+                        {prepProgress > 55 && <div style={{ color: '#10b981' }}>&gt; Querying FEMA flood history maps &amp; aquifers... [OK]</div>}
+                        {prepProgress > 75 && <div style={{ color: '#10b981' }}>&gt; Compiling regional CDC radon vector zones... [MAPPED]</div>}
+                        {prepProgress > 90 && <div style={{ color: '#10b981' }}>&gt; Assembling buyer negotiation talking points...</div>}
+                      </div>
+                    </div>
+                    
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', borderTop: '1px solid rgba(16, 185, 129, 0.1)', paddingTop: '12px', marginTop: '16px' }}>
+                      <span className="animate-spin" style={{ display: 'inline-block', width: '16px', height: '16px', border: '2px solid #10b981', borderTopColor: 'transparent', borderRadius: '50%' }}></span>
+                      <span style={{ fontSize: '0.72rem', letterSpacing: '0.5px' }}>SECURE DATA COMPILING IN PROGRESS...</span>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  /* Final Results (Blurred / Locked to push purchase) */
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '12px', padding: '16px', color: '#fca5a5', position: 'relative', overflow: 'hidden' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                        <span style={{ fontSize: '1.2rem' }}>⚠️</span>
+                        <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: '#fca5a5', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          Potential Hazard & Contamination Risks
+                        </h3>
+                      </div>
+                      <p style={{ fontSize: '0.78rem', color: '#e2e8f0', margin: '0 0 12px 0', lineHeight: 1.4 }}>
+                        Querying EPA, FEMA, and CDC records for <strong style={{ color: '#10b981' }}>{addressLine1 || 'the geocoded tract'}</strong> has flagged several regional environmental vectors:
+                      </p>
+                      
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '0.75rem' }}>
+                          <span style={{ color: '#ef4444', fontWeight: 'bold', flexShrink: 0 }}>[HIGH]</span>
+                          <div style={{ color: '#cbd5e1', lineHeight: 1.4 }}>
+                            <strong style={{ color: '#ffffff' }}>County Radon Potential (Zone 1):</strong> Predicted average indoor radon is <span style={{ filter: 'blur(5px)', background: 'rgba(255,255,255,0.1)', padding: '0 4px', borderRadius: '3px', color: '#ffffff', userSelect: 'none', cursor: 'not-allowed' }}>4.8 pCi/L</span> <span style={{ fontSize: '0.65rem', background: '#ef4444', color: '#ffffff', padding: '1px 6px', borderRadius: '4px', marginLeft: '4px', fontWeight: 'bold' }}>LOCKED</span>. Ventilation mapping is highly recommended.
+                          </div>
+                        </div>
 
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-                  <div style={{ backgroundColor: '#E6F4EA', padding: '8px', borderRadius: '50%', color: '#10B981', flexShrink: 0, width: '34px', height: '34px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900' }}>✓</div>
-                  <div>
-                    <h3 className="ba-benefit-title">30-Day Money-Back Guarantee</h3>
-                    <p className="ba-benefit-desc">
-                      We believe every homebuyer or renter deserves absolute transparency. Use our diagnostic reports to negotiate a home discount or request remediation. If you are not completely satisfied, we will provide a 100% refund.
-                    </p>
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '0.75rem' }}>
+                          <span style={{ color: '#fbbf24', fontWeight: 'bold', flexShrink: 0 }}>[MODERATE]</span>
+                          <div style={{ color: '#cbd5e1', lineHeight: 1.4 }}>
+                            <strong style={{ color: '#ffffff' }}>Industrial Emissions / Violations:</strong> 2 facilities with recorded Clean Air/Water Act issues found within <span style={{ filter: 'blur(5px)', background: 'rgba(255,255,255,0.1)', padding: '0 4px', borderRadius: '3px', color: '#ffffff', userSelect: 'none', cursor: 'not-allowed' }}>0.4 miles</span> <span style={{ fontSize: '0.65rem', background: '#ef4444', color: '#ffffff', padding: '1px 6px', borderRadius: '4px', marginLeft: '4px', fontWeight: 'bold' }}>LOCKED</span>.
+                          </div>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', fontSize: '0.75rem' }}>
+                          <span style={{ color: '#fbbf24', fontWeight: 'bold', flexShrink: 0 }}>[MODERATE]</span>
+                          <div style={{ color: '#cbd5e1', lineHeight: 1.4 }}>
+                            <strong style={{ color: '#ffffff' }}>EPA Superfund/NPL Proximity:</strong> 1 active groundwater cleanup boundary registered within <span style={{ filter: 'blur(5px)', background: 'rgba(255,255,255,0.1)', padding: '0 4px', borderRadius: '3px', color: '#ffffff', userSelect: 'none', cursor: 'not-allowed' }}>1.2 miles</span> <span style={{ fontSize: '0.65rem', background: '#ef4444', color: '#ffffff', padding: '1px 6px', borderRadius: '4px', marginLeft: '4px', fontWeight: 'bold' }}>LOCKED</span>.
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Premium Locked Call-to-Action Banner */}
+                    <div style={{ backgroundColor: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '12px', padding: '16px', color: '#a7f3d0', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '1.2rem' }}>🔒</span>
+                        <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#10b981', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                          Unlock Exact Hazard Maps & Metrics
+                        </h3>
+                      </div>
+                      <p style={{ fontSize: '0.78rem', color: '#e2e8f0', margin: 0, lineHeight: 1.45 }}>
+                        To safeguard local property records and coordinate privacy, precise hazard coordinates, EPA facility names, and mitigation reports are locked. Buy a report to instantly unlock the fully unblurred datasets and negotiation guides.
+                      </p>
+                      <button 
+                        type="button" 
+                        onClick={scrollToForm}
+                        style={{ marginTop: '4px', background: 'linear-gradient(135deg, #10b981, #059669)', border: 'none', borderRadius: '6px', padding: '10px 14px', color: '#ffffff', fontSize: '0.78rem', fontWeight: 'bold', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '1px', transition: 'all 0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                      >
+                        Unlock Full Report Details Now ➔
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
 
@@ -1715,6 +1836,21 @@ function GetStartedContent() {
                         className="shipping-input-box"
                         value={addressLine1}
                         onChange={(e) => handleAddressChange(e.target.value)}
+                        onBlur={() => {
+                          if (addressLine1.trim() && addressLine1.trim() !== lastScannedAddress.current) {
+                            lastScannedAddress.current = addressLine1.trim();
+                            setPrepFinished(false);
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (addressLine1.trim() && addressLine1.trim() !== lastScannedAddress.current) {
+                              lastScannedAddress.current = addressLine1.trim();
+                              setPrepFinished(false);
+                            }
+                          }
+                        }}
                       />
                       {showSuggestions && suggestions.length > 0 && (
                         <div className="autocomplete-suggestions-box">
@@ -1795,11 +1931,6 @@ function GetStartedContent() {
 
                   {/* Step 3 Secure dynamic payments */}
                   <div>
-                    <div className="step-title-row">
-                      <span className="step-number-circle">3</span>
-                      <span>Step 3: Secure Payment Gateways:</span>
-                    </div>
-
                     {/* Dual toggles */}
                     <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
                       <button 

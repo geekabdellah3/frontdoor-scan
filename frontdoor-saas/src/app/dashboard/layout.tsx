@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ShieldCheck, LayoutDashboard, FileText, CreditCard, Settings, LogOut } from 'lucide-react';
+import { ShieldCheck, LayoutDashboard, FileText, CreditCard, Settings, LogOut, ShieldAlert } from 'lucide-react';
 
 export default function DashboardLayout({
   children,
@@ -31,6 +31,10 @@ export default function DashboardLayout({
           <Link href="/dashboard/settings" className="flex items-center" style={{ gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', color: 'var(--text-secondary)' }}>
             <Settings size={20} />
             <span style={{ fontWeight: 500 }}>Settings</span>
+          </Link>
+          <Link href="/dashboard/admin" className="flex items-center animate-pulse" style={{ gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', color: 'var(--accent-primary)', background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.1)' }}>
+            <ShieldAlert size={20} />
+            <span style={{ fontWeight: 700 }}>Admin Portal</span>
           </Link>
         </nav>
         

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Search, MapPin, Loader2, ShieldCheck, Home, AlertTriangle, Droplets, Wind, Mountain, Waves, Factory, Activity, Server, Sun, MessageSquare, Shield, CheckCircle2, Lock, Tag, FileText } from 'lucide-react';
+import { MapPin, Loader2, Home, AlertTriangle, Droplets, Wind, Mountain, Waves, Factory, Activity, Server, Sun, MessageSquare, Shield, CheckCircle2, Lock, Tag, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
@@ -67,91 +67,90 @@ export default function Hero() {
   }, [dropdownRef]);
 
   // Debounced search for address suggestions
+  // Debounced search for address suggestions with instant local suggestions
   useEffect(() => {
-    const fetchSuggestions = async () => {
-      const query = address.trim();
-      if (query.length < 3 || isValidAddress) {
+    const query = address.trim();
+    if (query.length < 3 || isValidAddress) {
+      const timer = setTimeout(() => {
         setSuggestions([]);
-        return;
-      }
+        setShowSuggestions(false);
+      }, 0);
+      return () => clearTimeout(timer);
+    }
 
-      // Check query cache first for 0ms loading
-      const cacheKey = query.toLowerCase();
-      if (cacheRef.current[cacheKey]) {
+    // 1. Generate local fallback suggestions + dynamic suggestions instantly
+    const fallbackMatches = FALLBACK_ADDRESSES.filter(addr => 
+      addr.toLowerCase().includes(query.toLowerCase())
+    ).map((addr, index) => ({
+      place_id: 1000000 + index,
+      display_name: addr
+    }));
+
+    const queryClean = query.replace(/,\s*$/, '');
+    const dynamicMatches = [
+      `${queryClean}, Austin, TX 78701`,
+      `${queryClean}, New York, NY 10011`,
+      `${queryClean}, Los Angeles, CA 90015`,
+      `${queryClean}, Chicago, IL 60606`,
+      `${queryClean}, Miami, FL 33101`
+    ].map((addr, index) => ({
+      place_id: 2000000 + index,
+      display_name: addr
+    }));
+
+    const combinedMatches = [...fallbackMatches, ...dynamicMatches].slice(0, 5);
+    
+    // Set suggestions instantly to eliminate any lag or API blocking issues
+    const instantTimer = setTimeout(() => {
+      setSuggestions(combinedMatches);
+      setShowSuggestions(true);
+    }, 0);
+
+    // Check query cache first for instant cache hits (skip background fetch if cached)
+    const cacheKey = query.toLowerCase();
+    if (cacheRef.current[cacheKey]) {
+      const cacheTimer = setTimeout(() => {
         setSuggestions(cacheRef.current[cacheKey]);
-        setShowSuggestions(true);
-        return;
-      }
+      }, 0);
+      return () => {
+        clearTimeout(instantTimer);
+        clearTimeout(cacheTimer);
+      };
+    }
 
+    // 2. Fetch from Nominatim API in the background with an AbortController
+    const controller = new AbortController();
+    const fetchSuggestionsAPI = async () => {
       setIsLoading(true);
       try {
-        // Using Nominatim API for free, open-source geocoding (restricted to US for this app)
-        // Optimized URL: Omitted 'addressdetails=1' to prevent slow database joins on OpenStreetMap servers
-        const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&countrycodes=us`);
-        const data = await response.json();
-        
-        // Save to query cache
-        cacheRef.current[cacheKey] = data;
-        
-        if (Array.isArray(data) && data.length > 0) {
-          setSuggestions(data);
-        } else {
-          // Local fallback suggestions + dynamic suggestions when API yields no results
-          const fallbackMatches = FALLBACK_ADDRESSES.filter(addr => 
-            addr.toLowerCase().includes(query.toLowerCase())
-          ).map((addr, index) => ({
-            place_id: 1000000 + index,
-            display_name: addr
-          }));
-
-          const queryClean = query.replace(/,\s*$/, '');
-          const dynamicMatches = [
-            `${queryClean}, Austin, TX 78701`,
-            `${queryClean}, New York, NY 10011`,
-            `${queryClean}, Los Angeles, CA 90015`,
-            `${queryClean}, Chicago, IL 60606`,
-            `${queryClean}, Miami, FL 33101`
-          ].map((addr, index) => ({
-            place_id: 2000000 + index,
-            display_name: addr
-          }));
-
-          const combinedMatches = [...fallbackMatches, ...dynamicMatches].slice(0, 5);
-          setSuggestions(combinedMatches);
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&countrycodes=us`,
+          { signal: controller.signal }
+        );
+        if (response.ok) {
+          const data = await response.json();
+          cacheRef.current[cacheKey] = data;
+          if (Array.isArray(data) && data.length > 0) {
+            setSuggestions(data);
+          }
         }
-        setShowSuggestions(true);
       } catch (err) {
-        console.error("Failed to fetch suggestions, using local fallbacks:", err);
-        const fallbackMatches = FALLBACK_ADDRESSES.filter(addr => 
-          addr.toLowerCase().includes(query.toLowerCase())
-        ).map((addr, index) => ({
-          place_id: 1000000 + index,
-          display_name: addr
-        }));
-
-        const queryClean = query.replace(/,\s*$/, '');
-        const dynamicMatches = [
-          `${queryClean}, Austin, TX 78701`,
-          `${queryClean}, New York, NY 10011`,
-          `${queryClean}, Los Angeles, CA 90015`,
-          `${queryClean}, Chicago, IL 60606`,
-          `${queryClean}, Miami, FL 33101`
-        ].map((addr, index) => ({
-          place_id: 2000000 + index,
-          display_name: addr
-        }));
-
-        const combinedMatches = [...fallbackMatches, ...dynamicMatches].slice(0, 5);
-        setSuggestions(combinedMatches);
-        setShowSuggestions(combinedMatches.length > 0);
+        if (err instanceof Error && err.name !== 'AbortError') {
+          console.error("Failed to fetch suggestions, using local fallbacks:", err);
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
-    // Reduced debounce timer from 500ms to 150ms for instantaneous feeling
-    const debounceTimer = setTimeout(fetchSuggestions, 150);
-    return () => clearTimeout(debounceTimer);
+    const debounceTimer = setTimeout(() => {
+      fetchSuggestionsAPI();
+    }, 150);
+
+    return () => {
+      clearTimeout(debounceTimer);
+      controller.abort();
+    };
   }, [address, isValidAddress]);
 
   // Search transition animation & step loader
@@ -184,8 +183,8 @@ export default function Hero() {
     return () => cancelAnimationFrame(frameId);
   }, [isTransitioning, address, router]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSearch = (e?: React.FormEvent | React.MouseEvent) => {
+    if (e) e.preventDefault();
     const query = address.trim();
     if (!query || query.length < 5) {
       setError('Please enter a valid US address (at least 5 characters).');
@@ -324,154 +323,160 @@ export default function Hero() {
                </div>
             </div>
 
-            {/* Input Wrapper */}
-            <div style={{ position: 'relative', width: '100%', marginBottom: '16px' }} ref={dropdownRef}>
-              <form onSubmit={handleSearch} style={{ position: 'relative' }}>
-                <MapPin color="#94a3b8" size={20} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
-                <label htmlFor="address-input" style={{
-                  position: 'absolute',
-                  width: '1px',
-                  height: '1px',
-                  padding: '0',
-                  margin: '-1px',
-                  overflow: 'hidden',
-                  clip: 'rect(0, 0, 0, 0)',
-                  whiteSpace: 'nowrap',
-                  border: '0'
-                }}>US Address</label>
-                <input 
-                  type="text" 
-                  id="address-input"
-                  name="address"
-                  autoComplete="street-address"
-                  placeholder="123 Main St, Austin, TX" 
-                  value={address}
-                  onChange={handleInputChange}
-                  disabled={isTransitioning}
-                  style={{ 
+            {/* Form wrapping both input and submit button cleanly */}
+            <form onSubmit={handleSearch} style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
+              {/* Input Wrapper */}
+              <div style={{ position: 'relative', width: '100%', marginBottom: '16px' }} ref={dropdownRef}>
+                <div style={{ position: 'relative' }}>
+                  <MapPin color="#94a3b8" size={20} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', zIndex: 10 }} />
+                  <label htmlFor="address-input" style={{
+                    position: 'absolute',
+                    width: '1px',
+                    height: '1px',
+                    padding: '0',
+                    margin: '-1px',
+                    overflow: 'hidden',
+                    clip: 'rect(0, 0, 0, 0)',
+                    whiteSpace: 'nowrap',
+                    border: '0'
+                  }}>US Address</label>
+                  <input 
+                    type="text" 
+                    id="address-input"
+                    name="address"
+                    autoComplete="street-address"
+                    placeholder="123 Main St, Austin, TX" 
+                    value={address}
+                    onChange={handleInputChange}
+                    disabled={isTransitioning}
+                    style={{ 
+                      width: '100%', 
+                      background: '#ffffff', 
+                      border: error ? '1.5px solid #ef4444' : '1.5px solid #e2e8f0', 
+                      padding: '16px 16px 16px 48px', 
+                      color: '#09090b',
+                      borderRadius: '12px',
+                      outline: 'none',
+                      fontSize: '1rem',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
+                      transition: 'all 0.2s ease-in-out'
+                    }}
+                    onFocus={(e) => {
+                      if (!error) e.currentTarget.style.borderColor = '#10b981';
+                      e.currentTarget.style.boxShadow = '0 0 0 4px rgba(16, 185, 129, 0.1)';
+                      if (address.trim().length >= 3) {
+                        setShowSuggestions(true);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      if (!error) e.currentTarget.style.borderColor = '#e2e8f0';
+                      e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.02)';
+                    }}
+                    required
+                  />
+                  {isLoading && (
+                    <Loader2 className="animate-spin" color="#10b981" size={20} style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', zIndex: 10 }} />
+                  )}
+                </div>
+
+                {error && (
+                  <div style={{ color: '#ef4444', fontSize: '0.85rem', marginTop: '8px' }}>
+                    {error}
+                  </div>
+                )}
+
+                {/* Autocomplete Dropdown */}
+                {showSuggestions && suggestions.length > 0 && (
+                  <div style={{ 
+                    position: 'absolute', 
+                    top: 'calc(100% + 8px)', 
+                    left: 0, 
                     width: '100%', 
                     background: '#ffffff', 
-                    border: error ? '1.5px solid #ef4444' : '1.5px solid #e2e8f0', 
-                    padding: '16px 16px 16px 48px', 
-                    color: '#09090b',
-                    borderRadius: '12px',
-                    outline: 'none',
-                    fontSize: '1rem',
-                    boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
-                    transition: 'all 0.2s ease-in-out'
-                  }}
-                  onFocus={(e) => {
-                    if (!error) e.currentTarget.style.borderColor = '#10b981';
-                    e.currentTarget.style.boxShadow = '0 0 0 4px rgba(16, 185, 129, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    if (!error) e.currentTarget.style.borderColor = '#e2e8f0';
-                    e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.02)';
-                  }}
-                  required
-                />
-                {isLoading && (
-                  <Loader2 className="animate-spin" color="#10b981" size={20} style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+                    zIndex: 50, 
+                    borderRadius: '12px', 
+                    overflow: 'hidden',
+                    textAlign: 'left',
+                    boxShadow: '0 12px 30px rgba(0,0,0,0.08), 0 0 1px rgba(0,0,0,0.1)',
+                    border: '1px solid #e2e8f0',
+                    padding: '4px'
+                  }}>
+                    <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+                      {suggestions.map((suggestion) => (
+                        <li 
+                          key={suggestion.place_id} 
+                          onClick={() => handleSuggestionClick(suggestion)}
+                          style={{ 
+                            padding: '12px 16px', 
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            color: '#334155',
+                            transition: 'background-color 0.15s ease'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = '#f1f5f9'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                        >
+                          <MapPin size={16} color="#94a3b8" style={{ flexShrink: 0 }} />
+                          <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>{suggestion.display_name}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
-              </form>
+              </div>
 
-              {error && (
-                <div style={{ color: '#ef4444', fontSize: '0.85rem', marginTop: '8px' }}>
-                  {error}
-                </div>
-              )}
-
-              {/* Autocomplete Dropdown */}
-              {showSuggestions && suggestions.length > 0 && (
-                <div style={{ 
-                  position: 'absolute', 
-                  top: 'calc(100% + 8px)', 
-                  left: 0, 
+              {/* Native Submit Button inside Form */}
+              <button 
+                type="submit"
+                disabled={isTransitioning}
+                style={{ 
                   width: '100%', 
-                  background: '#ffffff', 
-                  zIndex: 50, 
+                  background: isTransitioning ? '#64748b' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
+                  color: 'white', 
+                  padding: '16px', 
                   borderRadius: '12px', 
-                  overflow: 'hidden',
-                  textAlign: 'left',
-                  boxShadow: '0 12px 30px rgba(0,0,0,0.08), 0 0 1px rgba(0,0,0,0.1)',
-                  border: '1px solid #e2e8f0',
-                  padding: '4px'
-                }}>
-                  <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-                    {suggestions.map((suggestion) => (
-                      <li 
-                        key={suggestion.place_id} 
-                        onClick={() => handleSuggestionClick(suggestion)}
-                        style={{ 
-                          padding: '12px 16px', 
-                          borderRadius: '8px',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '12px',
-                          color: '#334155',
-                          transition: 'background-color 0.15s ease'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.background = '#f1f5f9'}
-                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                      >
-                        <MapPin size={16} color="#94a3b8" style={{ flexShrink: 0 }} />
-                        <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>{suggestion.display_name}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            {/* Button */}
-            <button 
-              onClick={handleSearch} 
-              disabled={isTransitioning}
-              style={{ 
-                width: '100%', 
-                background: isTransitioning ? '#64748b' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
-                color: 'white', 
-                padding: '16px', 
-                borderRadius: '12px', 
-                fontWeight: 600, 
-                fontSize: '1.05rem', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                gap: '8px', 
-                border: 'none', 
-                cursor: isTransitioning ? 'not-allowed' : 'pointer', 
-                marginBottom: '16px', 
-                transition: 'all 0.2s ease',
-                boxShadow: isTransitioning ? 'none' : '0 4px 12px rgba(16, 185, 129, 0.2)',
-                opacity: isTransitioning ? 0.8 : 1
-              }} 
-              onMouseEnter={e => {
-                if (isTransitioning) return;
-                e.currentTarget.style.transform = 'translateY(-1px)';
-                e.currentTarget.style.boxShadow = '0 6px 20px rgba(16, 185, 129, 0.3)';
-                e.currentTarget.style.filter = 'brightness(1.05)';
-              }} 
-              onMouseLeave={e => {
-                if (isTransitioning) return;
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.2)';
-                e.currentTarget.style.filter = 'brightness(1)';
-              }}
-            >
-              {isTransitioning ? (
-                <>
-                  <Loader2 size={20} className="animate-spin" />
-                  Compiling Live Telemetry...
-                </>
-              ) : (
-                <>
-                  <FileText size={20} />
-                  Unlock Full Report Now — $49
-                </>
-              )}
-            </button>
+                  fontWeight: 600, 
+                  fontSize: '1.05rem', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  gap: '8px', 
+                  border: 'none', 
+                  cursor: isTransitioning ? 'not-allowed' : 'pointer', 
+                  marginBottom: '16px', 
+                  transition: 'all 0.2s ease',
+                  boxShadow: isTransitioning ? 'none' : '0 4px 12px rgba(16, 185, 129, 0.2)',
+                  opacity: isTransitioning ? 0.8 : 1
+                }} 
+                onMouseEnter={e => {
+                  if (isTransitioning) return;
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(16, 185, 129, 0.3)';
+                  e.currentTarget.style.filter = 'brightness(1.05)';
+                }} 
+                onMouseLeave={e => {
+                  if (isTransitioning) return;
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.2)';
+                  e.currentTarget.style.filter = 'brightness(1)';
+                }}
+              >
+                {isTransitioning ? (
+                  <>
+                    <Loader2 size={20} className="animate-spin" />
+                    Compiling Live Telemetry...
+                  </>
+                ) : (
+                  <>
+                    <FileText size={20} />
+                    Unlock Full Report Now — $49
+                  </>
+                )}
+              </button>
+            </form>
 
             <p style={{ textAlign: 'center', fontSize: '0.8rem', color: '#64748b', marginBottom: '24px' }}>
               Pay, enter your email at checkout, get the full report by email in minutes.

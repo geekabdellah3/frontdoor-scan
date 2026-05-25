@@ -10,6 +10,26 @@ interface Suggestion {
   display_name: string;
 }
 
+const FALLBACK_ADDRESSES = [
+  '123 Main St, Austin, TX 78701',
+  '1600 Amphitheatre Pkwy, Mountain View, CA 94043',
+  '111 8th Ave, New York, NY 10011',
+  '1600 Pennsylvania Avenue NW, Washington, DC 20500',
+  '350 5th Ave, New York, NY 10118',
+  '1313 Disneyland Dr, Anaheim, CA 92802',
+  '233 S Wacker Dr, Chicago, IL 60606',
+  '100 Universal City Plaza, Universal City, CA 91608',
+  '501 Congress Ave, Austin, TX 78701',
+  '701 San Jacinto Blvd, Austin, TX 78701',
+  '2211 Michelson Dr, Irvine, CA 92612',
+  '1 Infinite Loop, Cupertino, CA 95014',
+  '1601 Willow Rd, Menlo Park, CA 94025',
+  '1111 S Figueroa St, Los Angeles, CA 90015',
+  '2000 Post St, San Francisco, CA 94115',
+  '742 Evergreen Terrace, Springfield, OR 97477',
+  '1060 W Addison St, Chicago, IL 60613'
+];
+
 const TRANSITION_STEPS = [
   'ESTABLISHING ENCRYPTED GOVERNMENT GATEWAY...',
   'QUERYING STATE EPA WATER HAZARD REGISTRIES...',
@@ -73,10 +93,29 @@ export default function Hero() {
         // Save to query cache
         cacheRef.current[cacheKey] = data;
         
-        setSuggestions(data);
+        if (Array.isArray(data) && data.length > 0) {
+          setSuggestions(data);
+        } else {
+          // Local fallback suggestions when API yields no results
+          const fallbackMatches = FALLBACK_ADDRESSES.filter(addr => 
+            addr.toLowerCase().includes(query.toLowerCase())
+          ).map((addr, index) => ({
+            place_id: 1000000 + index,
+            display_name: addr
+          }));
+          setSuggestions(fallbackMatches);
+        }
         setShowSuggestions(true);
       } catch (err) {
-        console.error("Failed to fetch suggestions:", err);
+        console.error("Failed to fetch suggestions, using local fallbacks:", err);
+        const fallbackMatches = FALLBACK_ADDRESSES.filter(addr => 
+          addr.toLowerCase().includes(query.toLowerCase())
+        ).map((addr, index) => ({
+          place_id: 1000000 + index,
+          display_name: addr
+        }));
+        setSuggestions(fallbackMatches);
+        setShowSuggestions(fallbackMatches.length > 0);
       } finally {
         setIsLoading(false);
       }
@@ -119,12 +158,13 @@ export default function Hero() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isValidAddress) {
-      setError('Please select a valid address from the dropdown suggestions.');
+    const query = address.trim();
+    if (!query || query.length < 5) {
+      setError('Please enter a valid US address (at least 5 characters).');
       return;
     }
     
-    if (address.trim() && !isTransitioning) {
+    if (!isTransitioning) {
       setIsTransitioning(true);
       setTransitionProgress(0);
       setTransitionStep(0);
@@ -260,8 +300,22 @@ export default function Hero() {
             <div style={{ position: 'relative', width: '100%', marginBottom: '16px' }} ref={dropdownRef}>
               <form onSubmit={handleSearch} style={{ position: 'relative' }}>
                 <MapPin color="#94a3b8" size={20} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+                <label htmlFor="address-input" style={{
+                  position: 'absolute',
+                  width: '1px',
+                  height: '1px',
+                  padding: '0',
+                  margin: '-1px',
+                  overflow: 'hidden',
+                  clip: 'rect(0, 0, 0, 0)',
+                  whiteSpace: 'nowrap',
+                  border: '0'
+                }}>US Address</label>
                 <input 
                   type="text" 
+                  id="address-input"
+                  name="address"
+                  autoComplete="street-address"
                   placeholder="123 Main St, Austin, TX" 
                   value={address}
                   onChange={handleInputChange}

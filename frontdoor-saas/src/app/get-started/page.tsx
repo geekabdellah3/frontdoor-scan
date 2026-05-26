@@ -98,7 +98,7 @@ function DiagnosticTrap({ prepProgress, prepFinished, addressLine1, onScrollToFo
         <div className="dt-anomaly-section">
           <div className="dt-anomaly-header">
             <div className="dt-anomaly-title">
-              Something was detected near<br />
+              Environmental anomalies flagged near<br />
               <span style={{ color: 'var(--green)' }}>{addressLine1 || 'your property'}</span>
             </div>
             <div className="dt-score-pill">
@@ -129,7 +129,7 @@ function DiagnosticTrap({ prepProgress, prepFinished, addressLine1, onScrollToFo
             <div className="dt-finding-row">
               <div className="dt-finding-icon" style={{ background: '#fffbeb' }}>⚗️</div>
               <div style={{ flex: 1 }}>
-                <div className="dt-finding-label">Environmental vector flagged</div>
+                <div className="dt-finding-label">Environmental hazard flagged</div>
                 <div className="dt-finding-sub">Potential property value impact: <strong style={{ color: '#dc2626' }}>-░░% to -░░%</strong></div>
               </div>
               <span className="dt-finding-redacted">LOCKED</span>
@@ -147,7 +147,7 @@ function DiagnosticTrap({ prepProgress, prepFinished, addressLine1, onScrollToFo
         {/* Authority paradox */}
         <div className="dt-authority-box">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2.5" strokeLinecap="round" style={{ flexShrink: 0, marginTop: 1 }}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          <span><strong>Federal regulations</strong> restrict us from displaying exact facility coordinates and violation records without identity verification. This protects local property markets from coordinated manipulation.</span>
+          <span><strong>Federal data licensing terms</strong> require purchase verification before full facility coordinates and violation records can be displayed. This protects data integrity and prevents bulk exploitation of public safety records.</span>
         </div>
         {/* Social mirror */}
         <div className="dt-social-mirror">
@@ -2486,7 +2486,7 @@ function GetStartedContent() {
 
       {/* 1. Top Announcement Bar */}
       <div className="announcement-bar">
-        ⚡ SURGICAL CAPACITY ALERT: 574 OTHER BUYERS ARE CURRENTLY RUNNING HAZARD SEARCHES. ACTIVATE YOUR 30-DAY PRICE GUARANTEE.
+        ⚡ 574 buyers are checking properties right now — Complete your report and lock in our 30-day money-back guarantee
       </div>
 
       {/* 2. Centered Logo Header */}
@@ -2518,7 +2518,7 @@ function GetStartedContent() {
                 Know what&apos;s in your water, air, and soil before you sign.
               </h1>
               <p className="page-intro-subtitle">
-                Secure property-specific reports compiled from <strong style={{ color: '#10b981' }}>15+ federal, state, and local agencies</strong>. Instantly armed with bargaining chips for pricing negotiation.
+                Property-specific reports compiled from <strong style={{ color: '#10b981' }}>15+ federal, state, and local agencies</strong> — so you can negotiate a better price or walk away before it&apos;s too late.
               </p>
             </div>
 
@@ -2556,14 +2556,14 @@ function GetStartedContent() {
                     className={`tab-toggle-button ${purchaseType === 'onetime' ? 'active' : ''}`}
                     onClick={() => handleTabChange('onetime')}
                   >
-                    Single property search
+                    Single Report — 1 Property
                   </button>
                 </div>
 
                 {/* Supply Warning board */}
                 <div className="availability-meter-panel">
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.72rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '0.5px' }}>RECOVERY DATABASE SERVERS</span>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '0.5px' }}>FEDERAL DATABASE QUERY LOAD</span>
                     <span style={{ background: '#FEF2F2', border: '1px solid rgba(16,185,129,0.15)', color: '#10B981', fontSize: '0.65rem', fontWeight: 900, padding: '2px 10px', borderRadius: '99px', textTransform: 'uppercase' }}>HIGH SEARCH VOLUME</span>
                   </div>
                   <div className="availability-bar-grid">
@@ -2578,7 +2578,7 @@ function GetStartedContent() {
                     <span className="availability-bar-block inactive"></span>
                     <span className="availability-bar-block inactive"></span>
                   </div>
-                  <p style={{ color: '#059669', fontSize: '0.75rem', fontWeight: 700, margin: '4px 0 0 0', lineHeight: 1.3 }}>Warning: Property search volumes are surging. Complete checkout to guarantee immediate 5-minute report dispatch.</p>
+                  <p style={{ color: '#059669', fontSize: '0.75rem', fontWeight: 700, margin: '4px 0 0 0', lineHeight: 1.3 }}>High query volume detected. Complete checkout now to guarantee priority 5-minute report delivery.</p>
                 </div>
 
                 {/* Selector cards */}
@@ -2599,15 +2599,15 @@ function GetStartedContent() {
                       <FileText size={20} />
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-primary)' }}>Single Property Report — Save 30%</div>
-                      <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '2px 0 0 0', lineHeight: 1.3 }}>1 full diagnostic report. Emailed PDF download.</p>
+                      <div style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-primary)' }}>Single Property Report — 30% Off Today</div>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '2px 0 0 0', lineHeight: 1.3 }}>1 full environmental report. PDF delivered to your inbox.</p>
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontSize: '0.7rem', color: '#EF4444', textDecoration: 'line-through', fontWeight: 700 }}>Reg $69</div>
                     <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)' }}>$49.00 each</div>
                     <div style={{ fontSize: '0.72rem', color: '#10B981', fontWeight: 800 }}>Saved $20</div>
-                    <div style={{ fontSize: '0.62rem', color: '#3B82F6', fontWeight: 900, textTransform: 'uppercase', marginTop: '2px' }}>FREE PDF CONVERTER</div>
+                    <div style={{ fontSize: '0.62rem', color: '#3B82F6', fontWeight: 900, textTransform: 'uppercase', marginTop: '2px' }}>FREE NEGOTIATION SCRIPT</div>
                   </div>
                 </div>
 
@@ -2636,7 +2636,7 @@ function GetStartedContent() {
                         5-Property Bundle — Save 42%
                         <span style={{ background: '#10B981', color: '#ffffff', fontSize: '0.58rem', fontWeight: 900, padding: '1px 6px', borderRadius: '99px' }}>POPULAR</span>
                       </div>
-                      <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '2px 0 0 0', lineHeight: 1.3 }}>Compare up to 5 properties side-by-side. Valid 6 months.</p>
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '2px 0 0 0', lineHeight: 1.3 }}>Scan up to 5 properties. Identify the safest one. Valid 6 months.</p>
                     </div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
@@ -2699,7 +2699,7 @@ function GetStartedContent() {
                   <div>
                     <h4 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#047857', margin: '0 0 4px 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>30-Day Money-Back Guarantee:</h4>
                     <p style={{ fontSize: '0.75rem', color: '#065F46', margin: 0, lineHeight: 1.4 }}>
-                      We cross-reference direct government datasets. If our reports fail to reveal hidden hazard risks, highlight air/water contaminants, or strengthen your home purchase/rental bargaining position, simply request a hassle-free, immediate refund.
+                      We cross-reference direct government datasets. If our report fails to surface hidden hazard risks, highlight air or water contaminants, or give you a clear edge when negotiating price, simply request a full, hassle-free refund.
                     </p>
                   </div>
                 </div>
@@ -2724,7 +2724,7 @@ function GetStartedContent() {
                   <div>
                     <div className="step-title-row">
                       <span className="step-number-circle">2</span>
-                      <span>Step 2: Property &amp; Buyer Information:</span>
+                      <span>Step 2: Your Property &amp; Contact Details</span>
                     </div>
 
                     <div className="shipping-grid-2col">
@@ -3003,7 +3003,7 @@ function GetStartedContent() {
                     {/* Submit purchase & compliance notice */}
                     <div style={{ marginTop: '24px' }}>
                       <p style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', lineHeight: 1.45, textAlign: 'center', marginBottom: '14px' }}>
-                        By submitting &quot;Complete report scan&quot; you authorize the secure compilation of environmental databases for your target coordinate. We protect your data using fully encrypted, bank-compliant gateways.
+                        By clicking below you authorize Front Door Fax to compile environmental data for your target property address. Your payment is processed over a fully encrypted, bank-grade secure gateway.
                       </p>
                       
                       <button type="submit" className="complete-purchase-btn-green">
@@ -3033,18 +3033,18 @@ function GetStartedContent() {
             {/* 10. Sticky bottom action bar floating banner */}
             <div className="sticky-action-banner">
               <div>
-                <span style={{ fontSize: '0.72rem', fontWeight: 900, color: '#10B981', textTransform: 'uppercase', letterSpacing: '1px' }}>PROMOTIONAL OFFER ACTIVATED</span>
+                <span style={{ fontSize: '0.72rem', fontWeight: 900, color: '#10B981', textTransform: 'uppercase', letterSpacing: '1px' }}>LIMITED-TIME OFFER</span>
                 <div style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                  Save up to 42% on Comprehensive Property Hazards Scan (${finalPrice.toFixed(2)} Due Today)
+                  Know what&apos;s hiding near your property — ${finalPrice.toFixed(2)} today, 30-day guarantee
                 </div>
               </div>
-              <button 
-                type="button" 
-                className="complete-purchase-btn-green" 
-                style={{ width: 'auto', padding: '12px 32px', fontSize: '0.95rem', borderRadius: '6px' }} 
+              <button
+                type="button"
+                className="complete-purchase-btn-green"
+                style={{ width: 'auto', padding: '12px 32px', fontSize: '0.95rem', borderRadius: '6px' }}
                 onClick={scrollToForm}
               >
-                Claim Save 42% Offer Now
+                Get My Property Report →
               </button>
             </div>
 
@@ -3098,10 +3098,10 @@ function GetStartedContent() {
               </div>
 
               <span style={{ textTransform: 'uppercase', color: '#10B981', fontSize: '0.85rem', fontWeight: 800, letterSpacing: '1.5px' }}>Property Scan Complete &amp; Verified</span>
-              <h1 style={{ fontSize: '2.3rem', fontWeight: 800, margin: '12px 0 16px 0', letterSpacing: '-0.03em', lineHeight: 1.2 }}>Your Environmental Hazard Report is Ready!</h1>
+              <h1 style={{ fontSize: '2.3rem', fontWeight: 800, margin: '12px 0 16px 0', letterSpacing: '-0.03em', lineHeight: 1.2 }}>Your Property Environmental Report is Ready</h1>
               
               <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: 1.6, maxWidth: '620px', margin: '0 auto 36px auto' }}>
-                Congratulations! We have successfully processed your secure payment of <strong style={{ color: 'var(--text-primary)' }}>${finalPrice.toFixed(2)}</strong>. Our telemetry engines have successfully geocoded and compiled environmental datasets for <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{addressLine1}</span>. A full high-resolution PDF download link and secure negotiation letters have been emailed to <strong style={{ color: 'var(--text-primary)' }}>{email}</strong>.
+                Payment of <strong style={{ color: 'var(--text-primary)' }}>${finalPrice.toFixed(2)}</strong> confirmed. We&apos;ve compiled and verified your full environmental data for <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{addressLine1}</span>. Your PDF report and negotiation letters have been sent to <strong style={{ color: 'var(--text-primary)' }}>{email}</strong>.
               </p>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', maxWidth: '400px', margin: '0 auto' }}>

@@ -25,6 +25,179 @@ const FRONT_DOOR_MOCK_ADDRESSES = [
   { street: "555 Congress Avenue", city: "Austin", state: "TX", zip: "78701" }
 ];
 
+// ─── DIAGNOSTIC TRAP COMPONENT ───────────────────────────────────────────────
+const SCAN_LOGS = [
+  { pct: 0,  icon: '✓', text: 'Initializing secure EPA ECHO connection...' },
+  { pct: 18, icon: '✓', text: 'Querying FEMA flood map registry... [CONNECTED]' },
+  { pct: 35, icon: '✓', text: 'Cross-referencing CDC radon zone database... [OK]' },
+  { pct: 52, icon: '✓', text: 'Locating Superfund & NPL sites within 2 miles... [FOUND]' },
+  { pct: 68, icon: '✓', text: 'Scanning industrial emissions & Clean Air Act records...' },
+  { pct: 82, icon: '✓', text: 'Analyzing groundwater contamination boundaries...' },
+  { pct: 93, icon: '⚠', text: 'Anomaly detected. Verifying against EPA registry...', alert: true },
+];
+
+function DiagnosticTrap({ prepProgress, prepFinished, addressLine1, onScrollToForm }: {
+  prepProgress: number;
+  prepFinished: boolean;
+  addressLine1: string;
+  onScrollToForm: () => void;
+}) {
+  const [commitment, setCommitment] = useState<'home'|'investment'|null>(null);
+  const [nearbyCount] = useState(() => Math.floor(Math.random() * 4) + 2);
+  const [minutesAgo] = useState(() => Math.floor(Math.random() * 30) + 4);
+  const visibleLogs = SCAN_LOGS.filter(l => prepProgress >= l.pct);
+
+  if (!prepFinished) {
+    return (
+      <div className="dt-wrapper">
+        <div className="dt-scan-card">
+          <div className="dt-scan-header">
+            <span className="dt-scan-dot" />
+            <span className="dt-scan-label">Scanning federal databases for your address</span>
+            <span className="dt-scan-addr">{addressLine1 || 'Target property'}</span>
+          </div>
+          <div className="dt-progress-wrap">
+            <div className="dt-progress-bar" style={{ width: `${prepProgress}%` }} />
+          </div>
+          <div className="dt-log-body">
+            {visibleLogs.map((log, i) => (
+              <div key={i} className={`dt-log-row${(log as any).alert ? ' alert' : ''}`}>
+                <span className="dt-log-icon">
+                  {(log as any).alert ? (
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="3" strokeLinecap="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                  ) : (
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  )}
+                </span>
+                <span>{log.text}</span>
+              </div>
+            ))}
+            {prepProgress < 100 && (
+              <div className="dt-log-row" style={{ color: 'var(--text-muted)' }}>
+                <span className="dt-log-icon">
+                  <span style={{ display: 'inline-block', width: 13, height: 13, border: '2px solid #10b981', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin-anim 0.8s linear infinite' }} />
+                </span>
+                <span>Processing... {prepProgress}%</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="dt-wrapper">
+      <div className="dt-result-card">
+        {/* Stakes banner */}
+        <div className="dt-stakes-bar">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          The average buyer loses <strong style={{ color: '#fff', margin: '0 3px' }}>$31,000</strong> on undisclosed environmental issues. Most never find out why.
+        </div>
+        {/* Anomaly header */}
+        <div className="dt-anomaly-section">
+          <div className="dt-anomaly-header">
+            <div className="dt-anomaly-title">
+              Something was detected near<br />
+              <span style={{ color: 'var(--green)' }}>{addressLine1 || 'your property'}</span>
+            </div>
+            <div className="dt-score-pill">
+              <span className="dt-score-number">74</span>
+              <span className="dt-score-label">Risk Score</span>
+            </div>
+          </div>
+          {/* Incomplete loop */}
+          <div className="dt-incomplete-bar">
+            <div style={{ flex: 1 }}>
+              <div className="dt-incomplete-text">Your property risk profile is <strong>73% complete.</strong> 1 critical finding requires verification before your full score can be calculated.</div>
+              <div style={{ height: 5, background: '#dcfce7', borderRadius: 99, marginTop: 8, overflow: 'hidden' }}>
+                <div style={{ width: '73%', height: '100%', background: 'linear-gradient(90deg,#10b981,#1a7a4a)', borderRadius: 99 }} />
+              </div>
+            </div>
+            <span className="dt-incomplete-pct">73%</span>
+          </div>
+          {/* Phantom findings */}
+          <div className="dt-findings">
+            <div className="dt-finding-row">
+              <div className="dt-finding-icon" style={{ background: '#fef2f2' }}>🏭</div>
+              <div style={{ flex: 1 }}>
+                <div className="dt-finding-label">Critical finding requires verification</div>
+                <div className="dt-finding-sub">A registered site was found within <strong style={{ color: '#dc2626' }}>░░░ meters</strong> of your front door</div>
+              </div>
+              <span className="dt-finding-redacted">LOCKED</span>
+            </div>
+            <div className="dt-finding-row">
+              <div className="dt-finding-icon" style={{ background: '#fffbeb' }}>⚗️</div>
+              <div style={{ flex: 1 }}>
+                <div className="dt-finding-label">Environmental vector flagged</div>
+                <div className="dt-finding-sub">Potential property value impact: <strong style={{ color: '#dc2626' }}>-░░% to -░░%</strong></div>
+              </div>
+              <span className="dt-finding-redacted">LOCKED</span>
+            </div>
+            <div className="dt-finding-row">
+              <div className="dt-finding-icon" style={{ background: '#f0fdf4' }}>💧</div>
+              <div style={{ flex: 1 }}>
+                <div className="dt-finding-label">Proximity alert triggered</div>
+                <div className="dt-finding-sub">Last reported violation: <strong style={{ color: '#dc2626' }}>░░░░ 2024</strong></div>
+              </div>
+              <span className="dt-finding-redacted">LOCKED</span>
+            </div>
+          </div>
+        </div>
+        {/* Authority paradox */}
+        <div className="dt-authority-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2.5" strokeLinecap="round" style={{ flexShrink: 0, marginTop: 1 }}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <span><strong>Federal regulations</strong> restrict us from displaying exact facility coordinates and violation records without identity verification. This protects local property markets from coordinated manipulation.</span>
+        </div>
+        {/* Social mirror */}
+        <div className="dt-social-mirror">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+          <span><strong style={{ color: '#0f1a13' }}>{nearbyCount} other buyers</strong> checked this zip code in the last 48 hours · Last report accessed <strong style={{ color: '#0f1a13' }}>{minutesAgo} minutes ago</strong></span>
+        </div>
+        {/* Micro-commitment */}
+        <div className="dt-commitment-section">
+          <div className="dt-commitment-q">Is this property for your primary residence or an investment?</div>
+          <div className="dt-commitment-btns">
+            <button className={`dt-commitment-btn${commitment === 'home' ? ' selected' : ''}`} onClick={() => { setCommitment('home'); setTimeout(onScrollToForm, 350); }}>
+              🏠 My Primary Home
+            </button>
+            <button className={`dt-commitment-btn${commitment === 'investment' ? ' selected' : ''}`} onClick={() => { setCommitment('investment'); setTimeout(onScrollToForm, 350); }}>
+              📈 An Investment
+            </button>
+          </div>
+        </div>
+        {/* Loss frame + value stack + CTA */}
+        <div className="dt-cta-section">
+          <div className="dt-loss-frame">
+            Without this data, you&apos;re negotiating blind against a seller who <strong>already knows.</strong><br />
+            Sellers are <strong>not required</strong> to disclose environmental findings in most states.
+          </div>
+          <div className="dt-value-stack">
+            <div className="dt-value-row"><span>Environmental hazard full report</span><span>$149</span></div>
+            <div className="dt-value-row"><span>EPA facility names &amp; violation history</span><span>$79</span></div>
+            <div className="dt-value-row"><span>Property value impact analysis</span><span>$99</span></div>
+            <div className="dt-value-row"><span>Negotiation script (attorney-drafted)</span><span>$199</span></div>
+            <div className="dt-value-total">
+              <span>Your price today</span>
+              <span className="dt-price">$49.00</span>
+            </div>
+          </div>
+          <button className="dt-main-cta" onClick={onScrollToForm}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Reveal what was found near &ldquo;{addressLine1 ? addressLine1.split(' ').slice(0,3).join(' ') : 'your address'}&rdquo; →
+          </button>
+          <div className="dt-cta-meta">
+            <span>🔒 Secure checkout</span>
+            <span>⚡ Instant access</span>
+            <span>↩ 30-day refund</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+// ─── END DIAGNOSTIC TRAP ──────────────────────────────────────────────────────
+
 // ─── REVIEWS DATA ───────────────────────────────────────────────────────────
 const REVIEWS_DATA = [
   {
@@ -1896,6 +2069,419 @@ function GetStartedContent() {
           0%, 100% { opacity: 0.5; transform: scale(0.9); }
           50% { opacity: 1; transform: scale(1.2); }
         }
+
+        /* ── DIAGNOSTIC TRAP ── */
+        @keyframes dt-fade-in {
+          from { opacity: 0; transform: translateY(6px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes dt-blink {
+          0%,100% { opacity: 1; } 50% { opacity: 0; }
+        }
+        @keyframes dt-pulse-red {
+          0%,100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.5); }
+          50%      { box-shadow: 0 0 0 8px rgba(220,38,38,0); }
+        }
+        @keyframes dt-shake {
+          0%,100% { transform: translateX(0); }
+          20%     { transform: translateX(-3px); }
+          40%     { transform: translateX(3px); }
+          60%     { transform: translateX(-2px); }
+          80%     { transform: translateX(2px); }
+        }
+        @keyframes dt-scan-line {
+          0%   { top: -4px; opacity: 0; }
+          10%  { opacity: 1; }
+          90%  { opacity: 1; }
+          100% { top: 100%; opacity: 0; }
+        }
+        @keyframes dt-redact-flash {
+          0%,100% { background: rgba(220,38,38,0.15); }
+          50%     { background: rgba(220,38,38,0.3); }
+        }
+        .dt-wrapper {
+          max-width: 760px;
+          margin: 0 auto 44px;
+          padding: 0 20px;
+        }
+        .dt-scan-card {
+          background: #fff;
+          border: 1.5px solid var(--border);
+          border-radius: var(--radius-lg);
+          overflow: hidden;
+          box-shadow: var(--shadow-md);
+        }
+        /* scan phase top bar */
+        .dt-scan-header {
+          background: #0f1a13;
+          padding: 14px 22px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+        }
+        .dt-scan-dot {
+          width: 8px; height: 8px;
+          border-radius: 50%;
+          background: #dc2626;
+          animation: dt-pulse-red 1.2s infinite;
+          flex-shrink: 0;
+        }
+        .dt-scan-label {
+          font-size: 0.72rem;
+          font-weight: 700;
+          color: #10b981;
+          text-transform: uppercase;
+          letter-spacing: 1.2px;
+          font-family: 'DM Mono', monospace;
+          flex: 1;
+        }
+        .dt-scan-addr {
+          font-size: 0.72rem;
+          font-weight: 600;
+          color: rgba(255,255,255,0.55);
+          font-family: 'DM Mono', monospace;
+          max-width: 200px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        /* progress bar */
+        .dt-progress-wrap {
+          height: 3px;
+          background: rgba(16,185,129,0.12);
+        }
+        .dt-progress-bar {
+          height: 100%;
+          background: linear-gradient(90deg, #10b981, #1a7a4a);
+          transition: width 0.3s ease;
+          position: relative;
+        }
+        .dt-progress-bar::after {
+          content: '';
+          position: absolute;
+          right: 0; top: -3px;
+          width: 8px; height: 8px;
+          border-radius: 50%;
+          background: #10b981;
+          box-shadow: 0 0 8px #10b981;
+        }
+        /* log list */
+        .dt-log-body {
+          padding: 20px 22px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          font-family: 'DM Mono', monospace;
+          font-size: 0.78rem;
+        }
+        .dt-log-row {
+          display: flex;
+          align-items: flex-start;
+          gap: 10px;
+          color: #52695c;
+          animation: dt-fade-in 0.3s ease forwards;
+          line-height: 1.5;
+        }
+        .dt-log-row.alert {
+          color: #dc2626;
+          font-weight: 700;
+          animation: dt-fade-in 0.3s ease forwards, dt-shake 0.5s 0.1s ease;
+        }
+        .dt-log-icon { flex-shrink: 0; margin-top: 2px; }
+        /* result card */
+        .dt-result-card {
+          background: #fff;
+          border: 1.5px solid var(--border);
+          border-radius: var(--radius-lg);
+          overflow: hidden;
+          box-shadow: var(--shadow-md);
+          margin-top: 0;
+        }
+        /* Stakes banner */
+        .dt-stakes-bar {
+          background: linear-gradient(90deg, #7f1d1d, #991b1b);
+          padding: 11px 22px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          font-size: 0.78rem;
+          font-weight: 700;
+          color: #fecaca;
+          letter-spacing: 0.2px;
+        }
+        /* anomaly section */
+        .dt-anomaly-section {
+          padding: 24px 22px 0;
+        }
+        .dt-anomaly-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 18px;
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+        .dt-anomaly-title {
+          font-size: 1.05rem;
+          font-weight: 800;
+          color: #0f1a13;
+          letter-spacing: -0.02em;
+          line-height: 1.3;
+        }
+        .dt-score-pill {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          background: #fef2f2;
+          border: 1.5px solid #fecaca;
+          border-radius: 99px;
+          padding: 5px 14px;
+        }
+        .dt-score-number {
+          font-size: 1rem;
+          font-weight: 800;
+          color: #dc2626;
+          font-family: 'DM Mono', monospace;
+          filter: blur(5px);
+          user-select: none;
+        }
+        .dt-score-label {
+          font-size: 0.72rem;
+          font-weight: 700;
+          color: #dc2626;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+        /* incomplete loop bar */
+        .dt-incomplete-bar {
+          background: #f9fdfb;
+          border: 1px solid #a7f3d0;
+          border-radius: var(--radius-sm);
+          padding: 12px 16px;
+          margin-bottom: 20px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .dt-incomplete-text {
+          font-size: 0.8rem;
+          font-weight: 600;
+          color: #065f46;
+          flex: 1;
+        }
+        .dt-incomplete-pct {
+          font-size: 0.88rem;
+          font-weight: 800;
+          color: #059669;
+          font-family: 'DM Mono', monospace;
+          white-space: nowrap;
+        }
+        /* phantom findings */
+        .dt-findings {
+          display: flex;
+          flex-direction: column;
+          gap: 0;
+          border: 1.5px solid var(--border);
+          border-radius: var(--radius-sm);
+          overflow: hidden;
+          margin-bottom: 20px;
+        }
+        .dt-finding-row {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          padding: 14px 16px;
+          border-bottom: 1px solid var(--border);
+          background: #fff;
+          transition: background 0.15s;
+        }
+        .dt-finding-row:last-child { border-bottom: none; }
+        .dt-finding-icon {
+          width: 32px; height: 32px;
+          border-radius: 50%;
+          display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0;
+          font-size: 0.85rem;
+        }
+        .dt-finding-label {
+          flex: 1;
+          font-size: 0.84rem;
+          font-weight: 600;
+          color: #0f1a13;
+          line-height: 1.4;
+        }
+        .dt-finding-sub {
+          font-size: 0.72rem;
+          color: var(--text-secondary);
+          font-weight: 500;
+          margin-top: 2px;
+        }
+        .dt-finding-redacted {
+          font-family: 'DM Mono', monospace;
+          font-size: 0.78rem;
+          font-weight: 700;
+          color: #dc2626;
+          background: rgba(220,38,38,0.08);
+          border: 1px solid rgba(220,38,38,0.2);
+          border-radius: 4px;
+          padding: 3px 8px;
+          animation: dt-redact-flash 2s infinite;
+          white-space: nowrap;
+          cursor: not-allowed;
+          user-select: none;
+        }
+        /* authority paradox */
+        .dt-authority-box {
+          margin: 0 22px 20px;
+          background: #fffbeb;
+          border: 1px solid #fde68a;
+          border-radius: var(--radius-sm);
+          padding: 12px 16px;
+          display: flex;
+          gap: 10px;
+          align-items: flex-start;
+          font-size: 0.78rem;
+          color: #78350f;
+          font-weight: 500;
+          line-height: 1.5;
+        }
+        /* social mirror */
+        .dt-social-mirror {
+          margin: 0 22px 20px;
+          display: flex;
+          gap: 12px;
+          align-items: center;
+          background: #f9fdfb;
+          border: 1px solid var(--green-border);
+          border-radius: var(--radius-sm);
+          padding: 11px 16px;
+          font-size: 0.78rem;
+          color: #065f46;
+          font-weight: 600;
+        }
+        /* micro commitment */
+        .dt-commitment-section {
+          padding: 0 22px 20px;
+        }
+        .dt-commitment-q {
+          font-size: 0.85rem;
+          font-weight: 700;
+          color: #0f1a13;
+          margin-bottom: 10px;
+          text-align: center;
+        }
+        .dt-commitment-btns {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+        }
+        .dt-commitment-btn {
+          padding: 11px 16px;
+          border-radius: var(--radius-sm);
+          border: 1.5px solid var(--border);
+          background: #fff;
+          font-size: 0.83rem;
+          font-weight: 700;
+          cursor: pointer;
+          font-family: 'DM Sans', sans-serif;
+          color: #0f1a13;
+          transition: all 0.15s;
+          text-align: center;
+        }
+        .dt-commitment-btn:hover,
+        .dt-commitment-btn.selected {
+          border-color: var(--green);
+          background: var(--green-pale);
+          color: var(--green);
+        }
+        /* loss frame CTA */
+        .dt-cta-section {
+          border-top: 1px solid var(--border);
+          padding: 22px;
+          background: linear-gradient(135deg, #f9fdfb 0%, #fff 100%);
+        }
+        .dt-loss-frame {
+          font-size: 0.83rem;
+          color: var(--text-secondary);
+          margin-bottom: 14px;
+          line-height: 1.55;
+          text-align: center;
+        }
+        .dt-loss-frame strong { color: #dc2626; }
+        .dt-value-stack {
+          display: flex;
+          flex-direction: column;
+          gap: 7px;
+          margin-bottom: 16px;
+          padding: 14px 16px;
+          background: #fff;
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
+        }
+        .dt-value-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-size: 0.78rem;
+          color: var(--text-secondary);
+          font-weight: 500;
+        }
+        .dt-value-row span:last-child {
+          font-weight: 700;
+          color: var(--text-primary);
+          text-decoration: line-through;
+          color: #dc2626;
+        }
+        .dt-value-total {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-size: 0.88rem;
+          font-weight: 800;
+          color: var(--text-primary);
+          border-top: 1px solid var(--border);
+          padding-top: 8px;
+          margin-top: 4px;
+        }
+        .dt-value-total .dt-price {
+          color: var(--green);
+          font-size: 1.1rem;
+        }
+        .dt-main-cta {
+          width: 100%;
+          padding: 16px;
+          background: var(--green);
+          color: #fff;
+          border: none;
+          border-radius: var(--radius-sm);
+          font-size: 1rem;
+          font-weight: 800;
+          cursor: pointer;
+          font-family: 'DM Sans', sans-serif;
+          box-shadow: 0 4px 16px rgba(26,122,74,0.35);
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          letter-spacing: 0.1px;
+        }
+        .dt-main-cta:hover {
+          background: #155c38;
+          transform: translateY(-1px);
+          box-shadow: 0 6px 22px rgba(26,122,74,0.45);
+        }
+        .dt-cta-meta {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 16px;
+          margin-top: 10px;
+          font-size: 0.7rem;
+          color: var(--text-muted);
+          font-weight: 600;
+        }
       `}</style>
 
       {/* 1. Top Announcement Bar */}
@@ -1936,204 +2522,13 @@ function GetStartedContent() {
               </p>
             </div>
 
-            {/* 5. GIS Localization Map Panel */}
-            {/* 5. GIS Localization Map Panel */}
-            <div className="before-after-card-wrapper">
-              <div className={`gis-map-container ${!prepFinished ? 'scanning' : ''}`}>
-                {/* Glowing Sweep Scan Animation Line */}
-                <div className="gis-scanner-sweep"></div>
-
-                {/* Semi-transparent Glass HUD */}
-                <div className="gis-hud-panel">
-                  <span className="gis-hud-title">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', marginRight: '6px', verticalAlign: 'middle', color: '#059669' }}>
-                      <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
-                      <path d="M12 6a6 6 0 1 0 0 12 6 6 0 0 0 0-12z"/>
-                      <path d="M12 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/>
-                    </svg>
-                    GIS Telemetry Scan
-                  </span>
-                  <div className="gis-hud-row">
-                    <span className="gis-hud-label">TARGET ADDR:</span>
-                    <span className="gis-hud-value" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '120px' }} title={addressLine1 || "Target Coordinate"}>
-                      {addressLine1 || "SCANNING..."}
-                    </span>
-                  </div>
-                  <div className="gis-hud-row">
-                    <span className="gis-hud-label">COORDINATES:</span>
-                    <span className="gis-hud-value">{getCoordinatesForAddress(addressLine1).lat}, {getCoordinatesForAddress(addressLine1).lon}</span>
-                  </div>
-                  <div className="gis-hud-row">
-                    <span className="gis-hud-label">PARCEL TRACT:</span>
-                    <span className="gis-hud-value">{getCoordinatesForAddress(addressLine1).parcel}</span>
-                  </div>
-                  <div className="gis-hud-row" style={{ borderTop: '1px solid rgba(0,0,0,0.05)', marginTop: '4px', paddingTop: '4px' }}>
-                    <span className="gis-hud-label">LAYER STATUS:</span>
-                    <span className="gis-hud-value" style={{ color: '#10b981' }}>VETTED ✓</span>
-                  </div>
-                  <div className="gis-hud-row">
-                    <span className="gis-hud-label">GRID MATCH:</span>
-                    <span className="gis-hud-value" style={{ color: '#10b981' }}>100% SECURE</span>
-                  </div>
-                </div>
-
-                <iframe
-                  title="Google Maps"
-                  className="google-map-iframe"
-                  src={`https://maps.google.com/maps?q=${encodeURIComponent(addressLine1 || 'United States')}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
-                  allowFullScreen
-                ></iframe>
-              </div>
-
-              {/* Text Points Next to Graphics */}
-              <div className="ba-text-pane">
-                <div className="terminal-container">
-                  <div className="terminal-header">
-                    <div className="terminal-title-block">
-                      {prepFinished ? (
-                        <>
-                          <span className="terminal-pulse-dot" style={{ backgroundColor: '#ef4444', boxShadow: '0 0 10px rgba(239, 68, 68, 0.5)' }}></span>
-                          <span style={{ fontWeight: 700, letterSpacing: '0.5px' }}>Analysis complete — Issues require your attention</span>
-                        </>
-                      ) : (
-                        <>
-                          <span className="terminal-pulse-dot"></span>
-                          <span style={{ fontWeight: 700, letterSpacing: '0.5px' }}>Processing Telemetry</span>
-                        </>
-                      )}
-                    </div>
-                    <span className="terminal-progress-pct" style={prepFinished ? {color: '#ef4444'} : {}}>{prepFinished ? '100%' : `${prepProgress}%`}</span>
-                  </div>
-
-                  {!prepFinished ? (
-                    <>
-                      <div className="terminal-log-list">
-                        <div className="terminal-log-row">
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '3px' }}><polyline points="20 6 9 17 4 12"/></svg>
-                          <span>Initializing local GIS parcel tracking...</span>
-                        </div>
-                        {prepProgress > 15 && (
-                          <div className="terminal-log-row">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '3px' }}><polyline points="20 6 9 17 4 12"/></svg>
-                            <span>Pinpointing coordinates via FIPS geocode... [SUCCESS]</span>
-                          </div>
-                        )}
-                        {prepProgress > 35 && (
-                          <div className="terminal-log-row">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '3px' }}><polyline points="20 6 9 17 4 12"/></svg>
-                            <span>Pulling EPA ECHO Compliance Records database... [CONNECTED]</span>
-                          </div>
-                        )}
-                        {prepProgress > 55 && (
-                          <div className="terminal-log-row">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '3px' }}><polyline points="20 6 9 17 4 12"/></svg>
-                            <span>Querying FEMA flood history maps &amp; aquifers... [OK]</span>
-                          </div>
-                        )}
-                        {prepProgress > 75 && (
-                          <div className="terminal-log-row">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '3px' }}><polyline points="20 6 9 17 4 12"/></svg>
-                            <span>Compiling regional CDC radon vector zones... [MAPPED]</span>
-                          </div>
-                        )}
-                        {prepProgress > 90 && (
-                          <div className="terminal-log-row">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '3px' }}><polyline points="20 6 9 17 4 12"/></svg>
-                            <span>Assembling buyer negotiation talking points...</span>
-                          </div>
-                        )}
-                      </div>
-                    </>
-                  ) : (
-                    /* Final Results (Blurred / Locked to push purchase) */
-                    <div className="results-container" style={{ marginTop: '4px' }}>
-                      <div className="terminal-log-list" style={{ paddingBottom: '16px' }}>
-                        <div className="warning-badge">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
-                            <line x1="12" y1="9" x2="12" y2="13"/>
-                            <line x1="12" y1="17" x2="12.01" y2="17"/>
-                          </svg>
-                          <span><strong>WARNING:</strong> Active Risks Found Near Your Address</span>
-                        </div>
-                        
-                        <div className="risk-score-row">
-                          <span className="risk-score-label">RISK SCORE: <span className="risk-score-blurred">89</span></span>
-                          <span className="risk-score-tag">(ELEVATED)</span>
-                          <div className="risk-gauge">
-                            {[...Array(8)].map((_, i) => <div key={i} className="risk-gauge-bar" style={{ backgroundColor: '#dc2626' }}></div>)}
-                            {[...Array(2)].map((_, i) => <div key={i} className="risk-gauge-bar" style={{ backgroundColor: 'rgba(220,38,38,0.2)' }}></div>)}
-                          </div>
-                        </div>
-
-                        <div style={{ paddingLeft: '2px', marginTop: '4px' }}>
-                          <table className="risk-table">
-                            <tbody>
-                              <tr>
-                                <td className="risk-level-high">[HIGH]</td>
-                                <td><div className="risk-bars">{[...Array(10)].map((_, i) => <div key={i} className="risk-bar" style={{ backgroundColor: '#dc2626' }}></div>)}</div></td>
-                                <td><span className="reveal-btn" onClick={scrollToForm}>Reveal <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></td>
-                              </tr>
-                              <tr>
-                                <td className="risk-level-mod">[MOD]</td>
-                                <td><div className="risk-bars">{[...Array(10)].map((_, i) => <div key={i} className="risk-bar" style={{ backgroundColor: '#b45309' }}></div>)}</div></td>
-                                <td><span className="reveal-btn" onClick={scrollToForm}>Reveal <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></td>
-                              </tr>
-                              <tr>
-                                <td className="risk-level-mod">[MOD]</td>
-                                <td><div className="risk-bars">{[...Array(10)].map((_, i) => <div key={i} className="risk-bar" style={{ backgroundColor: '#b45309' }}></div>)}</div></td>
-                                <td><span className="reveal-btn" onClick={scrollToForm}>Reveal <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-
-                    {/* Premium Locked Call-to-Action Banner */}
-                    <div className="cta-unlock-banner">
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                          </svg>
-                        </div>
-                        
-                        <p className="cta-desc" style={{ marginBottom: '4px', fontSize: '0.9rem' }}>
-                          <strong style={{ color: '#0f172a' }}>Data specific to your address. Secured to prevent panic.</strong>
-                        </p>
-                        
-                        <ul className="cta-benefit-list">
-                          <li><span className="cta-check">✓</span> <strong>Property value impact estimate</strong></li>
-                          <li><span className="cta-check">✓</span> <strong>Facility name & violation history</strong></li>
-                          <li><span className="cta-check">✓</span> <strong>Negotiation script</strong> (buy/sell)</li>
-                        </ul>
-
-                        <div className="cta-testimonial">
-                          <span className="stars">★★★★★</span> <strong style={{ color: 'var(--green)', margin: '0 4px' }}>12,847 checked</strong> · "Negotiated $18K off" — Michael D.
-                        </div>
-                      </div>
-
-                      {/* Sticky Mobile CTA Wrapper */}
-                      <div className="sticky-cta-wrapper">
-                        <button 
-                          type="button" 
-                          onClick={scrollToForm}
-                          className="cta-button"
-                          style={{ width: '100%', justifyContent: 'center' }}
-                        >
-                          Find out what's near your home &rarr;
-                        </button>
-                        <div style={{ textAlign: 'center', marginTop: '10px', fontSize: '0.75rem', fontWeight: 500, color: '#64748b' }}>
-                          Full report · $49.00 · 30-day money-back guarantee
-                        </div>
-                      </div>
-                    </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+            {/* 5. HORMOZI DIAGNOSTIC TRAP — Full width, single column */}
+            <DiagnosticTrap
+              prepProgress={prepProgress}
+              prepFinished={prepFinished}
+              addressLine1={addressLine1}
+              onScrollToForm={scrollToForm}
+            />
 
             {/* 6. Two-Column Checkout Layout */}
             <div className="checkout-grid-split">

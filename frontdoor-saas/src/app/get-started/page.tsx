@@ -92,13 +92,13 @@ function DiagnosticTrap({ prepProgress, prepFinished, addressLine1, onScrollToFo
         {/* Stakes banner */}
         <div className="dt-stakes-bar">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          The average buyer loses <strong style={{ color: '#fff', margin: '0 3px' }}>$31,000</strong> on undisclosed environmental issues. Most never find out why.
+          Buyers who close without this check lose an average of <strong style={{ color: '#fff', margin: '0 3px' }}>$31,000</strong> to environmental issues the seller never disclosed.
         </div>
         {/* Anomaly header */}
         <div className="dt-anomaly-section">
           <div className="dt-anomaly-header">
             <div className="dt-anomaly-title">
-              Environmental anomalies flagged near<br />
+              We found something near<br />
               <span style={{ color: 'var(--green)' }}>{addressLine1 || 'your property'}</span>
             </div>
             <div className="dt-score-pill">
@@ -109,7 +109,7 @@ function DiagnosticTrap({ prepProgress, prepFinished, addressLine1, onScrollToFo
           {/* Incomplete loop */}
           <div className="dt-incomplete-bar">
             <div style={{ flex: 1 }}>
-              <div className="dt-incomplete-text">Your property risk profile is <strong>73% complete.</strong> 1 critical finding requires verification before your full score can be calculated.</div>
+              <div className="dt-incomplete-text">Scan stopped at <strong>73%.</strong> One finding is too significant to display without verification.</div>
               <div style={{ height: 5, background: '#dcfce7', borderRadius: 99, marginTop: 8, overflow: 'hidden' }}>
                 <div style={{ width: '73%', height: '100%', background: 'linear-gradient(90deg,#10b981,#1a7a4a)', borderRadius: 99 }} />
               </div>
@@ -121,24 +121,24 @@ function DiagnosticTrap({ prepProgress, prepFinished, addressLine1, onScrollToFo
             <div className="dt-finding-row">
               <div className="dt-finding-icon" style={{ background: '#fef2f2' }}>🏭</div>
               <div style={{ flex: 1 }}>
-                <div className="dt-finding-label">Critical finding requires verification</div>
-                <div className="dt-finding-sub">A registered site was found within <strong style={{ color: '#dc2626' }}>░░░ meters</strong> of your front door</div>
+                <div className="dt-finding-label">Toxic facility within walking distance</div>
+                <div className="dt-finding-sub">EPA-listed site found <strong style={{ color: '#dc2626' }}>░░░ ft</strong> from this address — name and type locked</div>
               </div>
               <span className="dt-finding-redacted">LOCKED</span>
             </div>
             <div className="dt-finding-row">
               <div className="dt-finding-icon" style={{ background: '#fffbeb' }}>⚗️</div>
               <div style={{ flex: 1 }}>
-                <div className="dt-finding-label">Environmental hazard flagged</div>
-                <div className="dt-finding-sub">Potential property value impact: <strong style={{ color: '#dc2626' }}>-░░% to -░░%</strong></div>
+                <div className="dt-finding-label">Groundwater contamination risk</div>
+                <div className="dt-finding-sub">This finding type reduces comparable home sale prices by <strong style={{ color: '#dc2626' }}>-░░% to -░░%</strong></div>
               </div>
               <span className="dt-finding-redacted">LOCKED</span>
             </div>
             <div className="dt-finding-row">
               <div className="dt-finding-icon" style={{ background: '#f0fdf4' }}>💧</div>
               <div style={{ flex: 1 }}>
-                <div className="dt-finding-label">Proximity alert triggered</div>
-                <div className="dt-finding-sub">Last reported violation: <strong style={{ color: '#dc2626' }}>░░░░ 2024</strong></div>
+                <div className="dt-finding-label">Clean Water Act violation on record</div>
+                <div className="dt-finding-sub">Nearest facility violation filed: <strong style={{ color: '#dc2626' }}>░░░░ 2024</strong> — facility name locked</div>
               </div>
               <span className="dt-finding-redacted">LOCKED</span>
             </div>
@@ -147,12 +147,12 @@ function DiagnosticTrap({ prepProgress, prepFinished, addressLine1, onScrollToFo
         {/* Authority paradox */}
         <div className="dt-authority-box">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2.5" strokeLinecap="round" style={{ flexShrink: 0, marginTop: 1 }}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          <span><strong>Federal data licensing terms</strong> require purchase verification before full facility coordinates and violation records can be displayed. This protects data integrity and prevents bulk exploitation of public safety records.</span>
+          <span>Facility names, exact distances, and violation records are withheld until purchase under EPA data use agreements. <strong>Sellers are rarely required to surface this information.</strong> Most buyers close without ever knowing.</span>
         </div>
         {/* Social mirror */}
         <div className="dt-social-mirror">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
-          <span><strong style={{ color: '#0f1a13' }}>{nearbyCount} other buyers</strong> checked this zip code in the last 48 hours · Last report accessed <strong style={{ color: '#0f1a13' }}>{minutesAgo} minutes ago</strong></span>
+          <span><strong style={{ color: '#0f1a13' }}>{nearbyCount} buyers</strong> ran a report on properties in this zip code in the last 48 hours · Most recent report accessed <strong style={{ color: '#0f1a13' }}>{minutesAgo} min ago</strong></span>
         </div>
         {/* Micro-commitment */}
         <div className="dt-commitment-section">
@@ -169,8 +169,8 @@ function DiagnosticTrap({ prepProgress, prepFinished, addressLine1, onScrollToFo
         {/* Loss frame + value stack + CTA */}
         <div className="dt-cta-section">
           <div className="dt-loss-frame">
-            Without this data, you&apos;re negotiating blind against a seller who <strong>already knows.</strong><br />
-            Sellers are <strong>not required</strong> to disclose environmental findings in most states.
+            The seller&apos;s agent already has access to this data. You&apos;re going into closing with an information gap.<br />
+            In most states, sellers are <strong>not legally required</strong> to disclose what&apos;s in this report.
           </div>
           <div className="dt-value-stack">
             <div className="dt-value-row"><span>Environmental hazard full report</span><span>$149</span></div>

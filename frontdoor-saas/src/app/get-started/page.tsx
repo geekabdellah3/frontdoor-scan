@@ -42,7 +42,6 @@ function DiagnosticTrap({ prepProgress, prepFinished, addressLine1, onScrollToFo
   addressLine1: string;
   onScrollToForm: () => void;
 }) {
-  const [commitment, setCommitment] = useState<'home'|'investment'|null>(null);
   const [nearbyCount] = useState(() => {
     if (typeof window === 'undefined') return 4;
     const s = sessionStorage.getItem('fdf_nearby');
@@ -103,106 +102,112 @@ function DiagnosticTrap({ prepProgress, prepFinished, addressLine1, onScrollToFo
   return (
     <div className="dt-wrapper">
       <div className="dt-result-card">
-        {/* Stakes banner */}
-        <div className="dt-stakes-bar">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-          Buyers who close without this check lose an average of <strong style={{ color: '#fff', margin: '0 3px' }}>$31,000</strong> to environmental issues the seller never disclosed.
+        {/* 1. Alert header */}
+        <div className="dt-alert-header">
+          <span className="dt-alert-dot" />
+          3 environmental issues found near&nbsp;<strong>{addressLine1 || 'your property'}</strong>
         </div>
-        {/* Anomaly header */}
-        <div className="dt-anomaly-section">
-          <div className="dt-anomaly-header">
-            <div className="dt-anomaly-title">
-              We found something near<br />
-              <span style={{ color: 'var(--green)' }}>{addressLine1 || 'your property'}</span>
+
+        {/* 2. Risk score gauge */}
+        <div className="dt-risk-section">
+          <div className="dt-risk-left">
+            <div className="dt-risk-label">Environmental Risk Score</div>
+            <div className="dt-risk-gauge-track">
+              <div className="dt-risk-gauge-marker" style={{ left: '74%' }} />
             </div>
-            <div className="dt-score-pill">
-              <span className="dt-score-number">74</span>
-              <span className="dt-score-label">Risk Score</span>
+            <div className="dt-risk-legend">
+              <span>Low</span><span>Moderate</span><span>High</span>
             </div>
           </div>
-          {/* Incomplete loop */}
-          <div className="dt-incomplete-bar">
-            <div style={{ flex: 1 }}>
-              <div className="dt-incomplete-text">Scan stopped at <strong>73%.</strong> One finding is too significant to display without verification.</div>
-              <div style={{ height: 5, background: '#dcfce7', borderRadius: 99, marginTop: 8, overflow: 'hidden' }}>
-                <div style={{ width: '73%', height: '100%', background: 'linear-gradient(90deg,#10b981,#1a7a4a)', borderRadius: 99 }} />
-              </div>
-            </div>
-            <span className="dt-incomplete-pct">73%</span>
-          </div>
-          {/* Phantom findings */}
-          <div className="dt-findings">
-            <div className="dt-finding-row">
-              <div className="dt-finding-icon" style={{ background: '#fef2f2' }}>🏭</div>
-              <div style={{ flex: 1 }}>
-                <div className="dt-finding-label">Toxic facility within walking distance</div>
-                <div className="dt-finding-sub">EPA-listed site found <strong style={{ color: '#dc2626' }}>░░░ ft</strong> from this address — name and type locked</div>
-              </div>
-              <span className="dt-finding-redacted">LOCKED</span>
-            </div>
-            <div className="dt-finding-row">
-              <div className="dt-finding-icon" style={{ background: '#fffbeb' }}>⚗️</div>
-              <div style={{ flex: 1 }}>
-                <div className="dt-finding-label">Groundwater contamination risk</div>
-                <div className="dt-finding-sub">This finding type reduces comparable home sale prices by <strong style={{ color: '#dc2626' }}>-░░% to -░░%</strong></div>
-              </div>
-              <span className="dt-finding-redacted">LOCKED</span>
-            </div>
-            <div className="dt-finding-row">
-              <div className="dt-finding-icon" style={{ background: '#f0fdf4' }}>💧</div>
-              <div style={{ flex: 1 }}>
-                <div className="dt-finding-label">Clean Water Act violation on record</div>
-                <div className="dt-finding-sub">Nearest facility violation filed: <strong style={{ color: '#dc2626' }}>░░░░ 2024</strong> — facility name locked</div>
-              </div>
-              <span className="dt-finding-redacted">LOCKED</span>
-            </div>
+          <div className="dt-risk-score-right">
+            <div className="dt-risk-number">74</div>
+            <div className="dt-risk-denom">out of 100</div>
+            <div className="dt-risk-badge">HIGH RISK</div>
           </div>
         </div>
-        {/* Authority paradox */}
-        <div className="dt-authority-box">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706" strokeWidth="2.5" strokeLinecap="round" style={{ flexShrink: 0, marginTop: 1 }}><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          <span>Facility names, exact distances, and violation records are withheld until purchase under EPA data use agreements. <strong>Sellers are rarely required to surface this information.</strong> Most buyers close without ever knowing.</span>
-        </div>
-        {/* Social mirror */}
-        <div className="dt-social-mirror">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
-          <span><strong style={{ color: '#0f1a13' }}>{nearbyCount} buyers</strong> ran a report on properties in this zip code in the last 48 hours · Most recent report accessed <strong style={{ color: '#0f1a13' }}>{minutesAgo} min ago</strong></span>
-        </div>
-        {/* Micro-commitment */}
-        <div className="dt-commitment-section">
-          <div className="dt-commitment-q">Is this property for your primary residence or an investment?</div>
-          <div className="dt-commitment-btns">
-            <button className={`dt-commitment-btn${commitment === 'home' ? ' selected' : ''}`} onClick={() => { setCommitment('home'); setTimeout(onScrollToForm, 350); }}>
-              🏠 My Primary Home
-            </button>
-            <button className={`dt-commitment-btn${commitment === 'investment' ? ' selected' : ''}`} onClick={() => { setCommitment('investment'); setTimeout(onScrollToForm, 350); }}>
-              📈 An Investment
-            </button>
+
+        {/* 3. Locked finding cards */}
+        <div className="dt-findings-list">
+
+          <div className="dt-finding-card">
+            <div className="dt-finding-head">
+              <span className="dt-finding-emoji">🏭</span>
+              <span className="dt-finding-title">Toxic facility within walking distance</span>
+              <span className="dt-locked-badge">LOCKED</span>
+            </div>
+            <div className="dt-finding-body">
+              <div className="dt-redact-row">
+                <span className="dt-redact-label">Facility</span>
+                <span className="dt-redact-block">████████████████</span>
+              </div>
+              <div className="dt-redact-row">
+                <span className="dt-redact-label">Distance</span>
+                <span className="dt-redact-block">████</span>
+                <span className="dt-redact-suffix">ft from front door</span>
+              </div>
+              <div className="dt-redact-row">
+                <span className="dt-redact-label">Violations</span>
+                <span className="dt-redact-block">█</span>
+                <span className="dt-redact-danger">active EPA violation on record</span>
+              </div>
+            </div>
           </div>
+
+          <div className="dt-finding-card">
+            <div className="dt-finding-head">
+              <span className="dt-finding-emoji">💧</span>
+              <span className="dt-finding-title">Groundwater contamination risk</span>
+              <span className="dt-locked-badge">LOCKED</span>
+            </div>
+            <div className="dt-finding-body">
+              <div className="dt-redact-row">
+                <span className="dt-redact-label">Contaminants</span>
+                <span className="dt-redact-block">████████</span>
+                <span className="dt-redact-suffix">, ██████</span>
+              </div>
+              <div className="dt-redact-row">
+                <span className="dt-redact-label">Resale impact</span>
+                <span className="dt-redact-danger">-██% to -██% on comparable sales</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="dt-finding-card">
+            <div className="dt-finding-head">
+              <span className="dt-finding-emoji">⚗️</span>
+              <span className="dt-finding-title">Clean Water Act violation on record</span>
+              <span className="dt-locked-badge">LOCKED</span>
+            </div>
+            <div className="dt-finding-body">
+              <div className="dt-redact-row">
+                <span className="dt-redact-label">Filed</span>
+                <span className="dt-redact-block">████████</span>
+                <span className="dt-redact-suffix">2024</span>
+              </div>
+              <div className="dt-redact-row">
+                <span className="dt-redact-label">Facility name</span>
+                <span className="dt-redact-block">████████████████████</span>
+              </div>
+            </div>
+          </div>
+
         </div>
-        {/* Loss frame + value stack + CTA */}
+
+        {/* 4. Loss frame */}
+        <div className="dt-loss-frame">
+          The seller&apos;s agent has access to this data.<br />
+          In most states, <strong>they are not required to tell you.</strong>
+        </div>
+
+        {/* 5. CTA */}
         <div className="dt-cta-section">
-          <div className="dt-loss-frame">
-            The seller&apos;s agent already has access to this data. You&apos;re going into closing with an information gap.<br />
-            In most states, sellers are <strong>not legally required</strong> to disclose what&apos;s in this report.
-          </div>
-          <div className="dt-value-stack">
-            <div className="dt-value-row"><span>Environmental hazard full report</span><span>$149</span></div>
-            <div className="dt-value-row"><span>EPA facility names &amp; violation history</span><span>$79</span></div>
-            <div className="dt-value-row"><span>Property value impact analysis</span><span>$99</span></div>
-            <div className="dt-value-row"><span>Negotiation script (attorney-drafted)</span><span>$199</span></div>
-            <div className="dt-value-total">
-              <span>Your price today</span>
-              <span className="dt-price">$49.00</span>
-            </div>
-          </div>
           <button className="dt-main-cta" onClick={onScrollToForm}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            Reveal what was found near &ldquo;{addressLine1 ? addressLine1.split(' ').slice(0,3).join(' ') : 'your address'}&rdquo; →
+            Unlock what was found near &ldquo;{addressLine1 ? addressLine1.split(' ').slice(0,3).join(' ') : 'this address'}&rdquo; — $49
           </button>
           <div className="dt-cta-meta">
-            <span>🔒 Secure checkout</span>
-            <span>⚡ Instant access</span>
+            <span>🔒 Secure</span>
+            <span>⚡ Instant delivery</span>
             <span>↩ 30-day refund</span>
           </div>
         </div>
@@ -2224,265 +2229,220 @@ function GetStartedContent() {
         /* result card */
         .dt-result-card {
           background: #fff;
-          border: 1.5px solid var(--border);
+          border: 1.5px solid #fecaca;
           border-radius: var(--radius-lg);
           overflow: hidden;
-          box-shadow: var(--shadow-md);
-          margin-top: 0;
+          box-shadow: 0 8px 32px rgba(220,38,38,0.07), var(--shadow-md);
         }
-        /* Stakes banner */
-        .dt-stakes-bar {
-          background: linear-gradient(90deg, #7f1d1d, #991b1b);
-          padding: 11px 22px;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          font-size: 0.78rem;
-          font-weight: 700;
-          color: #fecaca;
-          letter-spacing: 0.2px;
-        }
-        /* anomaly section */
-        .dt-anomaly-section {
-          padding: 24px 22px 0;
-        }
-        .dt-anomaly-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-bottom: 18px;
-          flex-wrap: wrap;
-          gap: 10px;
-        }
-        .dt-anomaly-title {
-          font-size: 1.05rem;
-          font-weight: 800;
-          color: #0f1a13;
-          letter-spacing: -0.02em;
-          line-height: 1.3;
-        }
-        .dt-score-pill {
+        /* Alert header */
+        .dt-alert-header {
+          background: #dc2626;
+          padding: 8px 18px;
           display: flex;
           align-items: center;
           gap: 8px;
-          background: #fef2f2;
-          border: 1.5px solid #fecaca;
-          border-radius: 99px;
-          padding: 5px 14px;
-        }
-        .dt-score-number {
-          font-size: 1rem;
-          font-weight: 800;
-          color: #dc2626;
-          font-family: var(--font-dm-mono), monospace;
-          filter: blur(5px);
-          user-select: none;
-        }
-        .dt-score-label {
-          font-size: 0.72rem;
+          font-size: 0.75rem;
           font-weight: 700;
-          color: #dc2626;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
+          color: #fff;
+          letter-spacing: 0.1px;
         }
-        /* incomplete loop bar */
-        .dt-incomplete-bar {
-          background: #f9fdfb;
-          border: 1px solid #a7f3d0;
-          border-radius: var(--radius-sm);
-          padding: 12px 16px;
-          margin-bottom: 20px;
+        .dt-alert-dot {
+          width: 7px; height: 7px;
+          border-radius: 50%;
+          background: #fff;
+          flex-shrink: 0;
+          animation: dt-pulse-white 1s ease-in-out infinite;
+        }
+        @keyframes dt-pulse-white {
+          0%,100% { opacity: 1; transform: scale(1); }
+          50%      { opacity: 0.35; transform: scale(0.75); }
+        }
+        /* Risk score section */
+        .dt-risk-section {
+          padding: 20px 24px;
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 24px;
+          border-bottom: 1px solid #fef2f2;
+          background: #fffafa;
         }
-        .dt-incomplete-text {
-          font-size: 0.8rem;
-          font-weight: 600;
-          color: #065f46;
-          flex: 1;
+        .dt-risk-left { flex: 1; min-width: 0; }
+        .dt-risk-label {
+          font-size: 0.6rem;
+          font-weight: 900;
+          color: var(--text-muted);
+          letter-spacing: 1.5px;
+          text-transform: uppercase;
+          margin-bottom: 11px;
         }
-        .dt-incomplete-pct {
-          font-size: 0.88rem;
-          font-weight: 800;
-          color: #059669;
+        .dt-risk-gauge-track {
+          position: relative;
+          height: 8px;
+          background: linear-gradient(90deg, #10b981 0%, #f59e0b 45%, #ef4444 72%, #991b1b 100%);
+          border-radius: 99px;
+          margin-bottom: 7px;
+        }
+        .dt-risk-gauge-marker {
+          position: absolute;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          width: 18px; height: 18px;
+          border-radius: 50%;
+          background: #fff;
+          border: 3px solid #dc2626;
+          box-shadow: 0 0 0 3px rgba(220,38,38,0.22), 0 2px 6px rgba(0,0,0,0.12);
+        }
+        .dt-risk-legend {
+          display: flex;
+          justify-content: space-between;
+          font-size: 0.58rem;
+          color: var(--text-muted);
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.4px;
+        }
+        .dt-risk-score-right {
+          text-align: center;
+          flex-shrink: 0;
+        }
+        .dt-risk-number {
+          font-size: 3rem;
+          font-weight: 900;
+          color: #dc2626;
           font-family: var(--font-dm-mono), monospace;
-          white-space: nowrap;
+          line-height: 1;
+          letter-spacing: -0.04em;
+          filter: blur(7px);
+          user-select: none;
         }
-        /* phantom findings */
-        .dt-findings {
+        .dt-risk-denom {
+          font-size: 0.68rem;
+          color: var(--text-muted);
+          font-weight: 600;
+          margin-top: 4px;
+        }
+        .dt-risk-badge {
+          display: inline-block;
+          background: #dc2626;
+          color: #fff;
+          font-size: 0.57rem;
+          font-weight: 900;
+          padding: 3px 10px;
+          border-radius: 99px;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          margin-top: 7px;
+        }
+        /* Findings list */
+        .dt-findings-list {
+          padding: 16px 18px;
           display: flex;
           flex-direction: column;
-          gap: 0;
-          border: 1.5px solid var(--border);
+          gap: 10px;
+          background: #fff;
+        }
+        .dt-finding-card {
+          border: 1.5px solid #fecaca;
           border-radius: var(--radius-sm);
           overflow: hidden;
-          margin-bottom: 20px;
+          animation: dt-fade-in 0.35s ease forwards;
         }
-        .dt-finding-row {
+        .dt-finding-head {
           display: flex;
           align-items: center;
-          gap: 14px;
-          padding: 14px 16px;
-          border-bottom: 1px solid var(--border);
-          background: #fff;
-          transition: background 0.15s;
+          gap: 10px;
+          padding: 10px 14px;
+          background: #fef2f2;
+          border-bottom: 1px solid #fecaca;
         }
-        .dt-finding-row:last-child { border-bottom: none; }
-        .dt-finding-icon {
-          width: 32px; height: 32px;
-          border-radius: 50%;
-          display: flex; align-items: center; justify-content: center;
-          flex-shrink: 0;
-          font-size: 0.85rem;
-        }
-        .dt-finding-label {
+        .dt-finding-emoji { font-size: 1rem; flex-shrink: 0; line-height: 1; }
+        .dt-finding-title {
           flex: 1;
-          font-size: 0.84rem;
-          font-weight: 600;
-          color: #0f1a13;
-          line-height: 1.4;
+          font-size: 0.82rem;
+          font-weight: 700;
+          color: #991b1b;
+          line-height: 1.3;
         }
-        .dt-finding-sub {
-          font-size: 0.72rem;
-          color: var(--text-secondary);
-          font-weight: 500;
-          margin-top: 2px;
-        }
-        .dt-finding-redacted {
+        .dt-locked-badge {
           font-family: var(--font-dm-mono), monospace;
-          font-size: 0.78rem;
-          font-weight: 700;
-          color: #dc2626;
-          background: rgba(220,38,38,0.08);
-          border: 1px solid rgba(220,38,38,0.2);
-          border-radius: 4px;
+          font-size: 0.57rem;
+          font-weight: 900;
+          background: #dc2626;
+          color: #fff;
           padding: 3px 8px;
-          animation: dt-redact-flash 2s infinite;
-          white-space: nowrap;
-          cursor: not-allowed;
-          user-select: none;
+          border-radius: 3px;
+          letter-spacing: 0.8px;
+          flex-shrink: 0;
+          text-transform: uppercase;
         }
-        /* authority paradox */
-        .dt-authority-box {
-          margin: 0 22px 20px;
-          background: #fffbeb;
-          border: 1px solid #fde68a;
-          border-radius: var(--radius-sm);
-          padding: 12px 16px;
-          display: flex;
-          gap: 10px;
-          align-items: flex-start;
-          font-size: 0.78rem;
-          color: #78350f;
-          font-weight: 500;
-          line-height: 1.5;
-        }
-        /* social mirror */
-        .dt-social-mirror {
-          margin: 0 22px 20px;
-          display: flex;
-          gap: 12px;
-          align-items: center;
-          background: #f9fdfb;
-          border: 1px solid var(--green-border);
-          border-radius: var(--radius-sm);
-          padding: 11px 16px;
-          font-size: 0.78rem;
-          color: #065f46;
-          font-weight: 600;
-        }
-        /* micro commitment */
-        .dt-commitment-section {
-          padding: 0 22px 20px;
-        }
-        .dt-commitment-q {
-          font-size: 0.85rem;
-          font-weight: 700;
-          color: #0f1a13;
-          margin-bottom: 10px;
-          text-align: center;
-        }
-        .dt-commitment-btns {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 10px;
-        }
-        .dt-commitment-btn {
-          padding: 11px 16px;
-          border-radius: var(--radius-sm);
-          border: 1.5px solid var(--border);
-          background: #fff;
-          font-size: 0.83rem;
-          font-weight: 700;
-          cursor: pointer;
-          font-family: var(--font-dm-sans), sans-serif;
-          color: #0f1a13;
-          transition: all 0.15s;
-          text-align: center;
-        }
-        .dt-commitment-btn:hover,
-        .dt-commitment-btn.selected {
-          border-color: var(--green);
-          background: var(--green-pale);
-          color: var(--green);
-        }
-        /* loss frame CTA */
-        .dt-cta-section {
-          border-top: 1px solid var(--border);
-          padding: 22px;
-          background: linear-gradient(135deg, #f9fdfb 0%, #fff 100%);
-        }
-        .dt-loss-frame {
-          font-size: 0.83rem;
-          color: var(--text-secondary);
-          margin-bottom: 14px;
-          line-height: 1.55;
-          text-align: center;
-        }
-        .dt-loss-frame strong { color: #dc2626; }
-        .dt-value-stack {
+        .dt-finding-body {
+          padding: 10px 14px;
           display: flex;
           flex-direction: column;
           gap: 7px;
-          margin-bottom: 16px;
-          padding: 14px 16px;
           background: #fff;
-          border: 1px solid var(--border);
-          border-radius: var(--radius-sm);
         }
-        .dt-value-row {
+        .dt-redact-row {
           display: flex;
           align-items: center;
-          justify-content: space-between;
-          font-size: 0.78rem;
-          color: var(--text-secondary);
-          font-weight: 500;
+          gap: 10px;
+          font-size: 0.73rem;
         }
-        .dt-value-row span:last-child {
+        .dt-redact-label {
+          color: var(--text-muted);
           font-weight: 700;
-          color: var(--text-primary);
-          text-decoration: line-through;
+          width: 86px;
+          flex-shrink: 0;
+          font-size: 0.67rem;
+          text-transform: uppercase;
+          letter-spacing: 0.4px;
+        }
+        .dt-redact-block {
+          font-family: var(--font-dm-mono), monospace;
+          font-size: 0.78rem;
+          font-weight: 700;
+          background: #1f2937;
+          color: #1f2937;
+          border-radius: 3px;
+          padding: 2px 6px;
+          user-select: none;
+          cursor: not-allowed;
+          letter-spacing: 1px;
+          line-height: 1.4;
+        }
+        .dt-redact-suffix {
+          font-size: 0.71rem;
+          color: var(--text-muted);
+          font-weight: 600;
+        }
+        .dt-redact-danger {
+          font-size: 0.72rem;
           color: #dc2626;
-        }
-        .dt-value-total {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          font-size: 0.88rem;
           font-weight: 800;
-          color: var(--text-primary);
-          border-top: 1px solid var(--border);
-          padding-top: 8px;
-          margin-top: 4px;
         }
-        .dt-value-total .dt-price {
-          color: var(--green);
-          font-size: 1.1rem;
+        /* Loss frame */
+        .dt-loss-frame {
+          padding: 14px 24px;
+          text-align: center;
+          font-size: 0.84rem;
+          color: var(--text-secondary);
+          line-height: 1.65;
+          border-top: 1px solid var(--border);
+          border-bottom: 1px solid var(--border);
+          background: #fafafa;
+        }
+        .dt-loss-frame strong { color: #dc2626; }
+        /* CTA section */
+        .dt-cta-section {
+          padding: 18px 20px 22px;
+          background: #fff;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
         }
         .dt-main-cta {
           width: 100%;
-          padding: 16px;
+          padding: 17px 20px;
           background: var(--green);
           color: #fff;
           border: none;
@@ -2491,26 +2451,26 @@ function GetStartedContent() {
           font-weight: 800;
           cursor: pointer;
           font-family: var(--font-dm-sans), sans-serif;
-          box-shadow: 0 4px 16px rgba(26,122,74,0.35);
+          box-shadow: 0 4px 20px rgba(26,122,74,0.38);
           transition: all 0.2s ease;
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 8px;
           letter-spacing: 0.1px;
+          line-height: 1.25;
         }
         .dt-main-cta:hover {
           background: #155c38;
           transform: translateY(-1px);
-          box-shadow: 0 6px 22px rgba(26,122,74,0.45);
+          box-shadow: 0 6px 26px rgba(26,122,74,0.48);
         }
         .dt-cta-meta {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 16px;
-          margin-top: 10px;
-          font-size: 0.7rem;
+          gap: 18px;
+          font-size: 0.69rem;
           color: var(--text-muted);
           font-weight: 600;
         }

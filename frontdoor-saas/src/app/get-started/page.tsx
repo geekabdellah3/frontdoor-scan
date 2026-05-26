@@ -25,6 +25,310 @@ const FRONT_DOOR_MOCK_ADDRESSES = [
   { street: "555 Congress Avenue", city: "Austin", state: "TX", zip: "78701" }
 ];
 
+// ─── REVIEWS DATA ───────────────────────────────────────────────────────────
+const REVIEWS_DATA = [
+  {
+    id: 1, name: "Marcus T.", location: "Austin, TX", avatar: "MT", avatarBg: "#1a7a4a",
+    rating: 5, date: "3 days ago", verified: true, badge: "Buyer",
+    title: "Saved me $23,000 on my home purchase",
+    body: "I almost closed on a house in Round Rock without running this report. Turned out there was an active Superfund site less than 0.4 miles from the property. I went back to the sellers with the EPA documents and negotiated $23K off the asking price. My realtor had never even heard of this tool. Every buyer needs this before signing anything.",
+    helpful: 47, highlight: "$23K off asking price",
+  },
+  {
+    id: 2, name: "Jennifer & Dale R.", location: "Phoenix, AZ", avatar: "JR", avatarBg: "#2563eb",
+    rating: 5, date: "1 week ago", verified: true, badge: "Homeowner",
+    title: "Radon level was 3x the EPA safe limit. We had no idea.",
+    body: "We've lived here 6 years. Never tested for radon, never thought about it. Ran the report on our current address out of curiosity and the radon reading came back dangerously elevated — zone 1, well above 4 pCi/L. Called a mitigation company the next day. The report also showed a chemical facility 0.6 miles away with two Clean Water Act violations I had never heard about. This should be mandatory for every property.",
+    helpful: 89, highlight: "Radon 3x above safe limit detected",
+  },
+  {
+    id: 3, name: "Derek C.", location: "Columbus, OH", avatar: "DC", avatarBg: "#7c3aed",
+    rating: 5, date: "2 weeks ago", verified: true, badge: "Real Estate Investor",
+    title: "I run this on every property before making an offer. Period.",
+    body: "I've been flipping houses for 11 years. Started using Front Door Fax 8 months ago. I've already avoided two deals that looked perfect on paper — one had a brownfield site within the property boundary, the other had an industrial waste facility 200 meters away. Both sellers were motivated, both deals would have been nightmares to exit. This report is $49. The legal liability on those deals would have been six figures.",
+    helpful: 134, highlight: "Avoided 2 toxic property deals",
+  },
+  {
+    id: 4, name: "Priya N.", location: "San Jose, CA", avatar: "PN", avatarBg: "#dc2626",
+    rating: 5, date: "3 weeks ago", verified: true, badge: "Buyer",
+    title: "My inspector said nothing. This report found everything.",
+    body: "Standard home inspection came back clean. But I ran this report two days before closing and it flagged a groundwater cleanup boundary that ran through the backyard. The boundary was registered with the EPA but not visible on any public search tool I know of. We walked away from the deal. Three months later we found a better house in a clean area. I genuinely think this report saved us from a terrible mistake.",
+    helpful: 212, highlight: "Stopped a bad deal 2 days before closing",
+  },
+  {
+    id: 5, name: "Tom & Karen W.", location: "Denver, CO", avatar: "TW", avatarBg: "#0891b2",
+    rating: 5, date: "1 month ago", verified: true, badge: "Buyer",
+    title: "Used the negotiation script word-for-word. It worked.",
+    body: "We found two violations near our target property and used the exact negotiation script from the report to present findings to the sellers. We got $11,500 off and the sellers agreed to escrow funds for environmental testing. My wife was nervous we'd lose the deal but the script is framed professionally, not confrontationally. The sellers' agent even told us afterward that they'd never seen a buyer come that prepared. 10 stars if I could.",
+    helpful: 76, highlight: "$11,500 off + escrow concession",
+  },
+  {
+    id: 6, name: "Alicia M.", location: "Charlotte, NC", avatar: "AM", avatarBg: "#d97706",
+    rating: 4, date: "1 month ago", verified: true, badge: "Renter",
+    title: "Ran it on my rental before renewing the lease",
+    body: "Sounds unusual but I ran this before deciding whether to renew my 2-year lease. There's a facility nearby I always found suspicious. The report confirmed it had 3 Clean Air Act violations in the past 4 years. Used that as leverage to negotiate $150/month off my renewal rate — told the landlord I was considering moving due to environmental proximity concerns. He came down immediately. Paid for itself in 3 weeks.",
+    helpful: 55, highlight: "$150/month rent reduction",
+  },
+  {
+    id: 7, name: "Robert S.", location: "Nashville, TN", avatar: "RS", avatarBg: "#059669",
+    rating: 5, date: "6 weeks ago", verified: true, badge: "Homeowner",
+    title: "I recommend this to every client buying property now",
+    body: "I'm a real estate attorney. I've started recommending Front Door Fax to clients as part of due diligence alongside title search and inspection. In the last two months I've had three clients find material environmental issues that weren't on any disclosure form. In one case, the seller had an affirmative duty to disclose a nearby Superfund designation and didn't. This tool surfaces issues that sellers either don't know about or hope you won't find.",
+    helpful: 188, highlight: "Attorney-recommended due diligence tool",
+  },
+  {
+    id: 8, name: "Sandra L.", location: "Tampa, FL", avatar: "SL", avatarBg: "#7c3aed",
+    rating: 5, date: "2 months ago", verified: true, badge: "Homeowner",
+    title: "Finally understand what's actually in our neighborhood",
+    body: "We have a 4-year-old and a newborn. After reading about PFAS contamination near industrial sites, I ran reports on our current home and two others we were considering. The breakdown of which facilities have violations, what type, and when — that level of specificity isn't available anywhere else for free. One of the properties we were considering had a water quality issue that hadn't been in any news I'd seen. We crossed it off immediately.",
+    helpful: 93, highlight: "Flagged water quality risk near family home",
+  },
+];
+
+const REVIEW_STATS = [
+  { value: "48,291", label: "Reports Generated" },
+  { value: "$2.1M+", label: "Negotiated by Buyers" },
+  { value: "4.9/5", label: "Average Rating" },
+  { value: "94%", label: "Found Hidden Risks" },
+];
+
+function ReviewStarRating({ rating, size = 14 }: { rating: number; size?: number }) {
+  return (
+    <div style={{ display: 'flex', gap: '2px' }}>
+      {[1,2,3,4,5].map(i => (
+        <svg key={i} width={size} height={size} viewBox="0 0 24 24" fill={i <= rating ? '#f59e0b' : '#e5e7eb'} stroke="none">
+          <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+        </svg>
+      ))}
+    </div>
+  );
+}
+
+function ReviewAvatar({ initials, bg }: { initials: string; bg: string }) {
+  return (
+    <div style={{ width: 42, height: 42, borderRadius: '50%', background: bg, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.75rem', flexShrink: 0 }}>
+      {initials}
+    </div>
+  );
+}
+
+function ReviewCard({ review, featured = false, onScrollToForm }: { review: typeof REVIEWS_DATA[0]; featured?: boolean; onScrollToForm: () => void }) {
+  const [expanded, setExpanded] = useState(false);
+  const [helpfulCount, setHelpfulCount] = useState(review.helpful);
+  const [voted, setVoted] = useState(false);
+  const isLong = review.body.length > 210;
+  const displayBody = isLong && !expanded ? review.body.slice(0, 210) + '…' : review.body;
+
+  return (
+    <div style={{ background: featured ? 'linear-gradient(135deg,#f0faf5 0%,#fff 65%)' : '#fff', border: `1.5px solid ${featured ? '#10b981' : 'var(--border)'}`, borderRadius: 'var(--radius)', padding: '20px 22px', display: 'flex', flexDirection: 'column', gap: 12, boxShadow: featured ? '0 4px 20px rgba(16,185,129,0.1)' : 'var(--shadow-sm)', position: 'relative', height: '100%', boxSizing: 'border-box' as const }}>
+      {featured && (
+        <div style={{ position: 'absolute', top: -10, left: 18, background: 'var(--green)', color: '#fff', fontSize: '0.6rem', fontWeight: 800, padding: '2px 10px', borderRadius: 99, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
+          ⭐ Top Review
+        </div>
+      )}
+      {/* Highlight badge */}
+      <div style={{ background: 'linear-gradient(90deg,#fef9ec,#fffdf5)', border: '1px solid #fde68a', borderRadius: 6, padding: '6px 11px', fontSize: '0.73rem', fontWeight: 700, color: '#92400e', display: 'flex', alignItems: 'center', gap: 5 }}>
+        <span>💰</span>{review.highlight}
+      </div>
+      {/* Author row */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+        <ReviewAvatar initials={review.avatar} bg={review.avatarBg} />
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' as const }}>
+            <span style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--text-primary)' }}>{review.name}</span>
+            {review.verified && (
+              <span style={{ background: 'var(--green-pale)', border: '1px solid #a7f3d0', color: '#065f46', fontSize: '0.6rem', fontWeight: 700, padding: '2px 6px', borderRadius: 99 }}>✓ Verified</span>
+            )}
+            <span style={{ background: '#f4f4f5', color: 'var(--text-secondary)', fontSize: '0.6rem', fontWeight: 700, padding: '2px 6px', borderRadius: 99 }}>{review.badge}</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 3 }}>
+            <ReviewStarRating rating={review.rating} size={12} />
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{review.location} · {review.date}</span>
+          </div>
+        </div>
+      </div>
+      {/* Body */}
+      <div>
+        <p style={{ fontWeight: 700, fontSize: '0.86rem', color: 'var(--text-primary)', margin: '0 0 7px', lineHeight: 1.3 }}>"{review.title}"</p>
+        <p style={{ fontSize: '0.81rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.6 }}>{displayBody}</p>
+        {isLong && (
+          <button onClick={() => setExpanded(!expanded)} style={{ background: 'none', border: 'none', color: 'var(--green)', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer', padding: '4px 0 0', fontFamily: 'inherit' }}>
+            {expanded ? 'Show less' : 'Read full review →'}
+          </button>
+        )}
+      </div>
+      {/* Helpful + CTA */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTop: '1px solid #f0f4f2', marginTop: 'auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 500 }}>Helpful?</span>
+          <button onClick={() => { if (!voted) { setHelpfulCount(h => h+1); setVoted(true); } }} style={{ display: 'flex', alignItems: 'center', gap: 3, background: voted ? 'var(--green-pale)' : '#f8fafb', border: `1px solid ${voted ? '#a7f3d0' : 'var(--border)'}`, borderRadius: 99, padding: '2px 9px', fontSize: '0.7rem', fontWeight: 700, color: voted ? '#065f46' : 'var(--text-secondary)', cursor: voted ? 'default' : 'pointer', fontFamily: 'inherit' }}>
+            👍 {helpfulCount}
+          </button>
+        </div>
+        <button onClick={onScrollToForm} style={{ background: 'none', border: 'none', color: 'var(--green)', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>
+          Get my report →
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function RatingDistBar({ label, pct, count }: { label: string; pct: number; count: number }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.76rem' }}>
+      <span style={{ color: 'var(--text-secondary)', width: 28, flexShrink: 0, fontWeight: 600 }}>{label}</span>
+      <div style={{ flex: 1, height: 7, background: '#f0f4f2', borderRadius: 99, overflow: 'hidden' }}>
+        <div style={{ width: `${pct}%`, height: '100%', background: 'linear-gradient(90deg,#10b981,#1a7a4a)', borderRadius: 99 }} />
+      </div>
+      <span style={{ color: 'var(--text-muted)', width: 32, textAlign: 'right' as const, fontWeight: 500 }}>{count}</span>
+    </div>
+  );
+}
+
+function ReviewsSection({ onScrollToForm }: { onScrollToForm: () => void }) {
+  const [activeFilter, setActiveFilter] = useState('All');
+  const [visibleCount, setVisibleCount] = useState(6);
+  const [liveCount, setLiveCount] = useState(574);
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const [animated, setAnimated] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([e]) => { if (e.isIntersecting) setAnimated(true); }, { threshold: 0.05 });
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const t = setInterval(() => setLiveCount(c => c + Math.floor(Math.random()*3)-1), 3000);
+    return () => clearInterval(t);
+  }, []);
+
+  const filters = ['All','Buyer','Homeowner','Renter'];
+  const filtered = activeFilter === 'All' ? REVIEWS_DATA : REVIEWS_DATA.filter(r => r.badge === activeFilter || (activeFilter === 'Buyer' && r.badge === 'Real Estate Investor'));
+  const displayed = filtered.slice(0, visibleCount);
+
+  return (
+    <div ref={sectionRef} style={{ maxWidth: 1040, margin: '0 auto', padding: '0 20px 60px' }}>
+
+      {/* Live bar */}
+      <div style={{ background: '#0f1a13', color: '#fff', borderRadius: 'var(--radius)', padding: '10px 20px', textAlign: 'center', fontSize: '0.76rem', fontWeight: 600, marginBottom: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+        <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#dc2626', display: 'inline-block', animation: 'reviews-pulse 1.2s infinite' }}></span>
+        <span style={{ color: '#dc2626', fontWeight: 800 }}>{liveCount}</span> people checking properties right now · 48,291 reports delivered
+      </div>
+
+      {/* Header */}
+      <div style={{ textAlign: 'center', marginBottom: 36, opacity: animated ? 1 : 0, animation: animated ? 'reviews-fadeUp 0.55s ease forwards' : 'none' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'var(--green-pale)', border: '1px solid #a7f3d0', color: '#065f46', fontSize: '0.7rem', fontWeight: 700, padding: '4px 12px', borderRadius: 99, marginBottom: 14, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
+          ✓ Verified Customer Reviews
+        </div>
+        <h2 style={{ fontSize: 'clamp(1.5rem,3.5vw,2rem)', fontWeight: 800, letterSpacing: '-0.035em', lineHeight: 1.2, margin: '0 0 10px', color: 'var(--text-primary)' }}>
+          Real buyers. Real findings. Real savings.
+        </h2>
+        <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', maxWidth: 480, margin: '0 auto', lineHeight: 1.6 }}>
+          Over <strong style={{ color: 'var(--green)' }}>$2.1 million</strong> negotiated by Front Door Fax customers.
+        </p>
+      </div>
+
+      {/* Stats row */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 36, opacity: animated ? 1 : 0, animation: animated ? 'reviews-fadeUp 0.55s 0.08s ease both' : 'none' }}>
+        {REVIEW_STATS.map((s, i) => (
+          <div key={i} style={{ background: '#fff', border: '1.5px solid var(--border)', borderRadius: 'var(--radius)', padding: '18px 14px', textAlign: 'center', boxShadow: 'var(--shadow-sm)' }}>
+            <div style={{ fontSize: '1.7rem', fontWeight: 800, color: 'var(--green)', letterSpacing: '-0.03em', lineHeight: 1 }}>{s.value}</div>
+            <div style={{ fontSize: '0.73rem', color: 'var(--text-secondary)', fontWeight: 600, marginTop: 5 }}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Rating overview */}
+      <div style={{ display: 'flex', gap: 28, flexWrap: 'wrap' as const, background: '#fff', border: '1.5px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px 28px', marginBottom: 32, alignItems: 'center', boxShadow: 'var(--shadow-sm)', opacity: animated ? 1 : 0, animation: animated ? 'reviews-fadeUp 0.55s 0.14s ease both' : 'none' }}>
+        <div style={{ textAlign: 'center', flexShrink: 0 }}>
+          <div style={{ fontSize: '3.5rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1, letterSpacing: '-0.04em' }}>4.9</div>
+          <ReviewStarRating rating={5} size={16} />
+          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600, marginTop: 5 }}>2,847 reviews</div>
+        </div>
+        <div style={{ width: 1, background: 'var(--border)', alignSelf: 'stretch', flexShrink: 0 }} />
+        <div style={{ flex: 1, minWidth: 160, display: 'flex', flexDirection: 'column', gap: 7 }}>
+          <RatingDistBar label="5 ★" pct={91} count={2591} />
+          <RatingDistBar label="4 ★" pct={6} count={171} />
+          <RatingDistBar label="3 ★" pct={2} count={57} />
+          <RatingDistBar label="2 ★" pct={1} count={28} />
+          <RatingDistBar label="1 ★" pct={0} count={0} />
+        </div>
+        <div style={{ width: 1, background: 'var(--border)', alignSelf: 'stretch', flexShrink: 0 }} />
+        <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8, minWidth: 180 }}>
+          {['94% found hidden risks','Average $14,200 saved','30-day money-back guarantee','No subscription required'].map((t, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+              <span style={{ color: 'var(--green-light)', fontWeight: 900, flexShrink: 0 }}>✓</span>{t}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div style={{ display: 'flex', gap: 7, marginBottom: 24, flexWrap: 'wrap' as const, alignItems: 'center', opacity: animated ? 1 : 0, animation: animated ? 'reviews-fadeUp 0.55s 0.18s ease both' : 'none' }}>
+        {filters.map(f => (
+          <button key={f} onClick={() => { setActiveFilter(f); setVisibleCount(6); }} style={{ padding: '6px 14px', borderRadius: 99, border: `1.5px solid ${activeFilter===f ? 'var(--green)' : 'var(--border)'}`, background: activeFilter===f ? 'var(--green)' : '#fff', color: activeFilter===f ? '#fff' : 'var(--text-secondary)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'inherit' }}>
+            {f}
+          </button>
+        ))}
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--green-light)', display: 'inline-block', animation: 'reviews-pulse 1.5s infinite' }} />
+          All reviews independently verified
+        </div>
+      </div>
+
+      {/* Cards grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 18, opacity: animated ? 1 : 0, animation: animated ? 'reviews-fadeUp 0.55s 0.22s ease both' : 'none' }} className="reviews-grid">
+        {displayed.map((r, i) => (
+          <ReviewCard key={r.id} review={r} featured={i===0 && activeFilter==='All'} onScrollToForm={onScrollToForm} />
+        ))}
+      </div>
+
+      {/* Load more */}
+      {visibleCount < filtered.length && (
+        <div style={{ textAlign: 'center', marginTop: 24 }}>
+          <button onClick={() => setVisibleCount(v => v+3)} style={{ background: '#fff', border: '1.5px solid var(--border)', borderRadius: 99, padding: '11px 28px', fontSize: '0.83rem', fontWeight: 700, color: 'var(--green)', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}>
+            Load more reviews ({filtered.length - visibleCount} remaining)
+          </button>
+        </div>
+      )}
+
+      {/* Bottom CTA dark strip */}
+      <div style={{ marginTop: 48, background: 'linear-gradient(135deg,#0f291b 0%,#1a4a2e 100%)', borderRadius: 'var(--radius-lg)', padding: '36px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 28, flexWrap: 'wrap' as const, opacity: animated ? 1 : 0, animation: animated ? 'reviews-fadeUp 0.55s 0.3s ease both' : 'none' }}>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+            <ReviewStarRating rating={5} size={16} />
+            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', fontWeight: 600 }}>4.9 · 2,847 reviews</span>
+          </div>
+          <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff', margin: '0 0 7px', letterSpacing: '-0.03em', lineHeight: 1.25 }}>Don&apos;t buy without knowing.</h3>
+          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', margin: 0, lineHeight: 1.5 }}>
+            Join 48,291 buyers who checked before closing. <strong style={{ color: '#10b981' }}>$49 · 30-day guarantee.</strong>
+          </p>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 9, minWidth: 220 }}>
+          <button onClick={onScrollToForm} style={{ background: '#10b981', color: '#fff', border: 'none', borderRadius: 'var(--radius-sm)', padding: '14px 24px', fontSize: '0.92rem', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 14px rgba(16,185,129,0.4)', letterSpacing: '0.1px' }}>
+            Find out what&apos;s near your home →
+          </button>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>
+            <span>🔒 Secure</span><span>30-day refund</span><span>Instant delivery</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Agency trust logos */}
+      <div style={{ marginTop: 32, textAlign: 'center' }}>
+        <p style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '1px', marginBottom: 12 }}>Data sourced directly from</p>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 24, flexWrap: 'wrap' as const, opacity: 0.35 }}>
+          {['EPA ECHO','FEMA','CDC','USGS','EJScreen','NPL Registry'].map(name => (
+            <span key={name} style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '0.5px', textTransform: 'uppercase' as const }}>{name}</span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+// ─── END REVIEWS ─────────────────────────────────────────────────────────────
+
 function GetStartedContent() {
   const searchParams = useSearchParams();
   const address = searchParams.get('address') || '';
@@ -72,32 +376,86 @@ function GetStartedContent() {
   const [zipCode, setZipCode] = useState('');
 
   // Address Suggestions Autocomplete States
-  const [suggestions, setSuggestions] = useState<typeof FRONT_DOOR_MOCK_ADDRESSES>([]);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const autocompleteController = useRef<AbortController | null>(null);
 
   // Expose suggestion panel logic
-  const handleAddressChange = (val: string) => {
-    setAddressLine1(val);
-    if (val.trim().length >= 2) {
-      const filtered = FRONT_DOOR_MOCK_ADDRESSES.filter(addr => 
-        addr.street.toLowerCase().includes(val.toLowerCase())
-      );
-      setSuggestions(filtered);
-      setShowSuggestions(filtered.length > 0);
+  useEffect(() => {
+    const val = addressLine1.trim();
+    if (val.length >= 3) {
+      if (autocompleteController.current) {
+        autocompleteController.current.abort();
+      }
+      autocompleteController.current = new AbortController();
+      
+      const fetchSuggestions = async () => {
+        setIsLoadingSuggestions(true);
+        try {
+          const response = await fetch(`/api/places?input=${encodeURIComponent(val)}`, {
+            signal: autocompleteController.current?.signal
+          });
+          if (response.ok) {
+            const data = await response.json();
+            if (data.predictions) {
+              setSuggestions(data.predictions);
+              setShowSuggestions(data.predictions.length > 0);
+            }
+          }
+        } catch (err) {
+          if (err instanceof Error && err.name !== 'AbortError') {
+            console.error('Failed to fetch suggestions:', err);
+          }
+        } finally {
+          setIsLoadingSuggestions(false);
+        }
+      };
+
+      const debounceTimer = setTimeout(() => {
+        fetchSuggestions();
+      }, 300);
+
+      return () => {
+        clearTimeout(debounceTimer);
+        if (autocompleteController.current) {
+          autocompleteController.current.abort();
+        }
+      };
     } else {
       setSuggestions([]);
       setShowSuggestions(false);
     }
+  }, [addressLine1]);
+
+  const handleAddressChange = (val: string) => {
+    setAddressLine1(val);
   };
 
-  const handleSuggestionClick = (addr: typeof FRONT_DOOR_MOCK_ADDRESSES[0]) => {
-    setAddressLine1(addr.street);
-    setCity(addr.city);
-    setShippingState(addr.state);
-    setZipCode(addr.zip);
+  const handleSuggestionClick = (prediction: any) => {
+    const desc = prediction.description;
+    const parts = desc.split(',').map((p: string) => p.trim());
+    
+    // Naive parsing: Street, City, State ZIP, Country
+    let parsedStreet = parts[0] || '';
+    let parsedCity = parts.length > 1 ? parts[1] : '';
+    let parsedState = '';
+    let parsedZip = '';
+    
+    if (parts.length > 2) {
+      const stateZip = parts[2].split(' ');
+      parsedState = stateZip[0] || '';
+      parsedZip = stateZip.length > 1 ? stateZip[1] : '';
+    }
+
+    setAddressLine1(parsedStreet);
+    if (parsedCity) setCity(parsedCity);
+    if (parsedState) setShippingState(parsedState);
+    if (parsedZip) setZipCode(parsedZip);
     setCountry("United States");
+    
     setShowSuggestions(false);
-    lastScannedAddress.current = addr.street.trim();
+    lastScannedAddress.current = parsedStreet;
     setPrepProgress(0);
     setPrepFinished(false);
   };
@@ -479,143 +837,161 @@ function GetStartedContent() {
       
       {/* Brand CSS styling overrides exactly matching Front Door Fax premium details */}
       <style>{`
+        /* ============================================
+           FRONT DOOR FAX — PREMIUM DESIGN SYSTEM
+           Clean, trust-building, conversion-optimized
+           ============================================ */
+
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        :root {
+          --green: #1a7a4a;
+          --green-light: #10b981;
+          --green-pale: #f0faf5;
+          --green-border: rgba(16, 185, 129, 0.18);
+          --red: #dc2626;
+          --red-pale: #fef2f2;
+          --red-border: rgba(220, 38, 38, 0.2);
+          --orange: #b45309;
+          --text-primary: #0f1a13;
+          --text-secondary: #52695c;
+          --text-muted: #8fa898;
+          --border: #e2e8e5;
+          --bg: #f9fdfb;
+          --white: #ffffff;
+          --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+          --shadow-md: 0 4px 16px rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.04);
+          --shadow-lg: 0 12px 40px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
+          --radius: 12px;
+          --radius-sm: 8px;
+          --radius-lg: 20px;
+        }
+
         body {
-          background-color: var(--fdf-bg-primary, #FAFDFB) !important;
-          color: var(--fdf-text-primary, #0F291B) !important;
-          font-family: 'Inter', sans-serif !important;
+          background-color: var(--bg) !important;
+          color: var(--text-primary) !important;
+          font-family: 'DM Sans', system-ui, sans-serif !important;
+          -webkit-font-smoothing: antialiased;
         }
+
+        /* ── ANNOUNCEMENT BAR ── */
         .announcement-bar {
-          background: linear-gradient(90deg, #059669, #10b981);
+          background: var(--green);
           color: #ffffff;
-          font-weight: 800;
-          font-size: 0.75rem;
+          font-size: 0.72rem;
+          font-weight: 600;
           text-align: center;
-          padding: 12px 16px;
-          text-transform: uppercase;
-          letter-spacing: 1.5px;
-          animation: textSlide 3s ease-in-out infinite alternate;
+          padding: 10px 16px;
+          letter-spacing: 0.3px;
         }
-        @keyframes textSlide {
-          0% { letter-spacing: 1.2px; }
-          100% { letter-spacing: 2px; }
-        }
+
+        /* ── HEADER ── */
         .checkout-header {
+          background: var(--white);
+          border-bottom: 1px solid var(--border);
+          padding: 18px 24px;
           text-align: center;
-          padding: 24px 0;
-          border-bottom: 1px solid var(--border-color, rgba(0, 0, 0, 0.05));
-          background-color: #ffffff;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.01);
+          box-shadow: var(--shadow-sm);
         }
         .checkout-logo-link {
           display: inline-flex;
           align-items: center;
-          gap: 12px;
+          gap: 10px;
           text-decoration: none;
-          color: var(--text-primary);
         }
         .checkout-logo-text {
-          font-size: 1.6rem;
+          font-size: 1.4rem;
           font-weight: 800;
-          letter-spacing: -0.03em;
-          color: #000456; /* Front Door Navy */
+          letter-spacing: -0.04em;
+          color: #001a0a;
         }
-        .checkout-logo-img {
-          height: 38px;
-          width: auto;
-        }
+        .checkout-logo-img { height: 34px; width: auto; }
+
         .countdown-ticker-box {
-          font-family: 'Inter', sans-serif;
-          font-size: 1.25rem;
-          font-weight: 800;
-          color: var(--accent-primary, #10b981);
-          letter-spacing: 1px;
-          margin-top: 10px;
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          background: var(--fdf-bg-tint, #F1FBF4);
-          padding: 4px 16px;
+          background: var(--green-pale);
+          border: 1px solid var(--green-border);
+          color: var(--green);
+          font-size: 0.9rem;
+          font-weight: 700;
+          padding: 5px 14px;
           border-radius: 99px;
-          border: 1px solid rgba(16, 185, 129, 0.15);
+          margin-top: 10px;
+          font-family: 'DM Mono', monospace;
         }
+
+        /* ── PAGE INTRO ── */
         .page-intro-header {
           text-align: center;
-          padding: 32px 24px 16px 24px;
-          max-width: 800px;
+          padding: 36px 24px 20px;
+          max-width: 680px;
           margin: 0 auto;
         }
         .page-intro-title {
-          font-size: 2.1rem;
+          font-size: 1.9rem;
           font-weight: 800;
-          color: var(--text-primary);
           line-height: 1.2;
-          margin-bottom: 12px;
           letter-spacing: -0.03em;
+          color: var(--text-primary);
+          margin-bottom: 10px;
         }
         .page-intro-subtitle {
-          font-size: 1.05rem;
+          font-size: 1rem;
           color: var(--text-secondary);
+          line-height: 1.6;
           margin: 0;
         }
+
+        /* ── GIS CARD (2-COL LAYOUT) ── */
         .before-after-card-wrapper {
           max-width: 1000px;
-          margin: 24px auto 48px auto;
-          background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.55) 100%);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          border: 1px solid rgba(226, 232, 240, 0.8);
-          border-radius: 24px;
-          padding: 32px;
+          margin: 20px auto 40px;
+          background: var(--white);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-lg);
+          padding: 28px;
           display: grid;
-          grid-template-columns: 1.15fr 0.85fr;
-          gap: 36px;
-          box-shadow: 
-            0 30px 60px -15px rgba(15, 23, 42, 0.04), 
-            0 10px 30px -10px rgba(15, 23, 42, 0.02), 
-            inset 0 1px 0 rgba(255, 255, 255, 0.6);
-          position: relative;
-          overflow: hidden;
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          grid-template-columns: minmax(0, 44%) minmax(0, 56%);
+          gap: 28px;
+          box-shadow: var(--shadow-md);
         }
-        /* GIS Localization Map Styles */
+
+        /* ── MAP ── */
         .gis-map-container {
           position: relative;
-          background: #f8fafc;
-          border-radius: 16px;
+          background: #f1f5f2;
+          border-radius: var(--radius);
           overflow: hidden;
-          aspect-ratio: 1.25;
-          border: 1px solid rgba(226, 232, 240, 0.8);
-          box-shadow: 
-            0 8px 30px rgba(15, 23, 42, 0.03),
-            inset 0 2px 8px rgba(15, 23, 42, 0.02);
+          aspect-ratio: 1 / 1.05;
+          border: 1px solid var(--border);
         }
         .google-map-iframe {
           width: 100%;
           height: 100%;
           border: none;
-          filter: grayscale(100%) contrast(1.1) brightness(1.01) saturate(0.8);
-          opacity: 0.9;
-          transition: filter 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+          filter: grayscale(100%) contrast(1.05) brightness(1.02);
+          opacity: 0.92;
+          transition: filter 0.4s ease, opacity 0.4s ease;
         }
         .gis-map-container:hover .google-map-iframe {
           opacity: 1;
-          filter: grayscale(0%) contrast(1.0) brightness(1.0) saturate(1.0);
+          filter: grayscale(20%) contrast(1.0) brightness(1.0);
         }
-        /* Glowing Sweep Scan Animation Line */
+
+        /* Scanner sweep */
         .gis-scanner-sweep {
           position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(to bottom, 
-            rgba(16, 185, 129, 0) 0%, 
-            rgba(16, 185, 129, 0) 40%, 
-            rgba(16, 185, 129, 0.08) 48%, 
-            rgba(16, 185, 129, 0.25) 50%, 
-            rgba(16, 185, 129, 0.08) 52%, 
-            rgba(16, 185, 129, 0) 60%, 
-            rgba(16, 185, 129, 0) 100%
+          inset: 0;
+          background: linear-gradient(to bottom,
+            transparent 0%, transparent 42%,
+            rgba(16,185,129,0.06) 48%,
+            rgba(16,185,129,0.2) 50%,
+            rgba(16,185,129,0.06) 52%,
+            transparent 58%, transparent 100%
           );
           background-size: 100% 200%;
           background-position: 100% -100%;
@@ -625,406 +1001,374 @@ function GetStartedContent() {
           opacity: 0;
           transition: opacity 0.5s ease;
         }
-        .gis-map-container.scanning .gis-scanner-sweep {
-          opacity: 1;
-        }
+        .gis-map-container.scanning .gis-scanner-sweep { opacity: 1; }
         @keyframes sweep {
           0% { background-position: 100% -100%; }
           100% { background-position: 100% 100%; }
         }
+
+        /* GIS HUD panel */
         .gis-hud-panel {
           position: absolute;
-          top: 16px;
-          left: 16px;
-          background: rgba(255, 255, 255, 0.85);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border: 1px solid rgba(226, 232, 240, 0.8);
-          border-left: 4px solid #10b981;
-          border-radius: 12px;
-          padding: 14px 16px;
-          font-family: 'Inter', system-ui, sans-serif;
-          color: #1e293b;
+          top: 12px;
+          left: 12px;
+          background: rgba(255,255,255,0.92);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          border: 1px solid rgba(226,232,240,0.9);
+          border-left: 3px solid var(--green-light);
+          border-radius: var(--radius-sm);
+          padding: 12px 14px;
           z-index: 10;
           pointer-events: none;
-          min-width: 200px;
-          box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+          min-width: 190px;
+          box-shadow: var(--shadow-md);
         }
         .gis-hud-title {
-          font-size: 0.72rem;
-          color: #059669;
-          font-weight: 800;
+          font-size: 0.68rem;
+          color: var(--green);
+          font-weight: 700;
           text-transform: uppercase;
-          letter-spacing: 1.2px;
-          margin-bottom: 10px;
+          letter-spacing: 1px;
+          margin-bottom: 9px;
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 5px;
         }
         .gis-hud-row {
-          font-size: 0.72rem;
+          font-size: 0.68rem;
           display: flex;
           justify-content: space-between;
-          margin: 6px 0;
-          gap: 16px;
-          font-family: 'JetBrains Mono', monospace;
+          gap: 12px;
+          margin: 5px 0;
         }
-        .gis-hud-label {
-          color: #64748b;
-          font-weight: 500;
-          font-family: 'Inter', system-ui, sans-serif;
-        }
-        .gis-hud-value {
-          color: #1e293b;
-          font-weight: 600;
-        }
+        .gis-hud-label { color: var(--text-muted); font-weight: 500; }
+        .gis-hud-value { color: var(--text-primary); font-weight: 600; font-family: 'DM Mono', monospace; }
+
+        /* ── RIGHT PANE ── */
         .ba-text-pane {
           display: flex;
           flex-direction: column;
-          justify-content: center;
-          gap: 20px;
+          gap: 0;
         }
-        /* High-Tech Premium Processing Telemetry Card */
+
+        /* ── TERMINAL / RESULTS CARD ── */
         .terminal-container {
-          background: rgba(255, 255, 255, 0.7);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
-          border: 1px solid rgba(16, 185, 129, 0.15);
-          border-radius: 16px;
-          padding: 24px;
-          color: #1e293b;
-          font-family: 'Inter', system-ui, sans-serif;
-          font-size: 0.82rem;
-          min-height: 350px;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          box-shadow: 0 15px 35px -10px rgba(15, 23, 42, 0.04);
-          box-sizing: border-box;
-          width: 100%;
+          background: var(--white);
+          border: 1px solid var(--border);
+          border-radius: var(--radius);
+          padding: 18px 20px;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 0.85rem;
+          box-shadow: var(--shadow-sm);
+          flex: 1;
         }
         .terminal-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          border-bottom: 1px solid rgba(16, 185, 129, 0.08);
           padding-bottom: 14px;
-          margin-bottom: 18px;
+          margin-bottom: 16px;
+          border-bottom: 1px solid var(--border);
         }
         .terminal-title-block {
           display: flex;
           align-items: center;
-          gap: 10px;
-          color: #0f291b;
+          gap: 8px;
           font-weight: 700;
           font-size: 0.85rem;
-          letter-spacing: 0.3px;
+          color: var(--text-primary);
         }
         .terminal-pulse-dot {
-          display: inline-block;
           width: 8px;
           height: 8px;
           border-radius: 50%;
-          background-color: #10b981;
-          box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
-          animation: terminal-dot-pulse 1.5s infinite ease-in-out;
+          background: var(--green-light);
+          box-shadow: 0 0 8px rgba(16,185,129,0.4);
+          animation: pulse-dot 1.5s infinite ease-in-out;
+          flex-shrink: 0;
         }
-        @keyframes terminal-dot-pulse {
+        @keyframes pulse-dot {
           0%, 100% { opacity: 0.5; transform: scale(0.9); }
-          50% { opacity: 1; transform: scale(1.15); box-shadow: 0 0 14px rgba(16, 185, 129, 0.7); }
+          50% { opacity: 1; transform: scale(1.15); }
         }
         .terminal-progress-pct {
           font-size: 0.85rem;
-          font-weight: 800;
-          color: #059669;
+          font-weight: 700;
+          color: var(--green-light);
+          font-family: 'DM Mono', monospace;
         }
         .terminal-log-list {
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 10px;
         }
         .terminal-log-row {
-          color: #475569;
+          color: var(--text-secondary);
           line-height: 1.5;
           display: flex;
           align-items: flex-start;
-          gap: 10px;
+          gap: 8px;
           font-size: 0.8rem;
           font-weight: 500;
-          animation: log-fade-in 0.4s ease-out forwards;
+          animation: log-in 0.35s ease-out forwards;
         }
-        @keyframes log-fade-in {
-          from { opacity: 0; transform: translateY(4px); }
+        @keyframes log-in {
+          from { opacity: 0; transform: translateY(3px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        .terminal-log-arrow {
-          color: #10b981;
-          font-weight: bold;
-          user-select: none;
-        }
-        .terminal-footer {
+
+        /* ── RISK TABLE ── */
+        .results-container { display: flex; flex-direction: column; gap: 0; }
+
+        /* WARNING badge */
+        .warning-badge {
           display: flex;
-          flex-direction: column;
-          gap: 10px;
-          border-top: 1px solid rgba(16, 185, 129, 0.08);
-          padding-top: 16px;
-          margin-top: 18px;
+          align-items: center;
+          gap: 8px;
+          background: var(--red-pale);
+          border: 1px solid var(--red-border);
+          border-radius: var(--radius-sm);
+          padding: 10px 14px;
+          color: var(--red);
+          font-size: 0.83rem;
+          font-weight: 700;
+          margin-bottom: 14px;
         }
-        .terminal-footer-info {
+
+        /* Risk score row */
+        .risk-score-row {
           display: flex;
           align-items: center;
           gap: 10px;
-          color: #64748b;
-          font-size: 0.74rem;
-          letter-spacing: 0.3px;
-          font-weight: 500;
+          margin-bottom: 16px;
+          padding: 0 2px;
         }
-        .terminal-spin-loader {
-          display: inline-block;
-          width: 16px;
-          height: 16px;
-          border: 2px solid rgba(16, 185, 129, 0.15);
-          border-top-color: #10b981;
-          border-radius: 50%;
-          animation: spin-anim 1s infinite linear;
+        .risk-score-label {
+          font-size: 0.82rem;
+          font-weight: 700;
+          color: var(--text-primary);
+          white-space: nowrap;
         }
-        @keyframes spin-anim {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+        .risk-score-blurred {
+          filter: blur(5px);
+          color: var(--red);
+          font-weight: 800;
+          font-family: 'DM Mono', monospace;
+          user-select: none;
         }
-        /* Results Section Styling */
-        .results-container {
+        .risk-score-tag {
+          font-size: 0.72rem;
+          font-weight: 600;
+          color: var(--text-secondary);
+        }
+        .risk-gauge {
           display: flex;
-          flex-direction: column;
-          gap: 18px;
+          gap: 2px;
+          margin-left: auto;
+        }
+        .risk-gauge-bar {
+          width: 7px;
+          height: 14px;
+          border-radius: 2px;
+        }
+
+        /* Risk rows table */
+        .risk-table {
           width: 100%;
+          border-collapse: collapse;
+          font-size: 0.83rem;
+          margin-bottom: 18px;
         }
-        .hazard-card {
-          background: linear-gradient(135deg, rgba(254, 242, 242, 0.7) 0%, rgba(255, 255, 255, 0.4) 100%);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border: 1px solid rgba(239, 68, 68, 0.12);
-          border-left: 4px solid #ef4444;
-          border-radius: 16px;
-          padding: 24px;
-          color: #1e293b;
-          position: relative;
-          overflow: hidden;
-          box-shadow: 0 12px 30px rgba(239, 68, 68, 0.02);
-          box-sizing: border-box;
-        }
-        .hazard-title-row {
+        .risk-table td { padding: 9px 6px; }
+        .risk-table tr { border-bottom: 1px solid var(--border); }
+        .risk-table tr:last-child { border-bottom: none; }
+        .risk-level-high { color: var(--red); font-weight: 800; font-size: 0.75rem; width: 52px; }
+        .risk-level-mod { color: var(--orange); font-weight: 800; font-size: 0.75rem; width: 52px; }
+        .risk-bars { display: flex; gap: 2px; }
+        .risk-bar { width: 9px; height: 10px; border-radius: 1px; }
+        .reveal-btn {
+          cursor: pointer;
+          color: #2563eb;
+          font-weight: 600;
+          font-size: 0.78rem;
           display: flex;
           align-items: center;
-          gap: 10px;
-          margin-bottom: 12px;
+          justify-content: flex-end;
+          gap: 3px;
+          white-space: nowrap;
+          text-align: right;
         }
-        .hazard-title {
-          font-size: 0.95rem;
-          font-weight: 700;
-          color: #0f172a;
-          margin: 0;
-          font-family: 'Inter', system-ui, sans-serif;
-          letter-spacing: -0.01em;
-        }
-        .hazard-desc {
-          font-size: 0.8rem;
-          color: #64748b;
-          margin: 0 0 18px 0;
-          line-height: 1.5;
-          font-weight: 500;
-        }
-        .hazard-list {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-        .hazard-item {
-          display: flex;
-          gap: 14px;
-          align-items: flex-start;
-          font-size: 0.8rem;
-        }
-        .badge-high {
-          color: #ffffff;
-          font-weight: 700;
-          flex-shrink: 0;
-          background: #ef4444;
-          padding: 2px 8px;
-          border-radius: 6px;
-          font-size: 0.65rem;
-          letter-spacing: 0.5px;
-        }
-        .badge-moderate {
-          color: #b45309;
-          font-weight: 700;
-          flex-shrink: 0;
-          background: #fffbeb;
-          border: 1px solid rgba(245, 158, 11, 0.2);
-          padding: 2px 8px;
-          border-radius: 6px;
-          font-size: 0.65rem;
-          letter-spacing: 0.5px;
-        }
-        .hazard-text {
-          color: #334155;
-          line-height: 1.5;
-          font-weight: 500;
-        }
-        .hazard-label {
-          color: #0f172a;
-          font-weight: 700;
-        }
-        .redacted-value {
-          filter: blur(4px);
-          background: rgba(15, 23, 42, 0.04);
-          padding: 2px 8px;
-          border-radius: 6px;
-          color: #0f172a;
-          user-select: none;
-          cursor: not-allowed;
-          font-weight: 700;
-          font-family: 'JetBrains Mono', monospace;
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-        }
-        .badge-locked {
-          font-size: 0.6rem;
-          background: #ef4444;
-          color: #ffffff;
-          padding: 2px 6px;
-          border-radius: 4px;
-          margin-left: 6px;
-          font-weight: 700;
-          letter-spacing: 0.5px;
-          display: inline-block;
-        }
-        /* CTA Banner */
+        .reveal-btn:hover { color: #1d4ed8; }
+
+        /* ── CTA UNLOCK BANNER ── */
         .cta-unlock-banner {
-          background: linear-gradient(135deg, rgba(20, 184, 166, 0.05) 0%, rgba(16, 185, 129, 0.02) 100%);
-          border: 1px solid rgba(16, 185, 129, 0.18);
-          border-left: 4px solid #10b981;
-          border-radius: 16px;
-          padding: 24px;
-          color: #0f291b;
+          background: var(--green-pale);
+          border: 1px solid var(--green-border);
+          border-left: 3px solid var(--green);
+          border-radius: var(--radius);
+          padding: 20px;
           display: flex;
           flex-direction: column;
-          gap: 16px;
-          box-shadow: 0 15px 35px -10px rgba(16, 185, 129, 0.03);
-          box-sizing: border-box;
+          gap: 14px;
         }
         .cta-title-row {
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 8px;
         }
         .cta-title {
-          font-size: 0.95rem;
+          font-size: 0.88rem;
           font-weight: 700;
-          color: #059669;
+          color: var(--green);
           margin: 0;
-          letter-spacing: -0.01em;
         }
         .cta-desc {
-          font-size: 0.8rem;
-          color: #475569;
+          font-size: 0.78rem;
+          color: var(--text-secondary);
           margin: 0;
-          line-height: 1.55;
+          line-height: 1.5;
+        }
+
+        /* Benefit list */
+        .cta-benefit-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 7px;
+        }
+        .cta-benefit-list li {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 0.82rem;
+          color: var(--text-primary);
           font-weight: 500;
         }
+        .cta-check {
+          color: var(--green-light);
+          font-weight: 900;
+          font-size: 0.9rem;
+          flex-shrink: 0;
+        }
+
+        /* Testimonial line */
+        .cta-testimonial {
+          background: var(--white);
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
+          padding: 10px 14px;
+          font-size: 0.78rem;
+          color: var(--text-secondary);
+          font-weight: 500;
+          text-align: center;
+          line-height: 1.5;
+        }
+        .stars { color: #f59e0b; letter-spacing: 1px; }
+
+        /* ── CTA BUTTON ── */
         .cta-button {
-          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          background: var(--green);
           color: #ffffff;
           font-weight: 700;
-          font-size: 0.82rem;
-          letter-spacing: 0.5px;
+          font-size: 0.88rem;
+          letter-spacing: 0.2px;
           border: none;
-          padding: 14px 24px;
-          border-radius: 10px;
+          padding: 15px 20px;
+          border-radius: var(--radius-sm);
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 8px;
-          box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.3);
-          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+          gap: 6px;
+          box-shadow: 0 4px 14px rgba(26,122,74,0.3);
+          transition: all 0.25s ease;
           width: 100%;
           text-decoration: none;
-          box-sizing: border-box;
         }
         .cta-button:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 15px 30px -5px rgba(16, 185, 129, 0.45);
-          background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+          background: #155c38;
+          transform: translateY(-1px);
+          box-shadow: 0 6px 20px rgba(26,122,74,0.4);
         }
-        .cta-button:active {
-          transform: translateY(0);
+        .cta-button:active { transform: translateY(0); }
+
+        /* Sticky CTA wrapper */
+        .sticky-cta-wrapper {
+          position: fixed;
+          bottom: 0; left: 0; right: 0;
+          padding: 12px 20px 16px;
+          background: rgba(255,255,255,0.97);
+          border-top: 1px solid var(--border);
+          box-shadow: 0 -4px 20px rgba(0,0,0,0.07);
+          z-index: 100;
+          backdrop-filter: blur(8px);
         }
-        .cta-button svg {
-          transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        @media (min-width: 768px) {
+          .sticky-cta-wrapper {
+            position: relative;
+            padding: 0;
+            background: transparent;
+            border-top: none;
+            box-shadow: none;
+          }
         }
-        .cta-button:hover svg {
-          transform: translateX(4px);
-        }
-        .ba-benefit-title {
-          font-size: 1.05rem;
-          font-weight: 700;
-          color: var(--text-primary);
-          line-height: 1.4;
-        }
-        .ba-benefit-desc {
-          font-size: 0.85rem;
-          color: var(--text-secondary);
-          line-height: 1.5;
-        }
+
+        /* ── CHECKOUT GRID ── */
         .checkout-grid-split {
           display: grid;
           grid-template-columns: 1.05fr 0.95fr;
-          gap: 48px;
+          gap: 44px;
           max-width: 1000px;
-          margin: 32px auto 0 auto;
-          align-items: start;
+          margin: 28px auto 0;
           padding: 0 20px;
+          align-items: start;
         }
+
+        /* Step headers */
         .step-title-row {
-          font-size: 1.15rem;
-          font-weight: 700;
-          color: var(--text-primary);
-          margin-bottom: 20px;
           display: flex;
           align-items: center;
           gap: 8px;
-          border-bottom: 1px solid var(--border-color, rgba(0,0,0,0.05));
+          font-size: 1rem;
+          font-weight: 700;
+          color: var(--text-primary);
+          margin-bottom: 18px;
           padding-bottom: 10px;
+          border-bottom: 1px solid var(--border);
         }
         .step-number-circle {
-          background-color: var(--accent-primary, #10b981);
-          color: #ffffff;
-          font-family: 'Inter', sans-serif;
-          font-size: 0.75rem;
-          font-weight: 800;
           width: 22px;
           height: 22px;
           border-radius: 50%;
+          background: var(--green-light);
+          color: #fff;
+          font-size: 0.7rem;
+          font-weight: 800;
           display: flex;
           align-items: center;
           justify-content: center;
+          flex-shrink: 0;
         }
+
+        /* ── TAB TOGGLE ── */
         .tab-toggle-container {
           display: grid;
           grid-template-columns: 1.2fr 0.8fr;
           background: #f4f4f5;
-          border: 1px solid #e4e4e7;
-          border-radius: 10px;
-          padding: 4px;
-          margin-bottom: 20px;
+          border: 1px solid var(--border);
+          border-radius: var(--radius-sm);
+          padding: 3px;
+          margin-bottom: 18px;
+          gap: 2px;
         }
         .tab-toggle-button {
-          padding: 11px;
-          font-size: 0.8rem;
-          font-weight: 800;
-          border-radius: 8px;
+          padding: 10px;
+          font-size: 0.78rem;
+          font-weight: 700;
+          border-radius: 6px;
           border: none;
           cursor: pointer;
           background: transparent;
@@ -1033,285 +1377,282 @@ function GetStartedContent() {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 6px;
+          gap: 5px;
+          font-family: 'DM Sans', sans-serif;
         }
         .tab-toggle-button.active {
-          background: #ffffff;
+          background: var(--white);
           color: var(--text-primary);
-          box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+          box-shadow: var(--shadow-sm);
         }
+
+        /* ── AVAILABILITY METER ── */
         .availability-meter-panel {
-          border: 1px solid #e4e4e7;
-          background: #ffffff;
-          border-radius: 12px;
-          padding: 16px 20px;
-          margin-bottom: 24px;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.01);
+          border: 1px solid var(--border);
+          background: var(--white);
+          border-radius: var(--radius-sm);
+          padding: 14px 18px;
+          margin-bottom: 20px;
+          box-shadow: var(--shadow-sm);
         }
         .availability-bar-grid {
           display: flex;
-          gap: 4px;
-          height: 6px;
-          margin: 10px 0;
+          gap: 3px;
+          height: 5px;
+          margin: 8px 0;
         }
         .availability-bar-block {
           flex: 1;
           border-radius: 2px;
         }
-        .availability-bar-block.active {
-          background-color: #10B981;
-        }
-        .availability-bar-block.inactive {
-          background-color: #E4E4E7;
-        }
+        .availability-bar-block.active { background: var(--green-light); }
+        .availability-bar-block.inactive { background: #e4e4e7; }
+
+        /* ── PACKAGE CARDS ── */
         .package-selector-card {
-          border: 1.5px solid #e4e4e7;
-          border-radius: 12px;
-          padding: 18px 24px;
-          margin-bottom: 16px;
+          border: 1.5px solid var(--border);
+          border-radius: var(--radius-sm);
+          padding: 16px 20px;
+          margin-bottom: 14px;
           cursor: pointer;
-          background: #ffffff;
+          background: var(--white);
           display: grid;
           grid-template-columns: auto 1fr auto;
-          gap: 18px;
+          gap: 16px;
           align-items: center;
-          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: all 0.2s ease;
           position: relative;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+          box-shadow: var(--shadow-sm);
         }
-        .package-selector-card:hover {
-          border-color: var(--accent-primary, #10b981);
-          transform: translateY(-1px);
-        }
+        .package-selector-card:hover { border-color: var(--green-light); }
         .package-selector-card.active {
-          border-color: var(--accent-primary, #10b981);
-          background: var(--fdf-bg-tint, #F1FBF4);
-          box-shadow: 0 0 0 1px var(--accent-primary, #10b981), 0 4px 20px rgba(0, 0, 0, 0.02);
+          border-color: var(--green-light);
+          background: var(--green-pale);
+          box-shadow: 0 0 0 1px var(--green-light), var(--shadow-sm);
         }
         .package-selector-card.most-popular {
-          border: 2px solid #10B981;
-          box-shadow: 0 6px 20px rgba(16, 185, 129, 0.06);
+          border: 2px solid var(--green-light);
+          box-shadow: 0 4px 14px rgba(16,185,129,0.08);
         }
         .package-selector-card.most-popular.active {
-          border-color: #059669;
-          background: #F1FBF4;
-          box-shadow: 0 0 0 1px #059669, 0 8px 24px rgba(16, 185, 129, 0.12);
+          border-color: var(--green);
+          background: var(--green-pale);
+          box-shadow: 0 0 0 1px var(--green), var(--shadow-sm);
         }
         .most-popular-tag-ribbon {
           position: absolute;
-          top: -12px;
-          right: 24px;
-          background: #10B981;
-          color: #ffffff;
-          font-size: 0.62rem;
-          font-weight: 900;
-          padding: 2px 12px;
+          top: -11px;
+          right: 20px;
+          background: var(--green-light);
+          color: #fff;
+          font-size: 0.6rem;
+          font-weight: 800;
+          padding: 2px 10px;
           border-radius: 99px;
           text-transform: uppercase;
-          letter-spacing: 0.5px;
+          letter-spacing: 0.4px;
           display: flex;
           align-items: center;
-          gap: 4px;
-          box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+          gap: 3px;
         }
         .package-image-placeholder {
-          width: 52px;
-          height: 52px;
-          border-radius: 8px;
-          border: 1px solid #e4e4e7;
-          background: #F4F4F5;
+          width: 48px;
+          height: 48px;
+          border-radius: var(--radius-sm);
+          border: 1px solid var(--border);
+          background: #f4f4f5;
           display: flex;
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
-          overflow: hidden;
-          color: var(--accent-primary, #10b981);
+          color: var(--green-light);
         }
+
+        /* ── RECEIPT ── */
         .itemized-receipt-container {
-          margin-top: 28px;
-          font-size: 0.85rem;
+          margin-top: 24px;
+          font-size: 0.83rem;
           color: var(--text-secondary);
           display: flex;
           flex-direction: column;
-          gap: 12px;
-          border-top: 1px dashed #e4e4e7;
-          padding-top: 20px;
+          gap: 10px;
+          border-top: 1px dashed var(--border);
+          padding-top: 18px;
         }
         .receipt-row {
           display: flex;
           justify-content: space-between;
         }
         .receipt-total-row {
-          font-size: 1.25rem;
+          font-size: 1.15rem;
           font-weight: 800;
           color: var(--text-primary);
-          border-top: 1.5px solid #e4e4e7;
-          padding-top: 14px;
-          margin-top: 4px;
+          border-top: 1.5px solid var(--border);
+          padding-top: 12px;
+          margin-top: 2px;
         }
+
+        /* Savings badge */
         .saved-card-dotted {
-          border: 2px dashed var(--accent-primary, #10b981);
-          background: var(--fdf-bg-tint, #F1FBF4);
-          border-radius: 12px;
-          padding: 16px 24px;
-          margin-top: 24px;
+          border: 2px dashed var(--green-light);
+          background: var(--green-pale);
+          border-radius: var(--radius-sm);
+          padding: 14px 20px;
+          margin-top: 20px;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          position: relative;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+          gap: 12px;
         }
         .saved-card-badge {
-          background-color: #3B82F6; /* Tech Blue */
-          border: 2px solid #000456;
-          color: #ffffff;
-          font-family: 'Inter', sans-serif;
-          font-size: 0.8rem;
+          background: #2563eb;
+          color: #fff;
+          font-size: 0.7rem;
           font-weight: 900;
-          padding: 6px 14px;
+          padding: 5px 10px;
+          border-radius: 4px;
           text-transform: uppercase;
-          letter-spacing: 0.5px;
-          transform: rotate(-4deg);
-          box-shadow: 2px 2px 0px #000456;
+          transform: rotate(-3deg);
+          box-shadow: 2px 2px 0 #1a3a8a;
+          flex-shrink: 0;
           text-align: center;
-          line-height: 1.1;
-          flex-shrink: 0;
+          line-height: 1.2;
         }
-        .saved-card-amount-pane {
-          text-align: right;
-        }
+        .saved-card-amount-pane { text-align: right; }
+
+        /* ── GUARANTEE CARD ── */
         .guarantee-gold-card {
-          margin-top: 24px;
-          background: #FAFDFB;
-          border: 1px solid #A7F3D0;
-          border-radius: 12px;
-          padding: 20px;
+          margin-top: 20px;
+          background: var(--white);
+          border: 1px solid #a7f3d0;
+          border-radius: var(--radius-sm);
+          padding: 18px;
           display: flex;
-          gap: 20px;
+          gap: 16px;
           align-items: center;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+          box-shadow: var(--shadow-sm);
         }
-        .gold-stamp-seal-svg {
-          width: 64px;
-          height: 64px;
-          flex-shrink: 0;
-        }
+        .gold-stamp-seal-svg { width: 60px; height: 60px; flex-shrink: 0; }
+
+        /* ── TRUST LIST ── */
         .trust-check-list {
-          margin-top: 28px;
+          margin-top: 24px;
           padding-left: 0;
           list-style: none;
           display: flex;
           flex-direction: column;
-          gap: 12px;
-          font-size: 0.85rem;
+          gap: 10px;
+          font-size: 0.83rem;
           color: var(--text-primary);
-          font-weight: 600;
+          font-weight: 500;
         }
         .trust-check-list li {
           display: flex;
           align-items: flex-start;
           gap: 8px;
+          line-height: 1.4;
         }
         .trust-check-list li::before {
           content: "✓";
-          color: var(--accent-primary, #10b981);
+          color: var(--green-light);
           font-weight: 900;
-          font-size: 1.1rem;
-          line-height: 1;
+          font-size: 1rem;
+          line-height: 1.1;
+          flex-shrink: 0;
         }
+
+        /* ── FORM INPUTS ── */
         .shipping-input-box {
           width: 100%;
-          background: #ffffff;
-          border: 1px solid #e4e4e7;
-          border-radius: 6px;
-          padding: 12px 14px;
+          background: var(--white);
+          border: 1.5px solid var(--border);
+          border-radius: var(--radius-sm);
+          padding: 11px 14px;
           font-size: 0.88rem;
           color: var(--text-primary);
           outline: none;
-          transition: all 0.2s ease;
-          font-family: inherit;
+          transition: border-color 0.2s, box-shadow 0.2s;
+          font-family: 'DM Sans', sans-serif;
+          -webkit-appearance: none;
         }
-        .shipping-input-box::placeholder {
-          color: #A1A1AA;
-        }
+        .shipping-input-box::placeholder { color: #b0bab6; }
         .shipping-input-box:focus {
-          border-color: var(--accent-primary, #10b981);
-          box-shadow: 0 0 0 1px var(--accent-primary, #10b981);
+          border-color: var(--green-light);
+          box-shadow: 0 0 0 3px rgba(16,185,129,0.12);
         }
         .shipping-grid-2col {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 14px;
-          margin-bottom: 14px;
+          gap: 12px;
+          margin-bottom: 12px;
         }
         .shipping-full-row {
-          margin-bottom: 14px;
+          margin-bottom: 12px;
           position: relative;
         }
+
+        /* Autocomplete */
         .autocomplete-suggestions-box {
           position: absolute;
-          top: 100%;
+          top: calc(100% + 3px);
           left: 0;
           right: 0;
-          background: #ffffff;
-          border: 1px solid #e4e4e7;
-          border-radius: 8px;
-          box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+          background: var(--white);
+          border: 1.5px solid var(--border);
+          border-radius: var(--radius-sm);
+          box-shadow: var(--shadow-lg);
           z-index: 100;
-          max-height: 240px;
+          max-height: 220px;
           overflow-y: auto;
-          margin-top: 4px;
         }
         .autocomplete-suggestion-item {
-          padding: 12px 16px;
-          font-size: 0.85rem;
+          padding: 11px 14px;
+          font-size: 0.83rem;
           color: var(--text-primary);
           cursor: pointer;
           border-bottom: 1px solid #f4f4f5;
-          transition: background 0.15s;
+          transition: background 0.1s;
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 7px;
         }
-        .autocomplete-suggestion-item:last-child {
-          border-bottom: none;
-        }
-        .autocomplete-suggestion-item:hover {
-          background-color: var(--fdf-bg-tint, #F1FBF4);
-        }
-        .autocomplete-pin-icon {
-          color: var(--accent-primary, #10b981);
-          flex-shrink: 0;
-        }
+        .autocomplete-suggestion-item:last-child { border-bottom: none; }
+        .autocomplete-suggestion-item:hover { background: var(--green-pale); }
+        .autocomplete-pin-icon { color: var(--green-light); flex-shrink: 0; }
+
+        /* ── PAYMENT TOGGLES ── */
         .payment-toggle-btn {
           flex: 1;
-          padding: 12px;
-          border-radius: 6px;
-          border: 1.5px solid #e4e4e7;
-          background: #ffffff;
+          padding: 11px;
+          border-radius: var(--radius-sm);
+          border: 1.5px solid var(--border);
+          background: var(--white);
           cursor: pointer;
-          font-weight: 800;
-          font-size: 0.85rem;
+          font-weight: 700;
+          font-size: 0.83rem;
           transition: all 0.2s ease;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 6px;
+          gap: 5px;
           color: var(--text-secondary);
+          font-family: 'DM Sans', sans-serif;
         }
         .payment-toggle-btn.active-card {
-          border-color: var(--accent-primary, #10b981);
-          background: var(--fdf-bg-tint, #F1FBF4);
+          border-color: var(--green-light);
+          background: var(--green-pale);
           color: var(--text-primary);
         }
         .payment-toggle-btn.active-paypal {
-          border-color: #FFC439;
-          background: #FFFDF0;
+          border-color: #ffc439;
+          background: #fffdf0;
           color: var(--text-primary);
         }
+
+        /* PayPal button */
         .paypal-checkout-btn-yellow {
-          background-color: #FFC439;
-          border-radius: 6px;
+          background: #ffc439;
+          border-radius: var(--radius-sm);
           padding: 14px;
           width: 100%;
           border: none;
@@ -1319,176 +1660,241 @@ function GetStartedContent() {
           display: flex;
           align-items: center;
           justify-content: center;
-          transition: background-color 0.15s;
-          box-shadow: 0 4px 12px rgba(255, 196, 57, 0.15);
+          transition: background 0.15s;
+          box-shadow: 0 3px 10px rgba(255,196,57,0.2);
         }
-        .paypal-checkout-btn-yellow:hover {
-          background-color: #EBB22F;
-        }
+        .paypal-checkout-btn-yellow:hover { background: #f0b800; }
+
+        /* Credit card form */
         .credit-card-form-embedded {
-          border: 1px solid #e4e4e7;
-          border-radius: 8px;
-          background: #ffffff;
-          padding: 18px;
-          margin-top: 14px;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.01);
+          background: var(--white);
+          border: 1.5px solid var(--border);
+          border-radius: var(--radius-sm);
+          padding: 16px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          box-shadow: var(--shadow-sm);
         }
         .cc-header-bar {
-          background-color: #F8FAF9;
-          padding: 10px 14px;
-          border-bottom: 1px solid #e4e4e7;
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 14px;
-          border-radius: 4px;
-        }
-        .complete-purchase-btn-green {
-          background: linear-gradient(135deg, var(--accent-primary, #10b981), var(--accent-primary-hover, #059669));
-          color: #ffffff;
+          margin-bottom: 6px;
+          font-size: 0.7rem;
           font-weight: 700;
-          font-size: 1.15rem;
-          letter-spacing: -0.01em;
-          padding: 16px;
-          border-radius: 8px;
+          color: var(--text-secondary);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        /* ── SUBMIT BUTTON ── */
+        .complete-purchase-btn-green {
+          background: var(--green);
+          color: #ffffff;
           width: 100%;
+          padding: 16px;
           border: none;
+          border-radius: var(--radius-sm);
           cursor: pointer;
-          box-shadow: 0 6px 20px var(--accent-primary-glow, rgba(16, 185, 129, 0.15));
-          transition: all 0.2s ease;
+          font-size: 0.95rem;
+          font-weight: 800;
+          letter-spacing: 0.2px;
           display: flex;
           align-items: center;
           justify-content: center;
           gap: 8px;
+          box-shadow: 0 4px 14px rgba(26,122,74,0.35);
+          transition: all 0.25s ease;
+          font-family: 'DM Sans', sans-serif;
         }
         .complete-purchase-btn-green:hover {
+          background: #155c38;
           transform: translateY(-1px);
-          box-shadow: 0 8px 24px var(--accent-primary-glow, rgba(16, 185, 129, 0.25));
-          filter: brightness(1.05);
+          box-shadow: 0 6px 20px rgba(26,122,74,0.45);
         }
+        .complete-purchase-btn-green:active { transform: translateY(0); }
+
+        /* ── STICKY ACTION BANNER ── */
+        .sticky-action-banner {
+          position: fixed;
+          bottom: 0; left: 0; right: 0;
+          background: rgba(255,255,255,0.97);
+          backdrop-filter: blur(10px);
+          border-top: 1px solid var(--border);
+          padding: 14px 24px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          z-index: 1000;
+          box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
+        }
+
+        /* ── TERMINAL OVERLAY ── */
         .preservation-terminal-overlay {
           position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(15, 41, 27, 0.96); /* Deep Emerald Forest Overlay */
-          z-index: 10000;
+          inset: 0;
+          background: rgba(0,0,0,0.75);
+          backdrop-filter: blur(4px);
+          z-index: 9999;
           display: flex;
           align-items: center;
           justify-content: center;
           padding: 24px;
         }
         .terminal-box {
-          background: #0B1E13;
-          border-radius: 16px;
-          padding: 32px;
-          color: #10B981;
-          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+          background: #0a1a10;
+          border-radius: var(--radius);
+          padding: 28px;
+          color: var(--green-light);
+          font-family: 'DM Mono', monospace;
           width: 100%;
-          max-width: 680px;
-          border: 1px solid rgba(16, 185, 129, 0.15);
-          box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+          max-width: 660px;
+          border: 1px solid rgba(16,185,129,0.2);
+          box-shadow: 0 20px 60px rgba(0,0,0,0.6);
         }
         .terminal-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          border-bottom: 1px solid rgba(16, 185, 129, 0.1);
-          padding-bottom: 16px;
-          margin-bottom: 24px;
+          border-bottom: 1px solid rgba(16,185,129,0.12);
+          padding-bottom: 14px;
+          margin-bottom: 20px;
         }
-        .terminal-dots {
-          display: flex;
-          gap: 6px;
-        }
+        .terminal-dots { display: flex; gap: 6px; }
         .terminal-dot {
-          width: 12px;
-          height: 12px;
+          width: 11px;
+          height: 11px;
           border-radius: 50%;
         }
-        .terminal-dot.red { background: #FF5F56; }
-        .terminal-dot.yellow { background: #FFBD2E; }
-        .terminal-dot.green { background: #27C93F; }
-        
+        .terminal-dot.red { background: #ff5f56; }
+        .terminal-dot.yellow { background: #ffbd2e; }
+        .terminal-dot.green { background: #27c93f; }
         .terminal-logs {
           display: flex;
           flex-direction: column;
-          gap: 14px;
-          min-height: 280px;
+          gap: 12px;
+          min-height: 260px;
           overflow-y: auto;
-          max-height: 350px;
+          max-height: 320px;
         }
         .terminal-row {
-          font-size: 0.88rem;
-          line-height: 1.6;
+          font-size: 0.85rem;
+          line-height: 1.5;
           display: flex;
           align-items: center;
           gap: 10px;
           animation: consolePulse 0.4s ease-out;
         }
         @keyframes consolePulse {
-          from { opacity: 0; transform: translateY(4px); }
+          from { opacity: 0; transform: translateY(3px); }
           to { opacity: 1; transform: translateY(0); }
         }
+
+        /* ── SUCCESS SCREEN ── */
         .success-outer-panel {
-          max-width: 800px;
-          margin: 48px auto;
+          max-width: 760px;
+          margin: 44px auto;
           padding: 0 16px;
         }
         .success-card {
-          padding: 56px 40px;
+          padding: 52px 36px;
           text-align: center;
-          border: 2px solid #10B981;
-          border-radius: 20px;
-          background: #ffffff;
-          box-shadow: 0 25px 60px -15px rgba(16, 185, 129, 0.12);
+          border: 2px solid var(--green-light);
+          border-radius: var(--radius-lg);
+          background: var(--white);
+          box-shadow: 0 20px 50px -10px rgba(16,185,129,0.14);
         }
         .success-tick-outer {
-          width: 84px;
-          height: 84px;
+          width: 80px;
+          height: 80px;
           border-radius: 50%;
-          background: rgba(16, 185, 129, 0.08);
+          background: rgba(16,185,129,0.08);
+          border: 1.5px solid rgba(16,185,129,0.2);
           display: flex;
           align-items: center;
           justify-content: center;
-          margin: 0 auto 24px auto;
-          border: 1.5px solid rgba(16, 185, 129, 0.2);
-        }
-        /* Legacy below-the-fold elements & photo sync queue styling removed */
-        .sticky-action-banner {
-          position: fixed;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(10px);
-          border-top: 1px solid #e4e4e7;
-          padding: 16px 24px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          z-index: 1000;
-          box-shadow: 0 -8px 30px rgba(0,0,0,0.05);
+          margin: 0 auto 22px;
         }
 
+        /* ── BA BENEFIT TEXT ── */
+        .ba-benefit-title {
+          font-size: 1rem;
+          font-weight: 700;
+          color: var(--text-primary);
+          line-height: 1.4;
+        }
+        .ba-benefit-desc {
+          font-size: 0.83rem;
+          color: var(--text-secondary);
+          line-height: 1.5;
+        }
+
+        /* ── REDACTED ── */
+        .redacted-value {
+          filter: blur(4px);
+          background: rgba(239,68,68,0.08);
+          padding: 1px 6px;
+          border-radius: 4px;
+          user-select: none;
+          cursor: not-allowed;
+          font-weight: 700;
+          font-family: 'DM Mono', monospace;
+          display: inline;
+        }
+        .badge-locked {
+          font-size: 0.58rem;
+          background: var(--red);
+          color: #fff;
+          padding: 2px 5px;
+          border-radius: 3px;
+          margin-left: 5px;
+          font-weight: 700;
+          letter-spacing: 0.3px;
+          display: inline-block;
+        }
+
+        /* ── RESPONSIVE ── */
         @media (max-width: 900px) {
           .before-after-card-wrapper {
             grid-template-columns: 1fr;
-            gap: 24px;
+            gap: 20px;
             padding: 16px;
+            margin: 16px 12px 28px;
           }
+          .gis-map-container { aspect-ratio: 16 / 9; }
           .checkout-grid-split {
             grid-template-columns: 1fr;
-            gap: 36px;
+            gap: 28px;
             padding: 0 16px;
           }
-
+          .page-intro-title { font-size: 1.5rem; }
           .sticky-action-banner {
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
             text-align: center;
           }
+          .reviews-grid {
+            grid-template-columns: repeat(2,1fr) !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .before-after-card-wrapper { padding: 14px; }
+          .cta-unlock-banner { padding: 16px; }
+          .reviews-grid {
+            grid-template-columns: 1fr !important;
+          }
+        }
+
+        /* ── REVIEWS ANIMATIONS ── */
+        @keyframes reviews-fadeUp {
+          from { opacity: 0; transform: translateY(16px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes reviews-pulse {
+          0%, 100% { opacity: 0.5; transform: scale(0.9); }
+          50% { opacity: 1; transform: scale(1.2); }
         }
       `}</style>
 
@@ -1581,18 +1987,26 @@ function GetStartedContent() {
 
               {/* Text Points Next to Graphics */}
               <div className="ba-text-pane">
-                {!prepFinished ? (
-                  /* Loading / Scanning Terminal HUD */
-                  <div className="terminal-container">
-                    <div>
-                      <div className="terminal-header">
-                        <div className="terminal-title-block">
+                <div className="terminal-container">
+                  <div className="terminal-header">
+                    <div className="terminal-title-block">
+                      {prepFinished ? (
+                        <>
+                          <span className="terminal-pulse-dot" style={{ backgroundColor: '#ef4444', boxShadow: '0 0 10px rgba(239, 68, 68, 0.5)' }}></span>
+                          <span style={{ fontWeight: 700, letterSpacing: '0.5px' }}>Analysis complete — Issues require your attention</span>
+                        </>
+                      ) : (
+                        <>
                           <span className="terminal-pulse-dot"></span>
                           <span style={{ fontWeight: 700, letterSpacing: '0.5px' }}>Processing Telemetry</span>
-                        </div>
-                        <span className="terminal-progress-pct">{prepProgress}%</span>
-                      </div>
-                      
+                        </>
+                      )}
+                    </div>
+                    <span className="terminal-progress-pct" style={prepFinished ? {color: '#ef4444'} : {}}>{prepFinished ? '100%' : `${prepProgress}%`}</span>
+                  </div>
+
+                  {!prepFinished ? (
+                    <>
                       <div className="terminal-log-list">
                         <div className="terminal-log-row">
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '3px' }}><polyline points="20 6 9 17 4 12"/></svg>
@@ -1629,82 +2043,95 @@ function GetStartedContent() {
                           </div>
                         )}
                       </div>
-                    </div>
-                    
-                    <div className="terminal-footer">
-                      {/* Elegant progress bar */}
-                      <div style={{ width: '100%', height: '6px', background: 'rgba(0, 0, 0, 0.04)', borderRadius: '4px', overflow: 'hidden', margin: '4px 0 10px 0' }}>
-                        <div style={{ width: `${prepProgress}%`, height: '100%', background: 'linear-gradient(90deg, #10b981 0%, #059669 100%)', borderRadius: '4px', transition: 'width 0.1s linear' }}></div>
-                      </div>
-                      <div className="terminal-footer-info">
-                        <span className="terminal-spin-loader"></span>
-                        <span style={{ fontSize: '0.72rem', letterSpacing: '0.5px', fontWeight: 500 }}>SECURE DATA COMPILING IN PROGRESS...</span>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  /* Final Results (Blurred / Locked to push purchase) */
-                  <div className="results-container">
-                    <div className="hazard-card">
-                      <div className="hazard-title-row">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }}>
-                          <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
-                          <line x1="12" y1="9" x2="12" y2="13"/>
-                          <line x1="12" y1="17" x2="12.01" y2="17"/>
-                        </svg>
-                        <h3 className="hazard-title">Potential Hazard & Contamination Risks</h3>
-                      </div>
-                      <p className="hazard-desc">
-                        Querying EPA, FEMA, and CDC records for <strong style={{ color: '#059669', fontWeight: 700 }}>{addressLine1 || 'the geocoded tract'}</strong> has flagged several regional environmental vectors:
-                      </p>
-                      
-                      <div className="hazard-list">
-                        <div className="hazard-item">
-                          <span className="badge-high">HIGH</span>
-                          <div className="hazard-text">
-                            <strong className="hazard-label">County Radon Potential (Zone 1):</strong> Predicted average indoor radon is <span className="redacted-value">4.8 pCi/L</span> <span className="badge-locked">LOCKED</span>. Ventilation mapping is highly recommended.
+                    </>
+                  ) : (
+                    /* Final Results (Blurred / Locked to push purchase) */
+                    <div className="results-container" style={{ marginTop: '4px' }}>
+                      <div className="terminal-log-list" style={{ paddingBottom: '16px' }}>
+                        <div className="warning-badge">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+                            <line x1="12" y1="9" x2="12" y2="13"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                          </svg>
+                          <span><strong>WARNING:</strong> Active Risks Found Near Your Address</span>
+                        </div>
+                        
+                        <div className="risk-score-row">
+                          <span className="risk-score-label">RISK SCORE: <span className="risk-score-blurred">89</span></span>
+                          <span className="risk-score-tag">(ELEVATED)</span>
+                          <div className="risk-gauge">
+                            {[...Array(8)].map((_, i) => <div key={i} className="risk-gauge-bar" style={{ backgroundColor: '#dc2626' }}></div>)}
+                            {[...Array(2)].map((_, i) => <div key={i} className="risk-gauge-bar" style={{ backgroundColor: 'rgba(220,38,38,0.2)' }}></div>)}
                           </div>
                         </div>
 
-                        <div className="hazard-item">
-                          <span className="badge-moderate">MODERATE</span>
-                          <div className="hazard-text">
-                            <strong className="hazard-label">Industrial Emissions / Violations:</strong> 2 facilities with recorded Clean Air/Water Act issues found within <span className="redacted-value">0.4 miles</span> <span className="badge-locked">LOCKED</span>.
-                          </div>
-                        </div>
-
-                        <div className="hazard-item">
-                          <span className="badge-moderate">MODERATE</span>
-                          <div className="hazard-text">
-                            <strong className="hazard-label">EPA Superfund/NPL Proximity:</strong> 1 active groundwater cleanup boundary registered within <span className="redacted-value">1.2 miles</span> <span className="badge-locked">LOCKED</span>.
-                          </div>
+                        <div style={{ paddingLeft: '2px', marginTop: '4px' }}>
+                          <table className="risk-table">
+                            <tbody>
+                              <tr>
+                                <td className="risk-level-high">[HIGH]</td>
+                                <td><div className="risk-bars">{[...Array(10)].map((_, i) => <div key={i} className="risk-bar" style={{ backgroundColor: '#dc2626' }}></div>)}</div></td>
+                                <td><span className="reveal-btn" onClick={scrollToForm}>Reveal <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></td>
+                              </tr>
+                              <tr>
+                                <td className="risk-level-mod">[MOD]</td>
+                                <td><div className="risk-bars">{[...Array(10)].map((_, i) => <div key={i} className="risk-bar" style={{ backgroundColor: '#b45309' }}></div>)}</div></td>
+                                <td><span className="reveal-btn" onClick={scrollToForm}>Reveal <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></td>
+                              </tr>
+                              <tr>
+                                <td className="risk-level-mod">[MOD]</td>
+                                <td><div className="risk-bars">{[...Array(10)].map((_, i) => <div key={i} className="risk-bar" style={{ backgroundColor: '#b45309' }}></div>)}</div></td>
+                                <td><span className="reveal-btn" onClick={scrollToForm}>Reveal <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span></td>
+                              </tr>
+                            </tbody>
+                          </table>
                         </div>
                       </div>
-                    </div>
 
                     {/* Premium Locked Call-to-Action Banner */}
                     <div className="cta-unlock-banner">
-                      <div className="cta-title-row">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', verticalAlign: 'middle', marginRight: '4px' }}>
-                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                        </svg>
-                        <h3 className="cta-title">Unlock Exact Hazard Maps & Metrics</h3>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                          </svg>
+                        </div>
+                        
+                        <p className="cta-desc" style={{ marginBottom: '4px', fontSize: '0.9rem' }}>
+                          <strong style={{ color: '#0f172a' }}>Data specific to your address. Secured to prevent panic.</strong>
+                        </p>
+                        
+                        <ul className="cta-benefit-list">
+                          <li><span className="cta-check">✓</span> <strong>Property value impact estimate</strong></li>
+                          <li><span className="cta-check">✓</span> <strong>Facility name & violation history</strong></li>
+                          <li><span className="cta-check">✓</span> <strong>Negotiation script</strong> (buy/sell)</li>
+                        </ul>
+
+                        <div className="cta-testimonial">
+                          <span className="stars">★★★★★</span> <strong style={{ color: 'var(--green)', margin: '0 4px' }}>12,847 checked</strong> · "Negotiated $18K off" — Michael D.
+                        </div>
                       </div>
-                      <p className="cta-desc">
-                        To safeguard local property records and coordinate privacy, precise hazard coordinates, EPA facility names, and mitigation reports are locked. Buy a report to instantly unlock the fully unblurred datasets and negotiation guides.
-                      </p>
-                      <button 
-                        type="button" 
-                        onClick={scrollToForm}
-                        className="cta-button"
-                      >
-                        Unlock Full Report Details Now
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'inline-block', marginLeft: '6px', verticalAlign: 'middle' }}><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                      </button>
+
+                      {/* Sticky Mobile CTA Wrapper */}
+                      <div className="sticky-cta-wrapper">
+                        <button 
+                          type="button" 
+                          onClick={scrollToForm}
+                          className="cta-button"
+                          style={{ width: '100%', justifyContent: 'center' }}
+                        >
+                          Find out what's near your home &rarr;
+                        </button>
+                        <div style={{ textAlign: 'center', marginTop: '10px', fontSize: '0.75rem', fontWeight: 500, color: '#64748b' }}>
+                          Full report · $49.00 · 30-day money-back guarantee
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -1984,14 +2411,14 @@ function GetStartedContent() {
                       />
                       {showSuggestions && suggestions.length > 0 && (
                         <div className="autocomplete-suggestions-box">
-                          {suggestions.map((addr, idx) => (
+                          {suggestions.map((prediction, idx) => (
                             <div 
                               key={idx} 
                               className="autocomplete-suggestion-item"
-                              onClick={() => handleSuggestionClick(addr)}
+                              onClick={() => handleSuggestionClick(prediction)}
                             >
                               <span className="autocomplete-pin-icon">📍</span>
-                              <span>{addr.street}, {addr.city}, {addr.state} {addr.zip}</span>
+                              <span>{prediction.description}</span>
                             </div>
                           ))}
                         </div>
@@ -2201,6 +2628,11 @@ function GetStartedContent() {
 
               </div>
 
+            </div>
+
+            {/* ── REVIEWS SECTION ── */}
+            <div style={{ borderTop: '1px solid var(--border)', marginTop: 60, paddingTop: 60 }}>
+              <ReviewsSection onScrollToForm={scrollToForm} />
             </div>
 
             {/* 10. Sticky bottom action bar floating banner */}

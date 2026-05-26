@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 interface Suggestion {
-  place_id: number;
+  place_id: number | string;
   display_name: string;
 }
 
@@ -112,20 +112,26 @@ export default function Hero() {
       return;
     }
 
-    // 2. Fetch from Nominatim API in the background with an AbortController
+    // 2. Fetch from Google Maps API in the background with an AbortController
     const controller = new AbortController();
     const fetchSuggestionsAPI = async () => {
       setIsLoading(true);
       try {
         const response = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&countrycodes=us`,
+          `/api/places?input=${encodeURIComponent(query)}`,
           { signal: controller.signal }
         );
         if (response.ok) {
           const data = await response.json();
-          cacheRef.current[cacheKey] = data;
-          if (Array.isArray(data) && data.length > 0) {
-            setSuggestions(data);
+          if (data.predictions && Array.isArray(data.predictions)) {
+            const googleSuggestions = data.predictions.map((prediction: any) => ({
+              place_id: prediction.place_id,
+              display_name: prediction.description
+            }));
+            cacheRef.current[cacheKey] = googleSuggestions;
+            if (googleSuggestions.length > 0) {
+              setSuggestions(googleSuggestions);
+            }
           }
         }
       } catch (err) {

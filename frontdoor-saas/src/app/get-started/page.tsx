@@ -43,8 +43,22 @@ function DiagnosticTrap({ prepProgress, prepFinished, addressLine1, onScrollToFo
   onScrollToForm: () => void;
 }) {
   const [commitment, setCommitment] = useState<'home'|'investment'|null>(null);
-  const [nearbyCount] = useState(() => Math.floor(Math.random() * 4) + 2);
-  const [minutesAgo] = useState(() => Math.floor(Math.random() * 30) + 4);
+  const [nearbyCount] = useState(() => {
+    if (typeof window === 'undefined') return 4;
+    const s = sessionStorage.getItem('fdf_nearby');
+    if (s) return parseInt(s, 10);
+    const v = Math.floor(Math.random() * 4) + 2;
+    sessionStorage.setItem('fdf_nearby', String(v));
+    return v;
+  });
+  const [minutesAgo] = useState(() => {
+    if (typeof window === 'undefined') return 12;
+    const s = sessionStorage.getItem('fdf_minutes');
+    if (s) return parseInt(s, 10);
+    const v = Math.floor(Math.random() * 30) + 4;
+    sessionStorage.setItem('fdf_minutes', String(v));
+    return v;
+  });
   const visibleLogs = SCAN_LOGS.filter(l => prepProgress >= l.pct);
 
   if (!prepFinished) {
@@ -507,20 +521,38 @@ function GetStartedContent() {
   const address = searchParams.get('address') || '';
   const lastScannedAddress = useRef('');
 
+  // UTM + click ID attribution — captured once on mount and persisted to sessionStorage
+  const attributionRef = useRef<Record<string, string>>({});
+  useEffect(() => {
+    const stored = sessionStorage.getItem('fdf_attribution');
+    if (stored) {
+      attributionRef.current = JSON.parse(stored);
+    } else {
+      const keys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'gclid', 'fbclid', 'ttclid', 'msclkid'];
+      const attrs: Record<string, string> = {};
+      keys.forEach(k => { const v = searchParams.get(k); if (v) attrs[k] = v; });
+      attributionRef.current = attrs;
+      sessionStorage.setItem('fdf_attribution', JSON.stringify(attrs));
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Preparation Progress Simulator (runs dynamic 4.6s loading timer)
   const [prepProgress, setPrepProgress] = useState(0);
   const [prepFinished, setPrepFinished] = useState(false);
 
-  // Countdown timer state (starts at 09:39 as seen in html mockup)
-  const [timeLeft, setTimeLeft] = useState(579); // 579 seconds = 09:39
+  // Countdown timer — persisted in sessionStorage so it doesn't reset on refresh
+  const [timeLeft, setTimeLeft] = useState(() => {
+    if (typeof window === 'undefined') return 579;
+    const saved = sessionStorage.getItem('fdf_countdown');
+    return saved ? parseInt(saved, 10) : 579;
+  });
   useEffect(() => {
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
+        const next = prev <= 1 ? 0 : prev - 1;
+        sessionStorage.setItem('fdf_countdown', String(next));
+        if (next === 0) clearInterval(interval);
+        return next;
       });
     }, 1000);
     return () => clearInterval(interval);
@@ -827,7 +859,8 @@ function GetStartedContent() {
     const leadPayload = {
       email,
       source_address: addressLine1 || address || 'Direct GetStarted Checkout',
-      status: 'new'
+      status: 'new',
+      attribution: attributionRef.current,
     };
 
     if (isSupabaseConfigured()) {
@@ -868,6 +901,7 @@ function GetStartedContent() {
       promo_code: promoApplied ? promoCode.toUpperCase() : null,
       payment_status: 'success',
       delivery_status: 'ready',
+      attribution: attributionRef.current,
       report_data: {
         recipient_name: `${firstName} ${lastName}`,
         phone: phone,
@@ -955,7 +989,7 @@ function GetStartedContent() {
   // Form Submit Execution
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!firstName || !lastName || !email || !addressLine1 || !city || !shippingState || !zipCode) {
+    if (!firstName || !lastName || !email || !addressLine1 || !city || !shippingState || !zipCode) { // phone is optional
       return;
     }
 
@@ -1015,8 +1049,6 @@ function GetStartedContent() {
            Clean, trust-building, conversion-optimized
            ============================================ */
 
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
-
         *, *::before, *::after { box-sizing: border-box; }
 
         :root {
@@ -1045,7 +1077,7 @@ function GetStartedContent() {
         body {
           background-color: var(--bg) !important;
           color: var(--text-primary) !important;
-          font-family: 'DM Sans', system-ui, sans-serif !important;
+          font-family: var(--font-dm-sans), system-ui, sans-serif !important;
           -webkit-font-smoothing: antialiased;
         }
 
@@ -1094,7 +1126,7 @@ function GetStartedContent() {
           padding: 5px 14px;
           border-radius: 99px;
           margin-top: 10px;
-          font-family: 'DM Mono', monospace;
+          font-family: var(--font-dm-mono), monospace;
         }
 
         /* ── PAGE INTRO ── */
@@ -1216,7 +1248,7 @@ function GetStartedContent() {
           margin: 5px 0;
         }
         .gis-hud-label { color: var(--text-muted); font-weight: 500; }
-        .gis-hud-value { color: var(--text-primary); font-weight: 600; font-family: 'DM Mono', monospace; }
+        .gis-hud-value { color: var(--text-primary); font-weight: 600; font-family: var(--font-dm-mono), monospace; }
 
         /* ── RIGHT PANE ── */
         .ba-text-pane {
@@ -1231,7 +1263,7 @@ function GetStartedContent() {
           border: 1px solid var(--border);
           border-radius: var(--radius);
           padding: 18px 20px;
-          font-family: 'DM Sans', sans-serif;
+          font-family: var(--font-dm-sans), sans-serif;
           font-size: 0.85rem;
           box-shadow: var(--shadow-sm);
           flex: 1;
@@ -1269,7 +1301,7 @@ function GetStartedContent() {
           font-size: 0.85rem;
           font-weight: 700;
           color: var(--green-light);
-          font-family: 'DM Mono', monospace;
+          font-family: var(--font-dm-mono), monospace;
         }
         .terminal-log-list {
           display: flex;
@@ -1327,7 +1359,7 @@ function GetStartedContent() {
           filter: blur(5px);
           color: var(--red);
           font-weight: 800;
-          font-family: 'DM Mono', monospace;
+          font-family: var(--font-dm-mono), monospace;
           user-select: none;
         }
         .risk-score-tag {
@@ -1551,7 +1583,7 @@ function GetStartedContent() {
           align-items: center;
           justify-content: center;
           gap: 5px;
-          font-family: 'DM Sans', sans-serif;
+          font-family: var(--font-dm-sans), sans-serif;
         }
         .tab-toggle-button.active {
           background: var(--white);
@@ -1745,7 +1777,7 @@ function GetStartedContent() {
           color: var(--text-primary);
           outline: none;
           transition: border-color 0.2s, box-shadow 0.2s;
-          font-family: 'DM Sans', sans-serif;
+          font-family: var(--font-dm-sans), sans-serif;
           -webkit-appearance: none;
         }
         .shipping-input-box::placeholder { color: #b0bab6; }
@@ -1809,7 +1841,7 @@ function GetStartedContent() {
           justify-content: center;
           gap: 5px;
           color: var(--text-secondary);
-          font-family: 'DM Sans', sans-serif;
+          font-family: var(--font-dm-sans), sans-serif;
         }
         .payment-toggle-btn.active-card {
           border-color: var(--green-light);
@@ -1879,7 +1911,7 @@ function GetStartedContent() {
           gap: 8px;
           box-shadow: 0 4px 14px rgba(26,122,74,0.35);
           transition: all 0.25s ease;
-          font-family: 'DM Sans', sans-serif;
+          font-family: var(--font-dm-sans), sans-serif;
         }
         .complete-purchase-btn-green:hover {
           background: #155c38;
@@ -1920,7 +1952,7 @@ function GetStartedContent() {
           border-radius: var(--radius);
           padding: 28px;
           color: var(--green-light);
-          font-family: 'DM Mono', monospace;
+          font-family: var(--font-dm-mono), monospace;
           width: 100%;
           max-width: 660px;
           border: 1px solid rgba(16,185,129,0.2);
@@ -2012,7 +2044,7 @@ function GetStartedContent() {
           user-select: none;
           cursor: not-allowed;
           font-weight: 700;
-          font-family: 'DM Mono', monospace;
+          font-family: var(--font-dm-mono), monospace;
           display: inline;
         }
         .badge-locked {
@@ -2133,14 +2165,14 @@ function GetStartedContent() {
           color: #10b981;
           text-transform: uppercase;
           letter-spacing: 1.2px;
-          font-family: 'DM Mono', monospace;
+          font-family: var(--font-dm-mono), monospace;
           flex: 1;
         }
         .dt-scan-addr {
           font-size: 0.72rem;
           font-weight: 600;
           color: rgba(255,255,255,0.55);
-          font-family: 'DM Mono', monospace;
+          font-family: var(--font-dm-mono), monospace;
           max-width: 200px;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -2172,7 +2204,7 @@ function GetStartedContent() {
           display: flex;
           flex-direction: column;
           gap: 10px;
-          font-family: 'DM Mono', monospace;
+          font-family: var(--font-dm-mono), monospace;
           font-size: 0.78rem;
         }
         .dt-log-row {
@@ -2242,7 +2274,7 @@ function GetStartedContent() {
           font-size: 1rem;
           font-weight: 800;
           color: #dc2626;
-          font-family: 'DM Mono', monospace;
+          font-family: var(--font-dm-mono), monospace;
           filter: blur(5px);
           user-select: none;
         }
@@ -2274,7 +2306,7 @@ function GetStartedContent() {
           font-size: 0.88rem;
           font-weight: 800;
           color: #059669;
-          font-family: 'DM Mono', monospace;
+          font-family: var(--font-dm-mono), monospace;
           white-space: nowrap;
         }
         /* phantom findings */
@@ -2318,7 +2350,7 @@ function GetStartedContent() {
           margin-top: 2px;
         }
         .dt-finding-redacted {
-          font-family: 'DM Mono', monospace;
+          font-family: var(--font-dm-mono), monospace;
           font-size: 0.78rem;
           font-weight: 700;
           color: #dc2626;
@@ -2384,7 +2416,7 @@ function GetStartedContent() {
           font-size: 0.83rem;
           font-weight: 700;
           cursor: pointer;
-          font-family: 'DM Sans', sans-serif;
+          font-family: var(--font-dm-sans), sans-serif;
           color: #0f1a13;
           transition: all 0.15s;
           text-align: center;
@@ -2458,7 +2490,7 @@ function GetStartedContent() {
           font-size: 1rem;
           font-weight: 800;
           cursor: pointer;
-          font-family: 'DM Sans', sans-serif;
+          font-family: var(--font-dm-sans), sans-serif;
           box-shadow: 0 4px 16px rgba(26,122,74,0.35);
           transition: all 0.2s ease;
           display: flex;
@@ -2766,11 +2798,10 @@ function GetStartedContent() {
                     </div>
 
                     <div className="shipping-full-row">
-                      <input 
-                        type="tel" 
-                        placeholder="Phone Number (for SMS delivery)" 
-                        id="ship-phone" 
-                        required 
+                      <input
+                        type="tel"
+                        placeholder="Phone Number (optional)"
+                        id="ship-phone"
                         className="shipping-input-box"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
@@ -2957,6 +2988,14 @@ function GetStartedContent() {
                                 <option value="January">Jan (01)</option>
                                 <option value="February">Feb (02)</option>
                                 <option value="March">Mar (03)</option>
+                                <option value="April">Apr (04)</option>
+                                <option value="May">May (05)</option>
+                                <option value="June">Jun (06)</option>
+                                <option value="July">Jul (07)</option>
+                                <option value="August">Aug (08)</option>
+                                <option value="September">Sep (09)</option>
+                                <option value="October">Oct (10)</option>
+                                <option value="November">Nov (11)</option>
                                 <option value="December">Dec (12)</option>
                               </select>
                               <select 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { 
   Users, 
   DollarSign, 
@@ -59,6 +60,10 @@ export default function AdminPortal() {
   
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchAddress] = useState('');
+
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [userEmail, setUserEmail] = useState('');
+  const router = useRouter();
   
   // New Promo Code Form State
   const [newPromoCode, setNewPromoCode] = useState('');
@@ -193,6 +198,24 @@ export default function AdminPortal() {
   };
 
   useEffect(() => {
+    // Authenticate admin from localStorage
+    const stored = localStorage.getItem('frontdoor_user');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        setUserEmail(parsed.email || '');
+        if (parsed.role === 'admin' || parsed.email === 'hamzaabdou2003@gmail.com') {
+          setIsAdmin(true);
+        } else {
+          setIsAdmin(false);
+        }
+      } catch {
+        setIsAdmin(false);
+      }
+    } else {
+      setIsAdmin(false);
+    }
+
     const t = setTimeout(() => {
       loadData();
     }, 0);
@@ -344,6 +367,59 @@ export default function AdminPortal() {
     l.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (l.source_address && l.source_address.toLowerCase().includes(searchQuery.toLowerCase()))
   );
+
+  if (isAdmin === null) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', gap: '16px' }} className="animate-fade-in">
+        <Loader2 className="animate-spin" size={40} color="var(--accent-primary)" />
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>Verifying administrative credentials...</p>
+      </div>
+    );
+  }
+
+  if (isAdmin === false) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', padding: '24px' }} className="animate-fade-in">
+        <div className="glass-panel" style={{ width: '100%', maxWidth: '520px', padding: '48px 40px', textAlign: 'center', border: '1.5px solid rgba(239, 68, 68, 0.2)', background: 'rgba(239, 68, 68, 0.01)' }}>
+          <div style={{ 
+            width: '80px', 
+            height: '80px', 
+            borderRadius: '50%', 
+            background: 'rgba(239, 68, 68, 0.08)', 
+            border: '1.5px solid rgba(239, 68, 68, 0.2)', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            margin: '0 auto 24px' 
+          }}>
+            <ShieldCheck size={40} color="#ef4444" />
+          </div>
+          <h2 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '12px', letterSpacing: '-0.02em' }}>
+            Administrator Access Required
+          </h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '32px' }}>
+            This portal is restricted to authorized system administrators. Your account <strong>{userEmail || 'Anonymous'}</strong> does not possess the required privileges to view these administrative logs.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <button 
+              onClick={() => router.push('/dashboard')} 
+              className="btn btn-accent" 
+              style={{ width: '100%', border: 'none', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer' }}
+            >
+              <span>Return to Dashboard</span>
+            </button>
+            <button 
+              onClick={() => router.push('/signin')} 
+              className="btn btn-outline" 
+              style={{ width: '100%', height: '48px', cursor: 'pointer' }}
+            >
+              Sign in as Admin
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: '48px' }} className="animate-fade-in">

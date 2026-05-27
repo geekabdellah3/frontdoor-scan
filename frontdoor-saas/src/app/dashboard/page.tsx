@@ -26,8 +26,19 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [searchAddress, setSearchAddress] = useState('');
   const [generatingReport, setGeneratingReport] = useState(false);
+  const [user, setUser] = useState<{ email: string; name: string; role: string } | null>(null);
 
   useEffect(() => {
+    // Load current user details from localStorage
+    const stored = localStorage.getItem('frontdoor_user');
+    if (stored) {
+      try {
+        setUser(JSON.parse(stored));
+      } catch (e) {
+        console.error('Failed to parse user from localStorage:', e);
+      }
+    }
+
     async function loadReports() {
       setLoading(true);
       if (isSupabaseConfigured()) {
@@ -107,7 +118,7 @@ export default function Dashboard() {
 
     const newReport: Report = {
       address: searchAddress.trim(),
-      email: 'jane@example.com', // mock signed-in user
+      email: user ? user.email : 'jane@example.com', // mock signed-in user or actual logged-in user
       package_tier: 'single',
       final_price: 0, // generated via credit
       payment_status: 'success',
@@ -150,7 +161,7 @@ export default function Dashboard() {
       <header className="flex items-center justify-between" style={{ marginBottom: '48px' }}>
         <div>
           <h1 style={{ fontSize: '2.2rem', marginBottom: '8px', fontWeight: 800, letterSpacing: '-0.03em' }}>Dashboard</h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>Welcome back, Jane. You have <strong>4</strong> report credits remaining.</p>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>Welcome back, {user ? user.name : 'Jane'}. You have <strong>4</strong> report credits remaining.</p>
         </div>
         <button className="btn btn-primary" onClick={() => alert("Standard purchase package: Crediting sequence initialised.")}>Buy Credits</button>
       </header>

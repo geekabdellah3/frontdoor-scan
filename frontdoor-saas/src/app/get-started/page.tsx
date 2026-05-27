@@ -1,551 +1,72 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { 
-  ShieldCheck, 
-  Lock, 
-  Check, 
-  Clock, 
-  Star,
-  Sparkles,
-  ShieldAlert,
-  FileText
-} from 'lucide-react';
+import { ShieldCheck, Lock, Check, Clock, Sparkles, ShieldAlert, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense, useState, useEffect, useRef } from 'react';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
-// Mock static US property address suggestions database for diagnostics
-const FRONT_DOOR_MOCK_ADDRESSES = [
-  { street: "123 Beacon Street", city: "Boston", state: "MA", zip: "02116" },
-  { street: "456 Pine Street", city: "Seattle", state: "WA", zip: "98101" },
-  { street: "789 Michigan Avenue", city: "Chicago", state: "IL", zip: "60611" },
-  { street: "101 Colfax Avenue", city: "Denver", state: "CO", zip: "80202" },
-  { street: "303 California Street", city: "San Francisco", state: "CA", zip: "94104" },
-  { street: "555 Congress Avenue", city: "Austin", state: "TX", zip: "78701" }
-];
-
-// ─── DIAGNOSTIC TRAP COMPONENT ───────────────────────────────────────────────
-const SCAN_LOGS = [
-  { pct: 0,  icon: '✓', text: 'Initializing secure EPA ECHO connection...' },
-  { pct: 18, icon: '✓', text: 'Querying FEMA flood map registry... [CONNECTED]' },
-  { pct: 35, icon: '✓', text: 'Cross-referencing CDC radon zone database... [OK]' },
-  { pct: 52, icon: '✓', text: 'Locating Superfund & NPL sites within 2 miles... [FOUND]' },
-  { pct: 68, icon: '✓', text: 'Scanning industrial emissions & Clean Air Act records...' },
-  { pct: 82, icon: '✓', text: 'Analyzing groundwater contamination boundaries...' },
-  { pct: 93, icon: '⚠', text: 'Anomaly detected. Verifying against EPA registry...', alert: true },
-];
-
-function DiagnosticTrap({ prepProgress, prepFinished, addressLine1, onScrollToForm }: {
-  prepProgress: number;
-  prepFinished: boolean;
-  addressLine1: string;
-  onScrollToForm: () => void;
-}) {
-  const [nearbyCount] = useState(() => {
-    if (typeof window === 'undefined') return 4;
-    const s = sessionStorage.getItem('fdf_nearby');
-    if (s) return parseInt(s, 10);
-    const v = Math.floor(Math.random() * 4) + 2;
-    sessionStorage.setItem('fdf_nearby', String(v));
-    return v;
-  });
-  const [minutesAgo] = useState(() => {
-    if (typeof window === 'undefined') return 12;
-    const s = sessionStorage.getItem('fdf_minutes');
-    if (s) return parseInt(s, 10);
-    const v = Math.floor(Math.random() * 30) + 4;
-    sessionStorage.setItem('fdf_minutes', String(v));
-    return v;
-  });
-  const visibleLogs = SCAN_LOGS.filter(l => prepProgress >= l.pct);
-
-  if (!prepFinished) {
-    return (
-      <div className="dt-wrapper">
-        <div className="dt-scan-card">
-          <div className="dt-scan-header">
-            <span className="dt-scan-dot" />
-            <span className="dt-scan-label">Scanning federal databases for your address</span>
-            <span className="dt-scan-addr">{addressLine1 || 'Target property'}</span>
-          </div>
-          <div className="dt-progress-wrap">
-            <div className="dt-progress-bar" style={{ width: `${prepProgress}%` }} />
-          </div>
-          <div className="dt-log-body">
-            {visibleLogs.map((log, i) => (
-              <div key={i} className={`dt-log-row${(log as any).alert ? ' alert' : ''}`}>
-                <span className="dt-log-icon">
-                  {(log as any).alert ? (
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#dc2626" strokeWidth="3" strokeLinecap="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                  ) : (
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-                  )}
-                </span>
-                <span>{log.text}</span>
-              </div>
-            ))}
-            {prepProgress < 100 && (
-              <div className="dt-log-row" style={{ color: 'var(--text-muted)' }}>
-                <span className="dt-log-icon">
-                  <span style={{ display: 'inline-block', width: 13, height: 13, border: '2px solid #10b981', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin-anim 0.8s linear infinite' }} />
-                </span>
-                <span>Processing... {prepProgress}%</span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="dt-wrapper">
-      <div className="dt-result-card">
-        {/* 1. Alert header */}
-        <div className="dt-alert-header">
-          <span className="dt-alert-dot" />
-          3 environmental issues found near&nbsp;<strong>{addressLine1 || 'your property'}</strong>
-        </div>
-
-        {/* 2. Risk score gauge */}
-        <div className="dt-risk-section">
-          <div className="dt-risk-left">
-            <div className="dt-risk-label">Environmental Risk Score</div>
-            <div className="dt-risk-gauge-track">
-              <div className="dt-risk-gauge-marker" style={{ left: '74%' }} />
-            </div>
-            <div className="dt-risk-legend">
-              <span>Low</span><span>Moderate</span><span>High</span>
-            </div>
-          </div>
-          <div className="dt-risk-score-right">
-            <div className="dt-risk-number">74</div>
-            <div className="dt-risk-denom">out of 100</div>
-            <div className="dt-risk-badge">HIGH RISK</div>
-          </div>
-        </div>
-
-        {/* 3. Locked finding cards */}
-        <div className="dt-findings-list">
-
-          <div className="dt-finding-card">
-            <div className="dt-finding-head">
-              <span className="dt-finding-emoji">🏭</span>
-              <span className="dt-finding-title">Toxic facility within walking distance</span>
-              <span className="dt-locked-badge">LOCKED</span>
-            </div>
-            <div className="dt-finding-body">
-              <div className="dt-redact-row">
-                <span className="dt-redact-label">Facility</span>
-                <span className="dt-redact-block">████████████████</span>
-              </div>
-              <div className="dt-redact-row">
-                <span className="dt-redact-label">Distance</span>
-                <span className="dt-redact-block">████</span>
-                <span className="dt-redact-suffix">ft from front door</span>
-              </div>
-              <div className="dt-redact-row">
-                <span className="dt-redact-label">Violations</span>
-                <span className="dt-redact-block">█</span>
-                <span className="dt-redact-danger">active EPA violation on record</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="dt-finding-card">
-            <div className="dt-finding-head">
-              <span className="dt-finding-emoji">💧</span>
-              <span className="dt-finding-title">Groundwater contamination risk</span>
-              <span className="dt-locked-badge">LOCKED</span>
-            </div>
-            <div className="dt-finding-body">
-              <div className="dt-redact-row">
-                <span className="dt-redact-label">Contaminants</span>
-                <span className="dt-redact-block">████████</span>
-                <span className="dt-redact-suffix">, ██████</span>
-              </div>
-              <div className="dt-redact-row">
-                <span className="dt-redact-label">Resale impact</span>
-                <span className="dt-redact-danger">-██% to -██% on comparable sales</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="dt-finding-card">
-            <div className="dt-finding-head">
-              <span className="dt-finding-emoji">⚗️</span>
-              <span className="dt-finding-title">Clean Water Act violation on record</span>
-              <span className="dt-locked-badge">LOCKED</span>
-            </div>
-            <div className="dt-finding-body">
-              <div className="dt-redact-row">
-                <span className="dt-redact-label">Filed</span>
-                <span className="dt-redact-block">████████</span>
-                <span className="dt-redact-suffix">2024</span>
-              </div>
-              <div className="dt-redact-row">
-                <span className="dt-redact-label">Facility name</span>
-                <span className="dt-redact-block">████████████████████</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        {/* 4. Loss frame */}
-        <div className="dt-loss-frame">
-          The seller&apos;s agent has access to this data.<br />
-          In most states, <strong>they are not required to tell you.</strong>
-        </div>
-
-        {/* 5. CTA */}
-        <div className="dt-cta-section">
-          <button className="dt-main-cta" onClick={onScrollToForm}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            Unlock what was found near &ldquo;{addressLine1 ? addressLine1.split(' ').slice(0,3).join(' ') : 'this address'}&rdquo; — $49
-          </button>
-          <div className="dt-cta-meta">
-            <span>🔒 Secure</span>
-            <span>⚡ Instant delivery</span>
-            <span>↩ 30-day refund</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-// ─── END DIAGNOSTIC TRAP ──────────────────────────────────────────────────────
-
-// ─── REVIEWS DATA ───────────────────────────────────────────────────────────
-const REVIEWS_DATA = [
+const REVIEWS = [
   {
-    id: 1, name: "Marcus T.", location: "Austin, TX", avatar: "MT", avatarBg: "#1a7a4a",
-    rating: 5, date: "3 days ago", verified: true, badge: "Buyer",
-    title: "Saved me $23,000 on my home purchase",
-    body: "I almost closed on a house in Round Rock without running this report. Turned out there was an active Superfund site less than 0.4 miles from the property. I went back to the sellers with the EPA documents and negotiated $23K off the asking price. My realtor had never even heard of this tool. Every buyer needs this before signing anything.",
-    helpful: 47, highlight: "$23K off asking price",
+    result: '$23,000 off the asking price — deal done in 48 hours',
+    stars: 5, name: 'Marcus T.', loc: 'Austin, TX', initials: 'MT', color: '#1a7a4a', badge: 'Verified Buyer',
+    text: 'Found an active Superfund site 0.4 miles from the front door. Brought the EPA documents to the table. Sellers had no counter. Got $23K off, no negotiation drama, no realtor pushback. My agent had never seen a buyer walk in that prepared.',
   },
   {
-    id: 2, name: "Jennifer & Dale R.", location: "Phoenix, AZ", avatar: "JR", avatarBg: "#2563eb",
-    rating: 5, date: "1 week ago", verified: true, badge: "Homeowner",
-    title: "Radon level was 3x the EPA safe limit. We had no idea.",
-    body: "We've lived here 6 years. Never tested for radon, never thought about it. Ran the report on our current address out of curiosity and the radon reading came back dangerously elevated — zone 1, well above 4 pCi/L. Called a mitigation company the next day. The report also showed a chemical facility 0.6 miles away with two Clean Water Act violations I had never heard about. This should be mandatory for every property.",
-    helpful: 89, highlight: "Radon 3x above safe limit detected",
+    result: 'Radon 3× the EPA limit — caught before my kids moved in',
+    stars: 5, name: 'Jennifer R.', loc: 'Phoenix, AZ', initials: 'JR', color: '#2563eb', badge: 'Homeowner',
+    text: "Lived in the house 6 years. Ran the report out of curiosity after reading about PFAS. Radon came back at zone 1 — well above 4 pCi/L. Called mitigation the next morning. There was also a chemical facility 0.6 miles away with two Clean Water Act violations I'd never heard of. Should be mandatory before any home purchase.",
   },
   {
-    id: 3, name: "Derek C.", location: "Columbus, OH", avatar: "DC", avatarBg: "#7c3aed",
-    rating: 5, date: "2 weeks ago", verified: true, badge: "Real Estate Investor",
-    title: "I run this on every property before making an offer. Period.",
-    body: "I've been flipping houses for 11 years. Started using Front Door Fax 8 months ago. I've already avoided two deals that looked perfect on paper — one had a brownfield site within the property boundary, the other had an industrial waste facility 200 meters away. Both sellers were motivated, both deals would have been nightmares to exit. This report is $49. The legal liability on those deals would have been six figures.",
-    helpful: 134, highlight: "Avoided 2 toxic property deals",
+    result: 'Avoided 2 toxic deals that would have cost me six figures',
+    stars: 5, name: 'Derek C.', loc: 'Columbus, OH', initials: 'DC', color: '#7c3aed', badge: 'Real Estate Investor',
+    text: "11 years flipping houses. Both properties looked clean on paper, great margins, motivated sellers. One had a brownfield site within the property boundary. The other had an industrial waste facility 200 meters away. Walked from both. The legal liability exposure on those two deals would've been catastrophic.",
   },
   {
-    id: 4, name: "Priya N.", location: "San Jose, CA", avatar: "PN", avatarBg: "#dc2626",
-    rating: 5, date: "3 weeks ago", verified: true, badge: "Buyer",
-    title: "My inspector said nothing. This report found everything.",
-    body: "Standard home inspection came back clean. But I ran this report two days before closing and it flagged a groundwater cleanup boundary that ran through the backyard. The boundary was registered with the EPA but not visible on any public search tool I know of. We walked away from the deal. Three months later we found a better house in a clean area. I genuinely think this report saved us from a terrible mistake.",
-    helpful: 212, highlight: "Stopped a bad deal 2 days before closing",
+    result: 'Walked away 2 days before closing — found a better house 90 days later',
+    stars: 5, name: 'Priya N.', loc: 'San Jose, CA', initials: 'PN', color: '#dc2626', badge: 'Verified Buyer',
+    text: "Standard home inspection came back clean. Ran this 48 hours before signing. It flagged a groundwater cleanup boundary running through the backyard — EPA-registered, invisible on every public search I tried. We walked. Three months later we closed on a clean property in the same neighborhood for less.",
   },
   {
-    id: 5, name: "Tom & Karen W.", location: "Denver, CO", avatar: "TW", avatarBg: "#0891b2",
-    rating: 5, date: "1 month ago", verified: true, badge: "Buyer",
-    title: "Used the negotiation script word-for-word. It worked.",
-    body: "We found two violations near our target property and used the exact negotiation script from the report to present findings to the sellers. We got $11,500 off and the sellers agreed to escrow funds for environmental testing. My wife was nervous we'd lose the deal but the script is framed professionally, not confrontationally. The sellers' agent even told us afterward that they'd never seen a buyer come that prepared. 10 stars if I could.",
-    helpful: 76, highlight: "$11,500 off + escrow concession",
+    result: '$11,500 off + escrow concession — script worked word-for-word',
+    stars: 5, name: 'Tom & Karen W.', loc: 'Denver, CO', initials: 'TW', color: '#0891b2', badge: 'Verified Buyer',
+    text: "Used the negotiation script exactly as written. Sellers pushed back at first. 48 hours later: $11,500 off asking price and they agreed to fund escrow for environmental testing. The sellers' agent called us afterward and said they'd never seen a buyer come in that prepared. 10 stars if I could.",
   },
   {
-    id: 6, name: "Alicia M.", location: "Charlotte, NC", avatar: "AM", avatarBg: "#d97706",
-    rating: 4, date: "1 month ago", verified: true, badge: "Renter",
-    title: "Ran it on my rental before renewing the lease",
-    body: "Sounds unusual but I ran this before deciding whether to renew my 2-year lease. There's a facility nearby I always found suspicious. The report confirmed it had 3 Clean Air Act violations in the past 4 years. Used that as leverage to negotiate $150/month off my renewal rate — told the landlord I was considering moving due to environmental proximity concerns. He came down immediately. Paid for itself in 3 weeks.",
-    helpful: 55, highlight: "$150/month rent reduction",
+    result: '$150/month off rent — paid for itself in 3 weeks',
+    stars: 5, name: 'Alicia M.', loc: 'Charlotte, NC', initials: 'AM', color: '#d97706', badge: 'Renter',
+    text: "Ran it before renewing a 2-year lease. The industrial facility 300 meters away had 3 Clean Air Act violations in 4 years. I told my landlord I was considering relocating due to environmental proximity concerns. He came down $150/month immediately. No pushback. $1,800 saved per year on a $49 report.",
   },
   {
-    id: 7, name: "Robert S.", location: "Nashville, TN", avatar: "RS", avatarBg: "#059669",
-    rating: 5, date: "6 weeks ago", verified: true, badge: "Homeowner",
-    title: "I recommend this to every client buying property now",
-    body: "I'm a real estate attorney. I've started recommending Front Door Fax to clients as part of due diligence alongside title search and inspection. In the last two months I've had three clients find material environmental issues that weren't on any disclosure form. In one case, the seller had an affirmative duty to disclose a nearby Superfund designation and didn't. This tool surfaces issues that sellers either don't know about or hope you won't find.",
-    helpful: 188, highlight: "Attorney-recommended due diligence tool",
+    result: 'Found seller non-disclosure — case opened against them',
+    stars: 5, name: 'Robert S.', loc: 'Nashville, TN', initials: 'RS', color: '#059669', badge: 'Real Estate Attorney',
+    text: "I'm a real estate attorney. I now recommend this alongside title search and inspection for every client. Three clients in two months found material environmental issues absent from disclosure forms. In one case, the seller had an affirmative legal duty to disclose a nearby Superfund designation. They didn't. This tool caught it.",
   },
   {
-    id: 8, name: "Sandra L.", location: "Tampa, FL", avatar: "SL", avatarBg: "#7c3aed",
-    rating: 5, date: "2 months ago", verified: true, badge: "Homeowner",
-    title: "Finally understand what's actually in our neighborhood",
-    body: "We have a 4-year-old and a newborn. After reading about PFAS contamination near industrial sites, I ran reports on our current home and two others we were considering. The breakdown of which facilities have violations, what type, and when — that level of specificity isn't available anywhere else for free. One of the properties we were considering had a water quality issue that hadn't been in any news I'd seen. We crossed it off immediately.",
-    helpful: 93, highlight: "Flagged water quality risk near family home",
+    result: 'Water contamination risk found — crossed off the list before move-in',
+    stars: 5, name: 'Sandra L.', loc: 'Tampa, FL', initials: 'SL', color: '#7c3aed', badge: 'Parent of 2',
+    text: "4-year-old and a newborn. After reading about PFAS near industrial sites I ran reports on 3 properties we were comparing. One flagged a water quality issue that hadn't made any local news. The level of specificity — which facility, what violation, when it was filed — doesn't exist anywhere else. We crossed it off immediately.",
   },
 ];
-
-const REVIEW_STATS = [
-  { value: "48,291", label: "Reports Generated" },
-  { value: "$2.1M+", label: "Negotiated by Buyers" },
-  { value: "4.9/5", label: "Average Rating" },
-  { value: "94%", label: "Found Hidden Risks" },
-];
-
-function ReviewStarRating({ rating, size = 14 }: { rating: number; size?: number }) {
-  return (
-    <div style={{ display: 'flex', gap: '2px' }}>
-      {[1,2,3,4,5].map(i => (
-        <svg key={i} width={size} height={size} viewBox="0 0 24 24" fill={i <= rating ? '#f59e0b' : '#e5e7eb'} stroke="none">
-          <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
-        </svg>
-      ))}
-    </div>
-  );
-}
-
-function ReviewAvatar({ initials, bg }: { initials: string; bg: string }) {
-  return (
-    <div style={{ width: 42, height: 42, borderRadius: '50%', background: bg, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: '0.75rem', flexShrink: 0 }}>
-      {initials}
-    </div>
-  );
-}
-
-function ReviewCard({ review, featured = false, onScrollToForm }: { review: typeof REVIEWS_DATA[0]; featured?: boolean; onScrollToForm: () => void }) {
-  const [expanded, setExpanded] = useState(false);
-  const [helpfulCount, setHelpfulCount] = useState(review.helpful);
-  const [voted, setVoted] = useState(false);
-  const isLong = review.body.length > 210;
-  const displayBody = isLong && !expanded ? review.body.slice(0, 210) + '…' : review.body;
-
-  return (
-    <div style={{ background: featured ? 'linear-gradient(135deg,#f0faf5 0%,#fff 65%)' : '#fff', border: `1.5px solid ${featured ? '#10b981' : 'var(--border)'}`, borderRadius: 'var(--radius)', padding: '20px 22px', display: 'flex', flexDirection: 'column', gap: 12, boxShadow: featured ? '0 4px 20px rgba(16,185,129,0.1)' : 'var(--shadow-sm)', position: 'relative', height: '100%', boxSizing: 'border-box' as const }}>
-      {featured && (
-        <div style={{ position: 'absolute', top: -10, left: 18, background: 'var(--green)', color: '#fff', fontSize: '0.6rem', fontWeight: 800, padding: '2px 10px', borderRadius: 99, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
-          ⭐ Top Review
-        </div>
-      )}
-      {/* Highlight badge */}
-      <div style={{ background: 'linear-gradient(90deg,#fef9ec,#fffdf5)', border: '1px solid #fde68a', borderRadius: 6, padding: '6px 11px', fontSize: '0.73rem', fontWeight: 700, color: '#92400e', display: 'flex', alignItems: 'center', gap: 5 }}>
-        <span>💰</span>{review.highlight}
-      </div>
-      {/* Author row */}
-      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-        <ReviewAvatar initials={review.avatar} bg={review.avatarBg} />
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' as const }}>
-            <span style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--text-primary)' }}>{review.name}</span>
-            {review.verified && (
-              <span style={{ background: 'var(--green-pale)', border: '1px solid #a7f3d0', color: '#065f46', fontSize: '0.6rem', fontWeight: 700, padding: '2px 6px', borderRadius: 99 }}>✓ Verified</span>
-            )}
-            <span style={{ background: '#f4f4f5', color: 'var(--text-secondary)', fontSize: '0.6rem', fontWeight: 700, padding: '2px 6px', borderRadius: 99 }}>{review.badge}</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 3 }}>
-            <ReviewStarRating rating={review.rating} size={12} />
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>{review.location} · {review.date}</span>
-          </div>
-        </div>
-      </div>
-      {/* Body */}
-      <div>
-        <p style={{ fontWeight: 700, fontSize: '0.86rem', color: 'var(--text-primary)', margin: '0 0 7px', lineHeight: 1.3 }}>"{review.title}"</p>
-        <p style={{ fontSize: '0.81rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.6 }}>{displayBody}</p>
-        {isLong && (
-          <button onClick={() => setExpanded(!expanded)} style={{ background: 'none', border: 'none', color: 'var(--green)', fontSize: '0.76rem', fontWeight: 700, cursor: 'pointer', padding: '4px 0 0', fontFamily: 'inherit' }}>
-            {expanded ? 'Show less' : 'Read full review →'}
-          </button>
-        )}
-      </div>
-      {/* Helpful + CTA */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTop: '1px solid #f0f4f2', marginTop: 'auto' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-          <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 500 }}>Helpful?</span>
-          <button onClick={() => { if (!voted) { setHelpfulCount(h => h+1); setVoted(true); } }} style={{ display: 'flex', alignItems: 'center', gap: 3, background: voted ? 'var(--green-pale)' : '#f8fafb', border: `1px solid ${voted ? '#a7f3d0' : 'var(--border)'}`, borderRadius: 99, padding: '2px 9px', fontSize: '0.7rem', fontWeight: 700, color: voted ? '#065f46' : 'var(--text-secondary)', cursor: voted ? 'default' : 'pointer', fontFamily: 'inherit' }}>
-            👍 {helpfulCount}
-          </button>
-        </div>
-        <button onClick={onScrollToForm} style={{ background: 'none', border: 'none', color: 'var(--green)', fontSize: '0.72rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}>
-          Get my report →
-        </button>
-      </div>
-    </div>
-  );
-}
-
-function RatingDistBar({ label, pct, count }: { label: string; pct: number; count: number }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.76rem' }}>
-      <span style={{ color: 'var(--text-secondary)', width: 28, flexShrink: 0, fontWeight: 600 }}>{label}</span>
-      <div style={{ flex: 1, height: 7, background: '#f0f4f2', borderRadius: 99, overflow: 'hidden' }}>
-        <div style={{ width: `${pct}%`, height: '100%', background: 'linear-gradient(90deg,#10b981,#1a7a4a)', borderRadius: 99 }} />
-      </div>
-      <span style={{ color: 'var(--text-muted)', width: 32, textAlign: 'right' as const, fontWeight: 500 }}>{count}</span>
-    </div>
-  );
-}
-
-function ReviewsSection({ onScrollToForm }: { onScrollToForm: () => void }) {
-  const [activeFilter, setActiveFilter] = useState('All');
-  const [visibleCount, setVisibleCount] = useState(6);
-  const [liveCount, setLiveCount] = useState(574);
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const [animated, setAnimated] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(([e]) => { if (e.isIntersecting) setAnimated(true); }, { threshold: 0.05 });
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const t = setInterval(() => setLiveCount(c => c + Math.floor(Math.random()*3)-1), 3000);
-    return () => clearInterval(t);
-  }, []);
-
-  const filters = ['All','Buyer','Homeowner','Renter'];
-  const filtered = activeFilter === 'All' ? REVIEWS_DATA : REVIEWS_DATA.filter(r => r.badge === activeFilter || (activeFilter === 'Buyer' && r.badge === 'Real Estate Investor'));
-  const displayed = filtered.slice(0, visibleCount);
-
-  return (
-    <div ref={sectionRef} style={{ maxWidth: 1040, margin: '0 auto', padding: '0 20px 60px' }}>
-
-      {/* Live bar */}
-      <div style={{ background: '#0f1a13', color: '#fff', borderRadius: 'var(--radius)', padding: '10px 20px', textAlign: 'center', fontSize: '0.76rem', fontWeight: 600, marginBottom: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-        <span style={{ width: 7, height: 7, borderRadius: '50%', background: '#dc2626', display: 'inline-block', animation: 'reviews-pulse 1.2s infinite' }}></span>
-        <span style={{ color: '#dc2626', fontWeight: 800 }}>{liveCount}</span> people checking properties right now · 48,291 reports delivered
-      </div>
-
-      {/* Header */}
-      <div style={{ textAlign: 'center', marginBottom: 36, opacity: animated ? 1 : 0, animation: animated ? 'reviews-fadeUp 0.55s ease forwards' : 'none' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'var(--green-pale)', border: '1px solid #a7f3d0', color: '#065f46', fontSize: '0.7rem', fontWeight: 700, padding: '4px 12px', borderRadius: 99, marginBottom: 14, textTransform: 'uppercase' as const, letterSpacing: '0.5px' }}>
-          ✓ Verified Customer Reviews
-        </div>
-        <h2 style={{ fontSize: 'clamp(1.5rem,3.5vw,2rem)', fontWeight: 800, letterSpacing: '-0.035em', lineHeight: 1.2, margin: '0 0 10px', color: 'var(--text-primary)' }}>
-          Real buyers. Real findings. Real savings.
-        </h2>
-        <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', maxWidth: 480, margin: '0 auto', lineHeight: 1.6 }}>
-          Over <strong style={{ color: 'var(--green)' }}>$2.1 million</strong> negotiated by Front Door Fax customers.
-        </p>
-      </div>
-
-      {/* Stats row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 36, opacity: animated ? 1 : 0, animation: animated ? 'reviews-fadeUp 0.55s 0.08s ease both' : 'none' }}>
-        {REVIEW_STATS.map((s, i) => (
-          <div key={i} style={{ background: '#fff', border: '1.5px solid var(--border)', borderRadius: 'var(--radius)', padding: '18px 14px', textAlign: 'center', boxShadow: 'var(--shadow-sm)' }}>
-            <div style={{ fontSize: '1.7rem', fontWeight: 800, color: 'var(--green)', letterSpacing: '-0.03em', lineHeight: 1 }}>{s.value}</div>
-            <div style={{ fontSize: '0.73rem', color: 'var(--text-secondary)', fontWeight: 600, marginTop: 5 }}>{s.label}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Rating overview */}
-      <div style={{ display: 'flex', gap: 28, flexWrap: 'wrap' as const, background: '#fff', border: '1.5px solid var(--border)', borderRadius: 'var(--radius)', padding: '24px 28px', marginBottom: 32, alignItems: 'center', boxShadow: 'var(--shadow-sm)', opacity: animated ? 1 : 0, animation: animated ? 'reviews-fadeUp 0.55s 0.14s ease both' : 'none' }}>
-        <div style={{ textAlign: 'center', flexShrink: 0 }}>
-          <div style={{ fontSize: '3.5rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1, letterSpacing: '-0.04em' }}>4.9</div>
-          <ReviewStarRating rating={5} size={16} />
-          <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600, marginTop: 5 }}>2,847 reviews</div>
-        </div>
-        <div style={{ width: 1, background: 'var(--border)', alignSelf: 'stretch', flexShrink: 0 }} />
-        <div style={{ flex: 1, minWidth: 160, display: 'flex', flexDirection: 'column', gap: 7 }}>
-          <RatingDistBar label="5 ★" pct={91} count={2591} />
-          <RatingDistBar label="4 ★" pct={6} count={171} />
-          <RatingDistBar label="3 ★" pct={2} count={57} />
-          <RatingDistBar label="2 ★" pct={1} count={28} />
-          <RatingDistBar label="1 ★" pct={0} count={0} />
-        </div>
-        <div style={{ width: 1, background: 'var(--border)', alignSelf: 'stretch', flexShrink: 0 }} />
-        <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8, minWidth: 180 }}>
-          {['94% found hidden risks','Average $14,200 saved','30-day money-back guarantee','No subscription required'].map((t, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-              <span style={{ color: 'var(--green-light)', fontWeight: 900, flexShrink: 0 }}>✓</span>{t}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div style={{ display: 'flex', gap: 7, marginBottom: 24, flexWrap: 'wrap' as const, alignItems: 'center', opacity: animated ? 1 : 0, animation: animated ? 'reviews-fadeUp 0.55s 0.18s ease both' : 'none' }}>
-        {filters.map(f => (
-          <button key={f} onClick={() => { setActiveFilter(f); setVisibleCount(6); }} style={{ padding: '6px 14px', borderRadius: 99, border: `1.5px solid ${activeFilter===f ? 'var(--green)' : 'var(--border)'}`, background: activeFilter===f ? 'var(--green)' : '#fff', color: activeFilter===f ? '#fff' : 'var(--text-secondary)', fontSize: '0.78rem', fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'inherit' }}>
-            {f}
-          </button>
-        ))}
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 5, fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>
-          <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--green-light)', display: 'inline-block', animation: 'reviews-pulse 1.5s infinite' }} />
-          All reviews independently verified
-        </div>
-      </div>
-
-      {/* Cards grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 18, opacity: animated ? 1 : 0, animation: animated ? 'reviews-fadeUp 0.55s 0.22s ease both' : 'none' }} className="reviews-grid">
-        {displayed.map((r, i) => (
-          <ReviewCard key={r.id} review={r} featured={i===0 && activeFilter==='All'} onScrollToForm={onScrollToForm} />
-        ))}
-      </div>
-
-      {/* Load more */}
-      {visibleCount < filtered.length && (
-        <div style={{ textAlign: 'center', marginTop: 24 }}>
-          <button onClick={() => setVisibleCount(v => v+3)} style={{ background: '#fff', border: '1.5px solid var(--border)', borderRadius: 99, padding: '11px 28px', fontSize: '0.83rem', fontWeight: 700, color: 'var(--green)', cursor: 'pointer', fontFamily: 'inherit', transition: 'all 0.15s' }}>
-            Load more reviews ({filtered.length - visibleCount} remaining)
-          </button>
-        </div>
-      )}
-
-      {/* Bottom CTA dark strip */}
-      <div style={{ marginTop: 48, background: 'linear-gradient(135deg,#0f291b 0%,#1a4a2e 100%)', borderRadius: 'var(--radius-lg)', padding: '36px 40px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 28, flexWrap: 'wrap' as const, opacity: animated ? 1 : 0, animation: animated ? 'reviews-fadeUp 0.55s 0.3s ease both' : 'none' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-            <ReviewStarRating rating={5} size={16} />
-            <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.8rem', fontWeight: 600 }}>4.9 · 2,847 reviews</span>
-          </div>
-          <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#fff', margin: '0 0 7px', letterSpacing: '-0.03em', lineHeight: 1.25 }}>Don&apos;t buy without knowing.</h3>
-          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.85rem', margin: 0, lineHeight: 1.5 }}>
-            Join 48,291 buyers who checked before closing. <strong style={{ color: '#10b981' }}>$49 · 30-day guarantee.</strong>
-          </p>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 9, minWidth: 220 }}>
-          <button onClick={onScrollToForm} style={{ background: '#10b981', color: '#fff', border: 'none', borderRadius: 'var(--radius-sm)', padding: '14px 24px', fontSize: '0.92rem', fontWeight: 800, cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 14px rgba(16,185,129,0.4)', letterSpacing: '0.1px' }}>
-            Find out what&apos;s near your home →
-          </button>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', fontWeight: 600 }}>
-            <span>🔒 Secure</span><span>30-day refund</span><span>Instant delivery</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Agency trust logos */}
-      <div style={{ marginTop: 32, textAlign: 'center' }}>
-        <p style={{ fontSize: '0.68rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' as const, letterSpacing: '1px', marginBottom: 12 }}>Data sourced directly from</p>
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 24, flexWrap: 'wrap' as const, opacity: 0.35 }}>
-          {['EPA ECHO','FEMA','CDC','USGS','EJScreen','NPL Registry'].map(name => (
-            <span key={name} style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '0.5px', textTransform: 'uppercase' as const }}>{name}</span>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-// ─── END REVIEWS ─────────────────────────────────────────────────────────────
 
 function GetStartedContent() {
   const searchParams = useSearchParams();
   const address = searchParams.get('address') || '';
-  const lastScannedAddress = useRef('');
 
-  // UTM + click ID attribution — captured once on mount and persisted to sessionStorage
   const attributionRef = useRef<Record<string, string>>({});
   useEffect(() => {
     const stored = sessionStorage.getItem('fdf_attribution');
     if (stored) {
       attributionRef.current = JSON.parse(stored);
     } else {
-      const keys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'gclid', 'fbclid', 'ttclid', 'msclkid'];
-      const attrs: Record<string, string> = {};
+      const keys = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','gclid','fbclid','ttclid','msclkid'];
+      const attrs: Record<string,string> = {};
       keys.forEach(k => { const v = searchParams.get(k); if (v) attrs[k] = v; });
       attributionRef.current = attrs;
       sessionStorage.setItem('fdf_attribution', JSON.stringify(attrs));
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Preparation Progress Simulator (runs dynamic 4.6s loading timer)
-  const [prepProgress, setPrepProgress] = useState(0);
-  const [prepFinished, setPrepFinished] = useState(false);
-
-  // Countdown timer — persisted in sessionStorage so it doesn't reset on refresh
   const [timeLeft, setTimeLeft] = useState(() => {
     if (typeof window === 'undefined') return 579;
     const saved = sessionStorage.getItem('fdf_countdown');
@@ -553,7 +74,7 @@ function GetStartedContent() {
   });
   useEffect(() => {
     const interval = setInterval(() => {
-      setTimeLeft((prev) => {
+      setTimeLeft(prev => {
         const next = prev <= 1 ? 0 : prev - 1;
         sessionStorage.setItem('fdf_countdown', String(next));
         if (next === 0) clearInterval(interval);
@@ -562,18 +83,12 @@ function GetStartedContent() {
     }, 1000);
     return () => clearInterval(interval);
   }, []);
+  const formatTime = (s: number) =>
+    `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
+  const [selectedPackage, setSelectedPackage] = useState<'single'|'bundle'>('single');
+  const [purchaseType, setPurchaseType] = useState<'save'|'onetime'>('onetime');
 
-  // State Hooks
-  const [selectedPackage, setSelectedPackage] = useState<'single' | 'bundle'>('bundle');
-  const [purchaseType, setPurchaseType] = useState<'save' | 'onetime'>('save');
-  
-  // Shipping Form States
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -585,2464 +100,783 @@ function GetStartedContent() {
   const [shippingState, setShippingState] = useState('');
   const [zipCode, setZipCode] = useState('');
 
-  // Address Suggestions Autocomplete States
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const autocompleteController = useRef<AbortController | null>(null);
 
-  // Expose suggestion panel logic
   useEffect(() => {
     const val = addressLine1.trim();
     if (val.length >= 3) {
-      if (autocompleteController.current) {
-        autocompleteController.current.abort();
-      }
+      if (autocompleteController.current) autocompleteController.current.abort();
       autocompleteController.current = new AbortController();
-      
-      const fetchSuggestions = async () => {
+      const fetch_ = async () => {
         setIsLoadingSuggestions(true);
         try {
-          const response = await fetch(`/api/places?input=${encodeURIComponent(val)}`, {
-            signal: autocompleteController.current?.signal
-          });
-          if (response.ok) {
-            const data = await response.json();
-            if (data.predictions) {
-              setSuggestions(data.predictions);
-              setShowSuggestions(data.predictions.length > 0);
-            }
+          const res = await fetch(`/api/places?input=${encodeURIComponent(val)}`, { signal: autocompleteController.current?.signal });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.predictions) { setSuggestions(data.predictions); setShowSuggestions(data.predictions.length > 0); }
           }
         } catch (err) {
-          if (err instanceof Error && err.name !== 'AbortError') {
-            console.error('Failed to fetch suggestions:', err);
-          }
-        } finally {
-          setIsLoadingSuggestions(false);
-        }
+          if (err instanceof Error && err.name !== 'AbortError') console.error('Autocomplete error:', err);
+        } finally { setIsLoadingSuggestions(false); }
       };
-
-      const debounceTimer = setTimeout(() => {
-        fetchSuggestions();
-      }, 300);
-
-      return () => {
-        clearTimeout(debounceTimer);
-        if (autocompleteController.current) {
-          autocompleteController.current.abort();
-        }
-      };
-    } else {
-      setSuggestions([]);
-      setShowSuggestions(false);
-    }
+      const t = setTimeout(fetch_, 300);
+      return () => { clearTimeout(t); autocompleteController.current?.abort(); };
+    } else { setSuggestions([]); setShowSuggestions(false); }
   }, [addressLine1]);
 
-  const handleAddressChange = (val: string) => {
-    setAddressLine1(val);
-  };
-
   const handleSuggestionClick = (prediction: any) => {
-    const desc = prediction.description;
-    const parts = desc.split(',').map((p: string) => p.trim());
-    
-    // Naive parsing: Street, City, State ZIP, Country
-    let parsedStreet = parts[0] || '';
-    let parsedCity = parts.length > 1 ? parts[1] : '';
-    let parsedState = '';
-    let parsedZip = '';
-    
-    if (parts.length > 2) {
-      const stateZip = parts[2].split(' ');
-      parsedState = stateZip[0] || '';
-      parsedZip = stateZip.length > 1 ? stateZip[1] : '';
-    }
-
+    const parts = prediction.description.split(',').map((p: string) => p.trim());
+    const parsedStreet = parts[0] || '';
+    const parsedCity = parts.length > 1 ? parts[1] : '';
+    let parsedState = ''; let parsedZip = '';
+    if (parts.length > 2) { const sv = parts[2].split(' '); parsedState = sv[0] || ''; parsedZip = sv[1] || ''; }
     setAddressLine1(parsedStreet);
     if (parsedCity) setCity(parsedCity);
     if (parsedState) setShippingState(parsedState);
     if (parsedZip) setZipCode(parsedZip);
-    setCountry("United States");
-    
+    setCountry('United States');
     setShowSuggestions(false);
-    lastScannedAddress.current = parsedStreet;
-    setPrepProgress(0);
-    setPrepFinished(false);
   };
 
-  // Close autocomplete on click outside
   useEffect(() => {
-    const handleOutsideClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.id !== 'ship-address1' && !target.closest('.autocomplete-suggestions-box')) {
-        setShowSuggestions(false);
-      }
+    const handler = (e: MouseEvent) => {
+      const t = e.target as HTMLElement;
+      if (t.id !== 'ship-address1' && !t.closest('.autocomplete-suggestions-box')) setShowSuggestions(false);
     };
-    document.addEventListener('click', handleOutsideClick);
-    return () => document.removeEventListener('click', handleOutsideClick);
+    document.addEventListener('click', handler);
+    return () => document.removeEventListener('click', handler);
   }, []);
 
-  // Shipping Form Autofill from Homepage Query
   useEffect(() => {
-    if (address) {
-      const parts = address.split(',').map(p => p.trim());
-      let streetName = parts[0] || '';
-      let cityIndex = 1;
-
-      if (parts.length > 1 && (/^\d+$/.test(parts[0]) || /^\d+[a-zA-Z]?$/.test(parts[0]) || parts[0].length <= 5)) {
-        streetName = `${parts[0]} ${parts[1]}`;
-        cityIndex = 2;
-      }
-
-      const parsedCity = parts[cityIndex] || '';
-
-      let parsedState = '';
-      for (let i = cityIndex + 1; i < parts.length; i++) {
-        const part = parts[i];
-        if (part.length === 2 && /^[A-Z]{2}$/i.test(part)) {
-          parsedState = part.toUpperCase();
-          break;
-        }
-      }
-      if (!parsedState && parts.length >= cityIndex + 3) {
-        parsedState = parts[cityIndex + 2];
-      }
-
-      const zipPart = parts.find(p => /^\d{5}(-\d{4})?$/.test(p));
-
-      // Use a timeout to avoid calling setState synchronously within the effect
-      const timer = setTimeout(() => {
-        setAddressLine1(streetName);
-        setCity(parsedCity);
-        setShippingState(parsedState);
-        if (zipPart) setZipCode(zipPart);
-        
-        lastScannedAddress.current = streetName.trim();
-        setPrepProgress(0);
-        setPrepFinished(false);
-      }, 0);
-      return () => clearTimeout(timer);
-    }
+    if (!address) return;
+    const parts = address.split(',').map(p => p.trim());
+    let street = parts[0] || ''; let ci = 1;
+    if (parts.length > 1 && (/^\d+$/.test(parts[0]) || parts[0].length <= 5)) { street = `${parts[0]} ${parts[1]}`; ci = 2; }
+    const pc = parts[ci] || '';
+    let ps = '';
+    for (let i = ci+1; i < parts.length; i++) { if (parts[i].length === 2 && /^[A-Z]{2}$/i.test(parts[i])) { ps = parts[i].toUpperCase(); break; } }
+    if (!ps && parts.length >= ci+3) ps = parts[ci+2];
+    const zp = parts.find(p => /^\d{5}(-\d{4})?$/.test(p));
+    const timer = setTimeout(() => { setAddressLine1(street); setCity(pc); setShippingState(ps); if (zp) setZipCode(zp); }, 0);
+    return () => clearTimeout(timer);
   }, [address]);
 
-  // Payment States
-  const [paymentMethod, setPaymentMethod] = useState<'paypal' | 'card'>('paypal');
-  const [ccNumber, setCcNumber] = useState('');
-  const [ccCsc, setCcCsc] = useState('');
-  const [ccMonth, setCcMonth] = useState('January');
-  const [ccYear, setCcYear] = useState('2026');
 
-  // Promo Code States
   const [promoCode, setPromoCode] = useState('');
   const [promoError, setPromoError] = useState('');
   const [promoSuccess, setPromoSuccess] = useState('');
   const [promoApplied, setPromoApplied] = useState(false);
   const [discountAmount, setPromoDiscountAmount] = useState(0);
 
-  // Dynamic Itemized Pricing Selector values for Front Door Fax
   const getPackagePriceInfo = () => {
-    switch (selectedPackage) {
-      case 'single':
-        return { 
-          price: 49.00, 
-          reg: 69.00, 
-          saving: 20.00, 
-          pct: '30%', 
-          unitPriceText: '$49.00 each',
-          booksText: '1 Property Report',
-          name: 'Front Door Fax Environmental Report (1 Property)',
-          metaLabel: '1 Property (Single Report)'
-        };
-      case 'bundle':
-      default:
-        return { 
-          price: 199.00, 
-          reg: 345.00, 
-          saving: 146.00, 
-          pct: '42%', 
-          unitPriceText: '$39.80 each',
-          booksText: '5 Property Reports',
-          name: 'Front Door Fax Environmental Report Bundle (5 Properties)',
-          metaLabel: '5 Properties (Comparison Bundle)'
-        };
-    }
+    if (selectedPackage === 'single') return { price:49, reg:69, saving:20, name:'Front Door Fax Environmental Report (1 Property)', metaLabel:'1 Property (Single Report)' };
+    return { price:199, reg:345, saving:146, name:'Front Door Fax Environmental Report Bundle (5 Properties)', metaLabel:'5 Properties (Comparison Bundle)' };
   };
-
   const priceInfo = getPackagePriceInfo();
   const finalPrice = Math.max(0, priceInfo.price - discountAmount);
   const totalSavings = priceInfo.saving + discountAmount;
 
-  // Checkout Processing States
-  const [checkoutState, setCheckoutState] = useState<'idle' | 'processing' | 'success'>('idle');
+  const [checkoutState, setCheckoutState] = useState<'idle'|'processing'|'success'>('idle');
   const [terminalLogs, setTerminalLogs] = useState<string[]>([]);
   const terminalLogsEndRef = useRef<HTMLDivElement>(null);
 
   const logSteps = [
-    "Establishing secure 256-bit encrypted connection...",
-    "Geocoding target coordinates via GIS mapping telemetry...",
-    "Connecting to US EPA ECHO & EJScreen database registry...",
-    "Scanning CDC & local municipal public groundwater registries...",
-    "Analyzing water contaminants (PFAS, nitrates, heavy metals)...",
-    "Querying FEMA regional flood maps & disaster history matrices...",
-    "Locating active Superfunds, Brownfields & toxic waste sites within 2 miles...",
-    "Indexing county FIPS radon gas classifications...",
-    "Generating custom buyer price negotiation talking points...",
-    "Successfully compiling high-resolution property diagnostic PDF..."
+    'Establishing secure 256-bit encrypted connection...',
+    'Geocoding target coordinates via GIS mapping telemetry...',
+    'Connecting to US EPA ECHO & EJScreen database registry...',
+    'Scanning CDC & local municipal public groundwater registries...',
+    'Analyzing water contaminants (PFAS, nitrates, heavy metals)...',
+    'Querying FEMA regional flood maps & disaster history matrices...',
+    'Locating active Superfunds, Brownfields & toxic waste sites within 2 miles...',
+    'Indexing county FIPS radon gas classifications...',
+    'Generating custom buyer price negotiation talking points...',
+    'Successfully compiling high-resolution property diagnostic PDF...',
   ];
 
-  // Auto-scroll terminal logs to bottom
   useEffect(() => {
-    if (checkoutState === 'processing') {
-      terminalLogsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
+    if (checkoutState === 'processing') terminalLogsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [terminalLogs, checkoutState]);
 
-  // Tab Selection helper
-  const handleTabChange = (tab: 'save' | 'onetime') => {
+  const handleTabChange = (tab: 'save'|'onetime') => {
     setPurchaseType(tab);
-    if (tab === 'save') {
-      setSelectedPackage('bundle');
-    } else {
-      setSelectedPackage('single');
-    }
-  };
-
-  // Coupon Database Query with Local Fallback
-  const handleApplyPromo = async () => {
-    const codeUpper = promoCode.trim().toUpperCase();
-    if (!codeUpper) return;
-
-    setPromoError('');
-    setPromoSuccess('');
-
-    if (isSupabaseConfigured()) {
-      try {
-        const { data, error } = await supabase
-          .from('promos')
-          .select('*')
-          .eq('code', codeUpper)
-          .eq('is_active', true)
-          .single();
-
-        if (error || !data) {
-          applyLocalPromoFallback(codeUpper);
-        } else {
-          setPromoApplied(true);
-          setPromoDiscountAmount(Number(data.discount));
-          setPromoSuccess(`✓ ${codeUpper} coupon applied! $${data.discount}.00 discount deducted.`);
-        }
-      } catch (err) {
-        console.error('Promo DB error:', err);
-        applyLocalPromoFallback(codeUpper);
-      }
-    } else {
-      applyLocalPromoFallback(codeUpper);
-    }
+    setSelectedPackage(tab === 'save' ? 'bundle' : 'single');
   };
 
   const applyLocalPromoFallback = (code: string) => {
-    if (code === 'WELCOME10') {
-      setPromoApplied(true);
-      setPromoDiscountAmount(10);
-      setPromoSuccess('✓ WELCOME10 coupon applied! $10.00 discount deducted.');
-    } else if (code === 'SAFETY15') {
-      setPromoApplied(true);
-      setPromoDiscountAmount(15);
-      setPromoSuccess('✓ SAFETY15 coupon applied! $15.00 discount deducted.');
-    } else {
-      setPromoApplied(false);
-      setPromoDiscountAmount(0);
-      setPromoError('Invalid promo code. Try typing WELCOME10 or SAFETY15');
-    }
+    if (code === 'WELCOME10') { setPromoApplied(true); setPromoDiscountAmount(10); setPromoSuccess('✓ WELCOME10 applied! $10.00 off.'); }
+    else if (code === 'SAFETY15') { setPromoApplied(true); setPromoDiscountAmount(15); setPromoSuccess('✓ SAFETY15 applied! $15.00 off.'); }
+    else { setPromoApplied(false); setPromoDiscountAmount(0); setPromoError('Invalid code. Try WELCOME10 or SAFETY15'); }
   };
 
-  // Lead capture onBlur
+  const handleApplyPromo = async () => {
+    const code = promoCode.trim().toUpperCase();
+    if (!code) return;
+    setPromoError(''); setPromoSuccess('');
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase.from('promos').select('*').eq('code', code).eq('is_active', true).single();
+        if (error || !data) { applyLocalPromoFallback(code); }
+        else { setPromoApplied(true); setPromoDiscountAmount(Number(data.discount)); setPromoSuccess(`✓ ${code} applied! $${data.discount}.00 off.`); }
+      } catch { applyLocalPromoFallback(code); }
+    } else { applyLocalPromoFallback(code); }
+  };
+
   const handleLeadEmailBlur = async () => {
-    const validEmailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email || !validEmailRegex.test(email)) return;
-
-    const leadPayload = {
-      email,
-      source_address: addressLine1 || address || 'Direct GetStarted Checkout',
-      status: 'new',
-      attribution: attributionRef.current,
-    };
-
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+    const payload = { email, source_address: addressLine1 || address || 'Direct Checkout', status: 'new', attribution: attributionRef.current };
     if (isSupabaseConfigured()) {
-      try {
-        const { error } = await supabase.from('leads').insert([leadPayload]);
-        if (error) {
-          console.log('Lead already exists or updated:', error.message);
-        } else {
-          console.log('Lead recorded in database successfully.');
-        }
-      } catch (err) {
-        console.error('Lead record DB error:', err);
-      }
+      try { await supabase.from('leads').insert([payload]); } catch (err) { console.error(err); }
     } else {
-      // LocalStorage fallback for demos
-      const localLeads = JSON.parse(localStorage.getItem('frontdoor_local_leads') || '[]');
-      if (!localLeads.some((l: { email: string }) => l.email === email)) {
-        localLeads.push({
-          id: `local-lead-${Date.now()}`,
-          created_at: new Date().toISOString(),
-          ...leadPayload
-        });
-        localStorage.setItem('frontdoor_local_leads', JSON.stringify(localLeads));
-        console.log('Lead saved locally (localStorage fallback).');
+      const leads = JSON.parse(localStorage.getItem('frontdoor_local_leads') || '[]');
+      if (!leads.some((l: any) => l.email === email)) {
+        leads.push({ id: `local-lead-${Date.now()}`, created_at: new Date().toISOString(), ...payload });
+        localStorage.setItem('frontdoor_local_leads', JSON.stringify(leads));
       }
     }
   };
 
-  // Finalized Order Submission to Supabase/LocalStorage
   const saveFinalizedOrder = async () => {
-    const fullConcatenatedAddress = `${addressLine1}${addressLine2 ? ', ' + addressLine2 : ''}, ${city}, ${shippingState} ${zipCode}, ${country}`;
-    const reportPayload = {
-      address: fullConcatenatedAddress,
-      email,
-      package_tier: selectedPackage,
-      final_price: finalPrice,
-      discount_applied: discountAmount,
-      promo_code: promoApplied ? promoCode.toUpperCase() : null,
-      payment_status: 'success',
-      delivery_status: 'ready',
-      attribution: attributionRef.current,
-      report_data: {
-        recipient_name: `${firstName} ${lastName}`,
-        phone: phone,
-        address_line2: addressLine2,
-        city: city,
-        state: shippingState,
-        zip: zipCode,
-        country: country,
-        payment_method: paymentMethod,
-        report_count: selectedPackage === 'single' ? 1 : 5,
-        processing_logs: logSteps,
-        custom_proof_rendered: true
-      }
+    const fullAddr = `${addressLine1}${addressLine2 ? ', '+addressLine2 : ''}, ${city}, ${shippingState} ${zipCode}, ${country}`;
+    const payload = {
+      address: fullAddr, email, package_tier: selectedPackage, final_price: finalPrice,
+      discount_applied: discountAmount, promo_code: promoApplied ? promoCode.toUpperCase() : null,
+      payment_status: 'success', delivery_status: 'ready', attribution: attributionRef.current,
+      report_data: { recipient_name: `${firstName} ${lastName}`, phone, address_line2: addressLine2, city, state: shippingState, zip: zipCode, country, payment_method: 'shopify', report_count: selectedPackage === 'single' ? 1 : 5, processing_logs: logSteps }
     };
-
     if (isSupabaseConfigured()) {
-      try {
-        const { error: insertError } = await supabase
-          .from('reports')
-          .insert([reportPayload]);
-
-        if (insertError) {
-          console.error('Order DB insertion failed:', insertError);
-        }
-
-        // Update lead status to converted
-        await supabase
-          .from('leads')
-          .update({ status: 'converted' })
-          .eq('email', email);
-
-      } catch (err) {
-        console.error('Order DB process exception:', err);
-      }
+      try { await supabase.from('reports').insert([payload]); await supabase.from('leads').update({ status: 'converted' }).eq('email', email); }
+      catch (err) { console.error(err); }
     } else {
-      // LocalStorage fallback
-      const localReports = JSON.parse(localStorage.getItem('frontdoor_local_reports') || '[]');
-      localReports.unshift({
-        id: `local-txn-${Date.now()}`,
-        created_at: new Date().toISOString(),
-        ...reportPayload
-      });
-      localStorage.setItem('frontdoor_local_reports', JSON.stringify(localReports));
-
-      const localLeads = JSON.parse(localStorage.getItem('frontdoor_local_leads') || '[]');
-      const matchIdx = localLeads.findIndex((l: { email: string }) => l.email === email);
-      if (matchIdx >= 0) {
-        localLeads[matchIdx].status = 'converted';
-      } else {
-        localLeads.push({
-          id: `local-lead-${Date.now()}`,
-          created_at: new Date().toISOString(),
-          email,
-          status: 'converted',
-          source_address: fullConcatenatedAddress
-        });
-      }
-      localStorage.setItem('frontdoor_local_leads', JSON.stringify(localLeads));
-      console.log('Order finalized and saved locally (localStorage fallback).');
+      const reports = JSON.parse(localStorage.getItem('frontdoor_local_reports') || '[]');
+      reports.unshift({ id: `local-txn-${Date.now()}`, created_at: new Date().toISOString(), ...payload });
+      localStorage.setItem('frontdoor_local_reports', JSON.stringify(reports));
+      const leads = JSON.parse(localStorage.getItem('frontdoor_local_leads') || '[]');
+      const idx = leads.findIndex((l: any) => l.email === email);
+      if (idx >= 0) leads[idx].status = 'converted';
+      else leads.push({ id: `local-lead-${Date.now()}`, created_at: new Date().toISOString(), email, status: 'converted', source_address: fullAddr });
+      localStorage.setItem('frontdoor_local_leads', JSON.stringify(leads));
     }
   };
 
-  // Deterministic Address Coordinate Generator for GIS Map HUD
-  const getCoordinatesForAddress = (addr: string) => {
-    if (!addr) {
-      return { lat: "42.3584° N", lon: "71.0598° W", parcel: "#TRACT-948-28" };
-    }
-    let hash = 0;
-    for (let i = 0; i < addr.length; i++) {
-      hash = addr.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const absHash = Math.abs(hash);
-    const latDecimal = 24 + (absHash % 25) + ((absHash % 1000) / 1000);
-    const lonDecimal = 70 + (absHash % 50) + (((absHash >> 3) % 1000) / 1000);
-    const tractId = (absHash % 900) + 100;
-    const lotId = (absHash % 90) + 10;
-    
-    return {
-      lat: `${latDecimal.toFixed(4)}° N`,
-      lon: `${lonDecimal.toFixed(4)}° W`,
-      parcel: `#TRACT-${tractId}-${lotId}`
-    };
-  };
+  const SHOPIFY_CHECKOUT_URL = 'https://frontdoorfax.myshopify.com/cart';
 
-  // Form Submit Execution
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!firstName || !lastName || !email || !addressLine1 || !city || !shippingState || !zipCode) { // phone is optional
-      return;
-    }
-
-    setCheckoutState('processing');
-    setTerminalLogs([]);
-
-    let stepIndex = 0;
-    const interval = setInterval(() => {
-      if (stepIndex < logSteps.length) {
-        setTerminalLogs((prev) => [...prev, logSteps[stepIndex]]);
-        stepIndex++;
-      } else {
-        clearInterval(interval);
-        saveFinalizedOrder();
-        setCheckoutState('success');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    }, 600);
+    if (!firstName || !lastName || !email || !addressLine1 || !city || !shippingState || !zipCode) return;
+    await saveFinalizedOrder();
+    const params = new URLSearchParams({
+      'checkout[email]': email,
+      'checkout[shipping_address][first_name]': firstName,
+      'checkout[shipping_address][last_name]': lastName,
+      'checkout[shipping_address][address1]': addressLine1,
+      'checkout[shipping_address][city]': city,
+      'checkout[shipping_address][province]': shippingState,
+      'checkout[shipping_address][zip]': zipCode,
+      'checkout[shipping_address][country]': country,
+      ref: selectedPackage,
+      ...Object.fromEntries(new URLSearchParams(window.location.search)),
+    });
+    window.location.href = `${SHOPIFY_CHECKOUT_URL}?${params.toString()}`;
   };
-
-
-
-  // Preparation Progress Simulator (runs dynamic 4.6s loading timer)
-  useEffect(() => {
-    if (prepFinished) return;
-    const timer = setInterval(() => {
-      setPrepProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(timer);
-          setPrepFinished(true);
-          return 100;
-        }
-        return prev + 2;
-      });
-    }, 80); // Snooth and snappy 4-second loading timer
-    return () => clearInterval(timer);
-  }, [prepFinished]);
 
   const scrollToForm = () => {
-    const form = document.getElementById('shipping-payment-form');
-    if (form) {
-      form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      setTimeout(() => {
-        const firstInput = document.getElementById('ship-firstname');
-        if (firstInput) firstInput.focus();
-      }, 600);
-    }
+    const el = document.getElementById('checkout-form');
+    if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => { document.getElementById('ship-firstname')?.focus(); }, 600); }
   };
 
   return (
-    <div className="min-h-screen animate-fade-in" style={{ background: 'var(--fdf-bg-primary, #FAFDFB)', paddingBottom: '120px', color: 'var(--fdf-text-primary, #0F291B)' }}>
-      
-      {/* Brand CSS styling overrides exactly matching Front Door Fax premium details */}
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', fontFamily: 'var(--font-dm-sans), system-ui, sans-serif', color: 'var(--text-primary)' }}>
       <style>{`
-        /* ============================================
-           FRONT DOOR FAX — PREMIUM DESIGN SYSTEM
-           Clean, trust-building, conversion-optimized
-           ============================================ */
-
         *, *::before, *::after { box-sizing: border-box; }
-
         :root {
-          --green: #1a7a4a;
-          --green-light: #10b981;
-          --green-pale: #f0faf5;
-          --green-border: rgba(16, 185, 129, 0.18);
-          --red: #dc2626;
-          --red-pale: #fef2f2;
-          --red-border: rgba(220, 38, 38, 0.2);
-          --orange: #b45309;
-          --text-primary: #0f1a13;
-          --text-secondary: #52695c;
-          --text-muted: #8fa898;
-          --border: #e2e8e5;
-          --bg: #f9fdfb;
-          --white: #ffffff;
-          --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-          --shadow-md: 0 4px 16px rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.04);
-          --shadow-lg: 0 12px 40px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.05);
-          --radius: 12px;
-          --radius-sm: 8px;
-          --radius-lg: 20px;
+          --green: #1a7a4a; --green-light: #10b981; --green-pale: #f0faf5;
+          --green-border: rgba(16,185,129,0.18); --red: #dc2626;
+          --text-primary: #0f1a13; --text-secondary: #52695c; --text-muted: #8fa898;
+          --border: #e2e8e5; --bg: #f9fdfb; --white: #ffffff;
+          --shadow-sm: 0 1px 3px rgba(0,0,0,0.06); --shadow-md: 0 4px 16px rgba(0,0,0,0.06);
+          --radius: 12px; --radius-sm: 8px;
+        }
+        body { background: var(--bg) !important; font-family: var(--font-dm-sans),system-ui,sans-serif !important; color: var(--text-primary) !important; -webkit-font-smoothing: antialiased; }
+
+        .ann-bar { background: var(--green); color: #fff; text-align: center; padding: 9px 16px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.3px; }
+
+        .co-header { background: var(--white); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-sm); }
+        .co-logo-link { display: flex; align-items: center; text-decoration: none; }
+        .co-logo-img { height: 30px; }
+        .co-header-right { display: flex; align-items: center; gap: 12px; }
+        .co-secure-badge { display: flex; align-items: center; gap: 4px; font-size: 0.7rem; font-weight: 700; color: var(--text-secondary); }
+        .co-timer { display: flex; align-items: center; gap: 5px; background: var(--green-pale); border: 1px solid var(--green-border); color: var(--green); font-size: 0.86rem; font-weight: 700; padding: 5px 12px; border-radius: 99px; font-family: var(--font-dm-mono),monospace; }
+
+        .co-main { max-width: 1020px; margin: 0 auto; padding: 28px 20px 100px; }
+        .co-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 36px; align-items: start; }
+
+        /* LEFT */
+        .co-left { display: flex; flex-direction: column; gap: 18px; }
+
+        .prod-card { background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-md); }
+        .prod-card-hdr { background: #0d1f14; padding: 18px 20px; }
+        .prod-card-brand { font-size: 0.62rem; font-weight: 900; letter-spacing: 2.5px; color: #10b981; font-family: var(--font-dm-mono),monospace; text-transform: uppercase; }
+        .prod-card-title { font-size: 1rem; font-weight: 800; color: rgba(255,255,255,0.92); margin-top: 3px; }
+        .prod-card-addr { margin-top: 10px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 7px 12px; font-size: 0.73rem; font-weight: 600; color: rgba(255,255,255,0.6); font-family: var(--font-dm-mono),monospace; }
+
+        .fear-block { background: #18181b; border-radius: var(--radius); margin-bottom: 24px; position: relative; overflow: hidden; border-top: 3px solid #ef4444; }
+        .fear-block::before { content:''; position:absolute; inset:0; background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px); background-size:40px 40px; pointer-events:none; }
+        .fear-row { display:flex; align-items:stretch; position:relative; }
+        .fear-left { background:rgba(239,68,68,.1); display:flex; flex-direction:column; justify-content:center; align-items:flex-end; padding:24px 28px; border-right:1px solid rgba(239,68,68,.2); flex-shrink:0; min-width:148px; text-align:right; }
+        .fear-warn-icon { font-size:0.85rem; color:#ef4444; margin-bottom:5px; line-height:1; }
+        .fear-num { font-size:3.2rem; font-weight:900; color:#ef4444; line-height:1; letter-spacing:-0.05em; font-family:var(--font-dm-mono),monospace; }
+        .fear-lbl { font-size:0.6rem; font-weight:900; color:rgba(255,255,255,.38); letter-spacing:1.8px; text-transform:uppercase; margin-top:7px; line-height:1.7; }
+        .fear-right { flex:1; padding:20px 26px; display:flex; flex-direction:column; gap:11px; min-width:0; justify-content:center; }
+        .fear-subhead { font-size:1rem; font-weight:800; color:#fff; margin:0; line-height:1.45; max-width:480px; }
+        .fear-text { font-size:0.85rem; color:rgba(255,255,255,.6); line-height:1.65; margin:0; max-width:540px; }
+        .fear-text strong { color:rgba(255,255,255,.9); font-weight:800; }
+        .fear-stats { display:flex; align-items:center; gap:0; }
+        .fear-div { width:1px; height:28px; background:rgba(255,255,255,.1); margin:0 18px; flex-shrink:0; }
+        .fear-stat { display:flex; flex-direction:column; gap:3px; }
+        .fear-stat-num { font-size:1.05rem; font-weight:900; color:#f87171; font-family:var(--font-dm-mono),monospace; line-height:1; }
+        .fear-stat-num-alert { color:#fca5a5; }
+        .fear-stat-num-cta { color:#f87171; cursor:pointer; }
+        .fear-stat-lbl { font-size:0.64rem; color:rgba(255,255,255,.42); font-weight:600; line-height:1.3; }
+        .fear-source { font-size:0.58rem; color:rgba(255,255,255,.28); font-style:italic; padding-top:9px; border-top:1px solid rgba(255,255,255,.08); }
+        .fear-hide-mobile { display:flex; }
+
+        .prod-body { padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; }
+        .prod-sub-lbl { font-size:0.58rem; font-weight:900; color:var(--text-muted); letter-spacing:1.5px; text-transform:uppercase; }
+        .prod-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:7px; }
+        .prod-list li { display:flex; align-items:center; gap:8px; font-size:0.79rem; color:var(--text-primary); font-weight:500; line-height:1.35; }
+        .prod-check { color:var(--green-light); flex-shrink:0; }
+        .prod-guarantee { display:flex; align-items:center; gap:12px; background:var(--green-pale); border:1px solid #a7f3d0; border-radius:var(--radius-sm); padding:11px 13px; }
+        .prod-guar-seal { width:38px; height:38px; border-radius:50%; background:var(--green-light); color:#fff; font-size:0.72rem; font-weight:900; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .prod-guar-title { font-size:0.76rem; font-weight:800; color:#047857; }
+        .prod-guar-text { font-size:0.68rem; color:#065f46; line-height:1.4; margin-top:1px; }
+
+        .testi-list { display:flex; flex-direction:column; gap:10px; }
+        .testi-item { background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:13px 14px; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; gap:8px; }
+        .testi-result { background:linear-gradient(90deg,#f0faf5,#fff); border:1px solid #a7f3d0; border-left:3px solid var(--green-light); border-radius:5px; padding:6px 10px; font-size:0.74rem; font-weight:800; color:var(--text-primary); line-height:1.35; }
+        .testi-stars { color:#f59e0b; font-size:0.76rem; letter-spacing:1px; }
+        .testi-text { font-size:0.74rem; color:var(--text-secondary); margin:0; line-height:1.58; }
+        .testi-footer { display:flex; align-items:center; gap:8px; padding-top:7px; border-top:1px solid #f0f4f2; }
+        .testi-avatar { width:28px; height:28px; border-radius:50%; color:#fff; font-size:0.58rem; font-weight:900; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .testi-name { font-size:0.7rem; font-weight:700; color:var(--text-primary); }
+        .testi-badge { font-size:0.56rem; font-weight:700; color:#065f46; margin-top:1px; }
+
+        .data-src { text-align:center; }
+        .data-src-lbl { font-size:0.58rem; font-weight:700; color:var(--text-muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; }
+        .data-src-list { display:flex; justify-content:center; flex-wrap:wrap; gap:10px; opacity:0.45; }
+        .data-src-chip { font-size:0.65rem; font-weight:800; color:var(--text-primary); letter-spacing:0.3px; }
+
+        /* RIGHT */
+        .co-right { display:flex; flex-direction:column; gap:18px; }
+
+        .co-card { background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius); padding:20px; box-shadow:var(--shadow-sm); }
+
+        .pkg-tabs { display:grid; grid-template-columns:1.3fr 0.7fr; background:#f4f4f5; border:1px solid var(--border); border-radius:var(--radius-sm); padding:3px; margin-bottom:12px; gap:2px; }
+        .pkg-tab { padding:8px; font-size:0.73rem; font-weight:700; border-radius:5px; border:none; cursor:pointer; background:transparent; color:var(--text-secondary); transition:all .15s; font-family:var(--font-dm-sans),sans-serif; }
+        .pkg-tab.active { background:var(--white); color:var(--text-primary); box-shadow:var(--shadow-sm); }
+
+        .supply-warn { border:1px solid var(--border); background:var(--white); border-radius:var(--radius-sm); padding:11px 13px; margin-bottom:12px; }
+        .supply-warn-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; }
+        .supply-warn-lbl { font-size:0.62rem; font-weight:900; color:var(--text-primary); }
+        .supply-warn-badge { background:#f0faf5; border:1px solid #a7f3d0; color:#10b981; font-size:0.58rem; font-weight:900; padding:2px 7px; border-radius:99px; }
+        .supply-bars { display:flex; gap:2px; height:4px; margin-bottom:5px; }
+        .supply-bar { flex:1; border-radius:2px; }
+        .supply-bar.on { background:var(--green-light); }
+        .supply-bar.off { background:#e4e4e7; }
+        .supply-warn-txt { font-size:0.68rem; font-weight:700; color:#059669; margin:0; line-height:1.3; }
+
+        .pkg-card { border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:13px 15px; margin-bottom:9px; cursor:pointer; background:var(--white); display:grid; grid-template-columns:auto auto 1fr auto; gap:10px; align-items:center; transition:all .15s; position:relative; box-shadow:var(--shadow-sm); }
+        .pkg-card:hover { border-color:var(--green-light); }
+        .pkg-card.active { border-color:var(--green-light); background:var(--green-pale); }
+        .pkg-card.popular { border:2px solid var(--green-light); }
+        .pkg-card.popular.active { border-color:var(--green); }
+        .pkg-pop-tag { position:absolute; top:-9px; right:14px; background:var(--green-light); color:#fff; font-size:0.56rem; font-weight:800; padding:2px 8px; border-radius:99px; }
+        .pkg-icon { width:38px; height:38px; border-radius:6px; border:1px solid var(--border); background:#f4f4f5; display:flex; align-items:center; justify-content:center; color:var(--green-light); flex-shrink:0; }
+        .pkg-name { font-size:0.8rem; font-weight:800; color:var(--text-primary); }
+        .pkg-desc { font-size:0.68rem; color:var(--text-secondary); line-height:1.3; margin-top:2px; }
+        .pkg-price { text-align:right; flex-shrink:0; }
+        .pkg-price-reg { font-size:0.62rem; color:#ef4444; text-decoration:line-through; font-weight:700; }
+        .pkg-price-now { font-size:0.88rem; font-weight:800; color:var(--text-primary); }
+        .pkg-price-save { font-size:0.62rem; color:#10b981; font-weight:800; }
+
+        .receipt { border-top:1px dashed var(--border); padding-top:14px; margin-top:12px; display:flex; flex-direction:column; gap:7px; font-size:0.77rem; color:var(--text-secondary); }
+        .receipt-row { display:flex; justify-content:space-between; align-items:center; }
+        .receipt-discount { color:#10b981; font-weight:700; }
+        .receipt-free { color:#10b981; font-weight:800; text-transform:uppercase; font-size:0.65rem; }
+        .receipt-incl { color:#059669; font-weight:800; font-size:0.65rem; }
+        .receipt-bonus { display:flex; justify-content:space-between; align-items:center; background:#f0fdf8; border-left:2.5px solid #6ee7b7; border-radius:0 4px 4px 0; padding:5px 9px; }
+        .receipt-bonus-lbl { font-size:0.72rem; color:#065f46; font-weight:600; }
+        .receipt-sep { border:none; border-top:1px dashed var(--border); margin:2px 0; }
+        .receipt-total { background:linear-gradient(135deg,#f0faf5,#e6f7f1); border:1.5px solid #a7f3d0; border-radius:var(--radius-sm); padding:14px 16px; margin-top:10px; display:flex; justify-content:space-between; align-items:center; gap:12px; }
+        .receipt-total-left { display:flex; flex-direction:column; gap:3px; }
+        .receipt-total-label { font-size:0.82rem; font-weight:800; color:var(--text-primary); }
+        .receipt-total-sub { font-size:0.58rem; color:#059669; font-weight:700; letter-spacing:0.2px; }
+        .receipt-total-right { display:flex; flex-direction:column; align-items:flex-end; gap:3px; }
+        .receipt-total-price { font-size:1.6rem; font-weight:900; color:#059669; font-family:var(--font-dm-mono),monospace; line-height:1; letter-spacing:-0.04em; }
+        .receipt-total-lock { font-size:0.55rem; color:#059669; font-weight:700; opacity:0.75; }
+
+        .savings-badge { border:1.5px solid #6ee7b7; background:linear-gradient(135deg,#f0fdf9,#ecfdf5); border-radius:var(--radius-sm); margin-top:12px; display:flex; align-items:stretch; overflow:hidden; }
+        .savings-sticker { background:linear-gradient(160deg,#059669,#047857); color:#fff; font-size:0.58rem; font-weight:900; padding:12px 13px; text-transform:uppercase; text-align:center; line-height:1.4; display:flex; align-items:center; justify-content:center; flex-shrink:0; letter-spacing:0.8px; }
+        .savings-main { flex:1; padding:10px 14px; display:flex; flex-direction:column; justify-content:center; gap:2px; }
+        .savings-num { font-size:1.4rem; font-weight:900; color:#059669; font-family:var(--font-dm-mono),monospace; line-height:1; letter-spacing:-0.03em; }
+        .savings-desc { font-size:0.59rem; color:#6b7280; margin-top:1px; }
+        .savings-vdiv { width:1px; background:#a7f3d0; flex-shrink:0; margin:10px 0; }
+        .savings-contrast { padding:10px 14px; display:flex; flex-direction:column; justify-content:center; gap:3px; flex-shrink:0; }
+        .savings-contrast-num { font-size:0.9rem; font-weight:900; color:#dc2626; font-family:var(--font-dm-mono),monospace; line-height:1; }
+        .savings-contrast-lbl { font-size:0.52rem; color:#9ca3af; line-height:1.35; max-width:90px; }
+
+        .co-form { background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius); padding:20px; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; gap:9px; }
+        .co-input { width:100%; background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:10px 12px; font-size:0.85rem; color:var(--text-primary); outline:none; transition:border-color .2s,box-shadow .2s; font-family:var(--font-dm-sans),sans-serif; -webkit-appearance:none; }
+        .co-input::placeholder { color:#b0bab6; }
+        .co-input:focus { border-color:var(--green-light); box-shadow:0 0 0 3px rgba(16,185,129,.12); }
+        .form-2 { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+        .form-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+        .form-auto { position:relative; }
+
+        .autocomplete-suggestions-box { position:absolute; top:calc(100% + 2px); left:0; right:0; background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius-sm); box-shadow:0 8px 24px rgba(0,0,0,.08); z-index:100; max-height:200px; overflow-y:auto; }
+        .autocomplete-suggestion-item { padding:9px 12px; font-size:0.79rem; color:var(--text-primary); cursor:pointer; border-bottom:1px solid #f4f4f5; display:flex; align-items:center; gap:6px; }
+        .autocomplete-suggestion-item:last-child { border-bottom:none; }
+        .autocomplete-suggestion-item:hover { background:var(--green-pale); }
+        .autocomplete-pin-icon { color:var(--green-light); flex-shrink:0; }
+
+
+
+        .cta-wrap { display:flex; flex-direction:column; gap:8px; margin-top:6px; }
+        .cta-btn { background:linear-gradient(135deg,#059669 0%,#047857 100%); color:#fff; width:100%; padding:17px 20px; border:none; border-radius:var(--radius-sm); cursor:pointer; font-size:0.97rem; font-weight:900; display:flex; align-items:center; justify-content:center; gap:10px; box-shadow:0 6px 20px rgba(5,150,105,.38); transition:all .2s; font-family:var(--font-dm-sans),sans-serif; letter-spacing:.3px; }
+        .cta-btn:hover { background:linear-gradient(135deg,#047857 0%,#065f46 100%); transform:translateY(-2px); box-shadow:0 8px 26px rgba(5,150,105,.48); }
+        .cta-btn:active { transform:translateY(0); box-shadow:0 4px 14px rgba(5,150,105,.3); }
+        .cta-sub { font-size:0.61rem; color:var(--text-muted); text-align:center; margin:0; }
+
+        .term-overlay { position:fixed; inset:0; background:rgba(0,0,0,.75); backdrop-filter:blur(4px); z-index:9999; display:flex; align-items:center; justify-content:center; padding:24px; }
+        .term-box { background:#0a1a10; border-radius:var(--radius); padding:28px; color:var(--green-light); font-family:var(--font-dm-mono),monospace; width:100%; max-width:640px; border:1px solid rgba(16,185,129,.2); box-shadow:0 20px 60px rgba(0,0,0,.6); }
+        .term-hdr { display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(16,185,129,.12); padding-bottom:14px; margin-bottom:20px; }
+        .term-dots { display:flex; gap:6px; }
+        .term-dot { width:11px; height:11px; border-radius:50%; }
+        .term-dot.r { background:#ff5f56; } .term-dot.y { background:#ffbd2e; } .term-dot.g { background:#27c93f; }
+        .term-logs { display:flex; flex-direction:column; gap:12px; min-height:240px; overflow-y:auto; max-height:290px; }
+        .term-row { font-size:0.82rem; line-height:1.5; display:flex; align-items:center; gap:10px; animation:termIn .4s ease-out; }
+        @keyframes termIn { from { opacity:0; transform:translateY(3px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes co-spin { to { transform:rotate(360deg); } }
+
+        .success-outer { max-width:700px; margin:44px auto; padding:0 16px; }
+        .success-card { padding:44px 32px; text-align:center; border:2px solid var(--green-light); border-radius:20px; background:var(--white); box-shadow:0 20px 50px -10px rgba(16,185,129,.14); }
+        .success-tick { width:76px; height:76px; border-radius:50%; background:rgba(16,185,129,.08); border:1.5px solid rgba(16,185,129,.2); display:flex; align-items:center; justify-content:center; margin:0 auto 18px; }
+        .success-dl-btn { background:linear-gradient(135deg,#10b981,#059669); color:#fff; width:100%; padding:14px; border:none; border-radius:var(--radius-sm); cursor:pointer; font-size:0.92rem; font-weight:800; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 14px rgba(16,185,129,.25); font-family:var(--font-dm-sans),sans-serif; }
+        .success-meta { background:#fafdfc; border:1px solid #e4e4e7; border-radius:var(--radius); padding:22px; margin-top:40px; display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:18px; text-align:left; }
+        .success-meta-lbl { font-size:0.68rem; color:var(--text-secondary); text-transform:uppercase; display:block; margin-bottom:3px; font-weight:700; letter-spacing:.5px; }
+        .success-meta-val { font-size:0.83rem; font-weight:800; color:var(--text-primary); font-family:monospace; }
+
+        .sticky-bar { position:fixed; bottom:0; left:0; right:0; background:rgba(255,255,255,.97); backdrop-filter:blur(10px); border-top:1px solid var(--border); padding:12px 24px; display:flex; justify-content:space-between; align-items:center; z-index:1000; box-shadow:0 -4px 20px rgba(0,0,0,.06); }
+        .sticky-bar-btn { background:var(--green); color:#fff; border:none; border-radius:6px; padding:11px 28px; font-size:0.9rem; font-weight:800; cursor:pointer; font-family:var(--font-dm-sans),sans-serif; box-shadow:0 4px 12px rgba(26,122,74,.3); }
+
+        @media (max-width:860px) {
+          .co-grid { grid-template-columns:1fr; gap:20px; }
+          .co-right { order:-1; }
+          .testi-list { display:none; }
+          .sticky-bar { flex-direction:column; gap:8px; text-align:center; }
+          /* Fear block — tablet: tighten up */
+          .fear-left { padding:18px 20px; min-width:110px; }
+          .fear-num { font-size:2.8rem; }
+          .fear-right { padding:14px 18px; }
+        }
+        @media (max-width:640px) {
+          .fear-block { margin-bottom:16px; }
+          .fear-row { flex-direction:column; }
+          .fear-left { border-right:none; border-bottom:1px solid rgba(255,255,255,.18); padding:20px 20px 16px; min-width:0; align-items:center; text-align:center; }
+          .fear-warn-icon { font-size:1.3rem; margin-bottom:4px; }
+          .fear-num { font-size:3.6rem; }
+          .fear-lbl { font-size:0.72rem; letter-spacing:1.6px; margin-top:6px; color:rgba(255,255,255,.75); }
+          .fear-right { padding:18px 20px 20px; gap:12px; }
+          .fear-subhead { font-size:1rem; }
+          .fear-text { display:none; }
+          .fear-stats { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+          .fear-div { display:none; }
+          .fear-stat { background:rgba(0,0,0,.15); border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:14px 16px; gap:6px; }
+          .fear-stat-num { font-size:1.3rem; }
+          .fear-stat-lbl { font-size:0.72rem; color:rgba(255,255,255,.6); line-height:1.35; }
+          .fear-hide-mobile { display:none; }
+          .fear-source { display:none; }
+        }
+        @media (max-width:480px) {
+          .co-main { padding:14px 12px 80px; }
+          .form-3 { grid-template-columns:1fr 1fr; }
+          .fear-num { font-size:4rem; }
+          .fear-lbl { font-size:0.9rem; letter-spacing:1.4px; }
+          .fear-warn-icon { font-size:1.5rem; }
+          .fear-right { padding:18px 16px 20px; gap:12px; }
+          .fear-subhead { font-size:1.5rem; line-height:1.3; }
+          .fear-stats { gap:10px; }
+          .fear-stat { padding:14px 16px; }
+          .fear-stat-num { font-size:1.5rem; }
+          .fear-stat-lbl { font-size:1rem; }
         }
 
-        body {
-          background-color: var(--bg) !important;
-          color: var(--text-primary) !important;
-          font-family: var(--font-dm-sans), system-ui, sans-serif !important;
-          -webkit-font-smoothing: antialiased;
-        }
-
-        /* ── ANNOUNCEMENT BAR ── */
-        .announcement-bar {
-          background: var(--green);
-          color: #ffffff;
-          font-size: 0.72rem;
-          font-weight: 600;
-          text-align: center;
-          padding: 10px 16px;
-          letter-spacing: 0.3px;
-        }
-
-        /* ── HEADER ── */
-        .checkout-header {
-          background: var(--white);
-          border-bottom: 1px solid var(--border);
-          padding: 18px 24px;
-          text-align: center;
-          box-shadow: var(--shadow-sm);
-        }
-        .checkout-logo-link {
-          display: inline-flex;
-          align-items: center;
-          gap: 10px;
-          text-decoration: none;
-        }
-        .checkout-logo-text {
-          font-size: 1.4rem;
-          font-weight: 800;
-          letter-spacing: -0.04em;
-          color: #001a0a;
-        }
-        .checkout-logo-img { height: 34px; width: auto; }
-
-        .countdown-ticker-box {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          background: var(--green-pale);
-          border: 1px solid var(--green-border);
-          color: var(--green);
-          font-size: 0.9rem;
-          font-weight: 700;
-          padding: 5px 14px;
-          border-radius: 99px;
-          margin-top: 10px;
-          font-family: var(--font-dm-mono), monospace;
-        }
-
-        /* ── PAGE INTRO ── */
-        .page-intro-header {
-          text-align: center;
-          padding: 36px 24px 20px;
-          max-width: 680px;
-          margin: 0 auto;
-        }
-        .page-intro-title {
-          font-size: 1.9rem;
-          font-weight: 800;
-          line-height: 1.2;
-          letter-spacing: -0.03em;
-          color: var(--text-primary);
-          margin-bottom: 10px;
-        }
-        .page-intro-subtitle {
-          font-size: 1rem;
-          color: var(--text-secondary);
-          line-height: 1.6;
-          margin: 0;
-        }
-
-        /* ── GIS CARD (2-COL LAYOUT) ── */
-        .before-after-card-wrapper {
-          max-width: 1000px;
-          margin: 20px auto 40px;
-          background: var(--white);
-          border: 1px solid var(--border);
-          border-radius: var(--radius-lg);
-          padding: 28px;
-          display: grid;
-          grid-template-columns: minmax(0, 44%) minmax(0, 56%);
-          gap: 28px;
-          box-shadow: var(--shadow-md);
-        }
-
-        /* ── MAP ── */
-        .gis-map-container {
-          position: relative;
-          background: #f1f5f2;
-          border-radius: var(--radius);
-          overflow: hidden;
-          aspect-ratio: 1 / 1.05;
-          border: 1px solid var(--border);
-        }
-        .google-map-iframe {
-          width: 100%;
-          height: 100%;
-          border: none;
-          filter: grayscale(100%) contrast(1.05) brightness(1.02);
-          opacity: 0.92;
-          transition: filter 0.4s ease, opacity 0.4s ease;
-        }
-        .gis-map-container:hover .google-map-iframe {
-          opacity: 1;
-          filter: grayscale(20%) contrast(1.0) brightness(1.0);
-        }
-
-        /* Scanner sweep */
-        .gis-scanner-sweep {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(to bottom,
-            transparent 0%, transparent 42%,
-            rgba(16,185,129,0.06) 48%,
-            rgba(16,185,129,0.2) 50%,
-            rgba(16,185,129,0.06) 52%,
-            transparent 58%, transparent 100%
-          );
-          background-size: 100% 200%;
-          background-position: 100% -100%;
-          z-index: 5;
-          pointer-events: none;
-          animation: sweep 3.5s infinite linear;
-          opacity: 0;
-          transition: opacity 0.5s ease;
-        }
-        .gis-map-container.scanning .gis-scanner-sweep { opacity: 1; }
-        @keyframes sweep {
-          0% { background-position: 100% -100%; }
-          100% { background-position: 100% 100%; }
-        }
-
-        /* GIS HUD panel */
-        .gis-hud-panel {
-          position: absolute;
-          top: 12px;
-          left: 12px;
-          background: rgba(255,255,255,0.92);
-          backdrop-filter: blur(10px);
-          -webkit-backdrop-filter: blur(10px);
-          border: 1px solid rgba(226,232,240,0.9);
-          border-left: 3px solid var(--green-light);
-          border-radius: var(--radius-sm);
-          padding: 12px 14px;
-          z-index: 10;
-          pointer-events: none;
-          min-width: 190px;
-          box-shadow: var(--shadow-md);
-        }
-        .gis-hud-title {
-          font-size: 0.68rem;
-          color: var(--green);
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          margin-bottom: 9px;
-          display: flex;
-          align-items: center;
-          gap: 5px;
-        }
-        .gis-hud-row {
-          font-size: 0.68rem;
-          display: flex;
-          justify-content: space-between;
-          gap: 12px;
-          margin: 5px 0;
-        }
-        .gis-hud-label { color: var(--text-muted); font-weight: 500; }
-        .gis-hud-value { color: var(--text-primary); font-weight: 600; font-family: var(--font-dm-mono), monospace; }
-
-        /* ── RIGHT PANE ── */
-        .ba-text-pane {
-          display: flex;
-          flex-direction: column;
-          gap: 0;
-        }
-
-        /* ── TERMINAL / RESULTS CARD ── */
-        .terminal-container {
-          background: var(--white);
-          border: 1px solid var(--border);
-          border-radius: var(--radius);
-          padding: 18px 20px;
-          font-family: var(--font-dm-sans), sans-serif;
-          font-size: 0.85rem;
-          box-shadow: var(--shadow-sm);
-          flex: 1;
-        }
-        .terminal-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding-bottom: 14px;
-          margin-bottom: 16px;
-          border-bottom: 1px solid var(--border);
-        }
-        .terminal-title-block {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-weight: 700;
-          font-size: 0.85rem;
-          color: var(--text-primary);
-        }
-        .terminal-pulse-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          background: var(--green-light);
-          box-shadow: 0 0 8px rgba(16,185,129,0.4);
-          animation: pulse-dot 1.5s infinite ease-in-out;
-          flex-shrink: 0;
-        }
-        @keyframes pulse-dot {
-          0%, 100% { opacity: 0.5; transform: scale(0.9); }
-          50% { opacity: 1; transform: scale(1.15); }
-        }
-        .terminal-progress-pct {
-          font-size: 0.85rem;
-          font-weight: 700;
-          color: var(--green-light);
-          font-family: var(--font-dm-mono), monospace;
-        }
-        .terminal-log-list {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
-        .terminal-log-row {
-          color: var(--text-secondary);
-          line-height: 1.5;
-          display: flex;
-          align-items: flex-start;
-          gap: 8px;
-          font-size: 0.8rem;
-          font-weight: 500;
-          animation: log-in 0.35s ease-out forwards;
-        }
-        @keyframes log-in {
-          from { opacity: 0; transform: translateY(3px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ── RISK TABLE ── */
-        .results-container { display: flex; flex-direction: column; gap: 0; }
-
-        /* WARNING badge */
-        .warning-badge {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          background: var(--red-pale);
-          border: 1px solid var(--red-border);
-          border-radius: var(--radius-sm);
-          padding: 10px 14px;
-          color: var(--red);
-          font-size: 0.83rem;
-          font-weight: 700;
-          margin-bottom: 14px;
-        }
-
-        /* Risk score row */
-        .risk-score-row {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          margin-bottom: 16px;
-          padding: 0 2px;
-        }
-        .risk-score-label {
-          font-size: 0.82rem;
-          font-weight: 700;
-          color: var(--text-primary);
-          white-space: nowrap;
-        }
-        .risk-score-blurred {
-          filter: blur(5px);
-          color: var(--red);
-          font-weight: 800;
-          font-family: var(--font-dm-mono), monospace;
-          user-select: none;
-        }
-        .risk-score-tag {
-          font-size: 0.72rem;
-          font-weight: 600;
-          color: var(--text-secondary);
-        }
-        .risk-gauge {
-          display: flex;
-          gap: 2px;
-          margin-left: auto;
-        }
-        .risk-gauge-bar {
-          width: 7px;
-          height: 14px;
-          border-radius: 2px;
-        }
-
-        /* Risk rows table */
-        .risk-table {
-          width: 100%;
-          border-collapse: collapse;
-          font-size: 0.83rem;
-          margin-bottom: 18px;
-        }
-        .risk-table td { padding: 9px 6px; }
-        .risk-table tr { border-bottom: 1px solid var(--border); }
-        .risk-table tr:last-child { border-bottom: none; }
-        .risk-level-high { color: var(--red); font-weight: 800; font-size: 0.75rem; width: 52px; }
-        .risk-level-mod { color: var(--orange); font-weight: 800; font-size: 0.75rem; width: 52px; }
-        .risk-bars { display: flex; gap: 2px; }
-        .risk-bar { width: 9px; height: 10px; border-radius: 1px; }
-        .reveal-btn {
-          cursor: pointer;
-          color: #2563eb;
-          font-weight: 600;
-          font-size: 0.78rem;
-          display: flex;
-          align-items: center;
-          justify-content: flex-end;
-          gap: 3px;
-          white-space: nowrap;
-          text-align: right;
-        }
-        .reveal-btn:hover { color: #1d4ed8; }
-
-        /* ── CTA UNLOCK BANNER ── */
-        .cta-unlock-banner {
-          background: var(--green-pale);
-          border: 1px solid var(--green-border);
-          border-left: 3px solid var(--green);
-          border-radius: var(--radius);
-          padding: 20px;
-          display: flex;
-          flex-direction: column;
-          gap: 14px;
-        }
-        .cta-title-row {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-        .cta-title {
-          font-size: 0.88rem;
-          font-weight: 700;
-          color: var(--green);
-          margin: 0;
-        }
-        .cta-desc {
-          font-size: 0.78rem;
-          color: var(--text-secondary);
-          margin: 0;
-          line-height: 1.5;
-        }
-
-        /* Benefit list */
-        .cta-benefit-list {
-          list-style: none;
-          padding: 0;
-          margin: 0;
-          display: flex;
-          flex-direction: column;
-          gap: 7px;
-        }
-        .cta-benefit-list li {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 0.82rem;
-          color: var(--text-primary);
-          font-weight: 500;
-        }
-        .cta-check {
-          color: var(--green-light);
-          font-weight: 900;
-          font-size: 0.9rem;
-          flex-shrink: 0;
-        }
-
-        /* Testimonial line */
-        .cta-testimonial {
-          background: var(--white);
-          border: 1px solid var(--border);
-          border-radius: var(--radius-sm);
-          padding: 10px 14px;
-          font-size: 0.78rem;
-          color: var(--text-secondary);
-          font-weight: 500;
-          text-align: center;
-          line-height: 1.5;
-        }
-        .stars { color: #f59e0b; letter-spacing: 1px; }
-
-        /* ── CTA BUTTON ── */
-        .cta-button {
-          background: var(--green);
-          color: #ffffff;
-          font-weight: 700;
-          font-size: 0.88rem;
-          letter-spacing: 0.2px;
-          border: none;
-          padding: 15px 20px;
-          border-radius: var(--radius-sm);
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 6px;
-          box-shadow: 0 4px 14px rgba(26,122,74,0.3);
-          transition: all 0.25s ease;
-          width: 100%;
-          text-decoration: none;
-        }
-        .cta-button:hover {
-          background: #155c38;
-          transform: translateY(-1px);
-          box-shadow: 0 6px 20px rgba(26,122,74,0.4);
-        }
-        .cta-button:active { transform: translateY(0); }
-
-        /* Sticky CTA wrapper */
-        .sticky-cta-wrapper {
-          position: fixed;
-          bottom: 0; left: 0; right: 0;
-          padding: 12px 20px 16px;
-          background: rgba(255,255,255,0.97);
-          border-top: 1px solid var(--border);
-          box-shadow: 0 -4px 20px rgba(0,0,0,0.07);
-          z-index: 100;
-          backdrop-filter: blur(8px);
-        }
-        @media (min-width: 768px) {
-          .sticky-cta-wrapper {
-            position: relative;
-            padding: 0;
-            background: transparent;
-            border-top: none;
-            box-shadow: none;
-          }
-        }
-
-        /* ── CHECKOUT GRID ── */
-        .checkout-grid-split {
-          display: grid;
-          grid-template-columns: 1.05fr 0.95fr;
-          gap: 44px;
-          max-width: 1000px;
-          margin: 28px auto 0;
-          padding: 0 20px;
-          align-items: start;
-        }
-
-        /* Step headers */
-        .step-title-row {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 1rem;
-          font-weight: 700;
-          color: var(--text-primary);
-          margin-bottom: 18px;
-          padding-bottom: 10px;
-          border-bottom: 1px solid var(--border);
-        }
-        .step-number-circle {
-          width: 22px;
-          height: 22px;
-          border-radius: 50%;
-          background: var(--green-light);
-          color: #fff;
-          font-size: 0.7rem;
-          font-weight: 800;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-        }
-
-        /* ── TAB TOGGLE ── */
-        .tab-toggle-container {
-          display: grid;
-          grid-template-columns: 1.2fr 0.8fr;
-          background: #f4f4f5;
-          border: 1px solid var(--border);
-          border-radius: var(--radius-sm);
-          padding: 3px;
-          margin-bottom: 18px;
-          gap: 2px;
-        }
-        .tab-toggle-button {
-          padding: 10px;
-          font-size: 0.78rem;
-          font-weight: 700;
-          border-radius: 6px;
-          border: none;
-          cursor: pointer;
-          background: transparent;
-          color: var(--text-secondary);
-          transition: all 0.2s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 5px;
-          font-family: var(--font-dm-sans), sans-serif;
-        }
-        .tab-toggle-button.active {
-          background: var(--white);
-          color: var(--text-primary);
-          box-shadow: var(--shadow-sm);
-        }
-
-        /* ── AVAILABILITY METER ── */
-        .availability-meter-panel {
-          border: 1px solid var(--border);
-          background: var(--white);
-          border-radius: var(--radius-sm);
-          padding: 14px 18px;
-          margin-bottom: 20px;
-          box-shadow: var(--shadow-sm);
-        }
-        .availability-bar-grid {
-          display: flex;
-          gap: 3px;
-          height: 5px;
-          margin: 8px 0;
-        }
-        .availability-bar-block {
-          flex: 1;
-          border-radius: 2px;
-        }
-        .availability-bar-block.active { background: var(--green-light); }
-        .availability-bar-block.inactive { background: #e4e4e7; }
-
-        /* ── PACKAGE CARDS ── */
-        .package-selector-card {
-          border: 1.5px solid var(--border);
-          border-radius: var(--radius-sm);
-          padding: 16px 20px;
-          margin-bottom: 14px;
-          cursor: pointer;
-          background: var(--white);
-          display: grid;
-          grid-template-columns: auto 1fr auto;
-          gap: 16px;
-          align-items: center;
-          transition: all 0.2s ease;
-          position: relative;
-          box-shadow: var(--shadow-sm);
-        }
-        .package-selector-card:hover { border-color: var(--green-light); }
-        .package-selector-card.active {
-          border-color: var(--green-light);
-          background: var(--green-pale);
-          box-shadow: 0 0 0 1px var(--green-light), var(--shadow-sm);
-        }
-        .package-selector-card.most-popular {
-          border: 2px solid var(--green-light);
-          box-shadow: 0 4px 14px rgba(16,185,129,0.08);
-        }
-        .package-selector-card.most-popular.active {
-          border-color: var(--green);
-          background: var(--green-pale);
-          box-shadow: 0 0 0 1px var(--green), var(--shadow-sm);
-        }
-        .most-popular-tag-ribbon {
-          position: absolute;
-          top: -11px;
-          right: 20px;
-          background: var(--green-light);
-          color: #fff;
-          font-size: 0.6rem;
-          font-weight: 800;
-          padding: 2px 10px;
-          border-radius: 99px;
-          text-transform: uppercase;
-          letter-spacing: 0.4px;
-          display: flex;
-          align-items: center;
-          gap: 3px;
-        }
-        .package-image-placeholder {
-          width: 48px;
-          height: 48px;
-          border-radius: var(--radius-sm);
-          border: 1px solid var(--border);
-          background: #f4f4f5;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-          color: var(--green-light);
-        }
-
-        /* ── RECEIPT ── */
-        .itemized-receipt-container {
-          margin-top: 24px;
-          font-size: 0.83rem;
-          color: var(--text-secondary);
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          border-top: 1px dashed var(--border);
-          padding-top: 18px;
-        }
-        .receipt-row {
-          display: flex;
-          justify-content: space-between;
-        }
-        .receipt-total-row {
-          font-size: 1.15rem;
-          font-weight: 800;
-          color: var(--text-primary);
-          border-top: 1.5px solid var(--border);
-          padding-top: 12px;
-          margin-top: 2px;
-        }
-
-        /* Savings badge */
-        .saved-card-dotted {
-          border: 2px dashed var(--green-light);
-          background: var(--green-pale);
-          border-radius: var(--radius-sm);
-          padding: 14px 20px;
-          margin-top: 20px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 12px;
-        }
-        .saved-card-badge {
-          background: #2563eb;
-          color: #fff;
-          font-size: 0.7rem;
-          font-weight: 900;
-          padding: 5px 10px;
-          border-radius: 4px;
-          text-transform: uppercase;
-          transform: rotate(-3deg);
-          box-shadow: 2px 2px 0 #1a3a8a;
-          flex-shrink: 0;
-          text-align: center;
-          line-height: 1.2;
-        }
-        .saved-card-amount-pane { text-align: right; }
-
-        /* ── GUARANTEE CARD ── */
-        .guarantee-gold-card {
-          margin-top: 20px;
-          background: var(--white);
-          border: 1px solid #a7f3d0;
-          border-radius: var(--radius-sm);
-          padding: 18px;
-          display: flex;
-          gap: 16px;
-          align-items: center;
-          box-shadow: var(--shadow-sm);
-        }
-        .gold-stamp-seal-svg { width: 60px; height: 60px; flex-shrink: 0; }
-
-        /* ── TRUST LIST ── */
-        .trust-check-list {
-          margin-top: 24px;
-          padding-left: 0;
-          list-style: none;
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          font-size: 0.83rem;
-          color: var(--text-primary);
-          font-weight: 500;
-        }
-        .trust-check-list li {
-          display: flex;
-          align-items: flex-start;
-          gap: 8px;
-          line-height: 1.4;
-        }
-        .trust-check-list li::before {
-          content: "✓";
-          color: var(--green-light);
-          font-weight: 900;
-          font-size: 1rem;
-          line-height: 1.1;
-          flex-shrink: 0;
-        }
-
-        /* ── FORM INPUTS ── */
-        .shipping-input-box {
-          width: 100%;
-          background: var(--white);
-          border: 1.5px solid var(--border);
-          border-radius: var(--radius-sm);
-          padding: 11px 14px;
-          font-size: 0.88rem;
-          color: var(--text-primary);
-          outline: none;
-          transition: border-color 0.2s, box-shadow 0.2s;
-          font-family: var(--font-dm-sans), sans-serif;
-          -webkit-appearance: none;
-        }
-        .shipping-input-box::placeholder { color: #b0bab6; }
-        .shipping-input-box:focus {
-          border-color: var(--green-light);
-          box-shadow: 0 0 0 3px rgba(16,185,129,0.12);
-        }
-        .shipping-grid-2col {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 12px;
-          margin-bottom: 12px;
-        }
-        .shipping-full-row {
-          margin-bottom: 12px;
-          position: relative;
-        }
-
-        /* Autocomplete */
-        .autocomplete-suggestions-box {
-          position: absolute;
-          top: calc(100% + 3px);
-          left: 0;
-          right: 0;
-          background: var(--white);
-          border: 1.5px solid var(--border);
-          border-radius: var(--radius-sm);
-          box-shadow: var(--shadow-lg);
-          z-index: 100;
-          max-height: 220px;
-          overflow-y: auto;
-        }
-        .autocomplete-suggestion-item {
-          padding: 11px 14px;
-          font-size: 0.83rem;
-          color: var(--text-primary);
-          cursor: pointer;
-          border-bottom: 1px solid #f4f4f5;
-          transition: background 0.1s;
-          display: flex;
-          align-items: center;
-          gap: 7px;
-        }
-        .autocomplete-suggestion-item:last-child { border-bottom: none; }
-        .autocomplete-suggestion-item:hover { background: var(--green-pale); }
-        .autocomplete-pin-icon { color: var(--green-light); flex-shrink: 0; }
-
-        /* ── PAYMENT TOGGLES ── */
-        .payment-toggle-btn {
-          flex: 1;
-          padding: 11px;
-          border-radius: var(--radius-sm);
-          border: 1.5px solid var(--border);
-          background: var(--white);
-          cursor: pointer;
-          font-weight: 700;
-          font-size: 0.83rem;
-          transition: all 0.2s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 5px;
-          color: var(--text-secondary);
-          font-family: var(--font-dm-sans), sans-serif;
-        }
-        .payment-toggle-btn.active-card {
-          border-color: var(--green-light);
-          background: var(--green-pale);
-          color: var(--text-primary);
-        }
-        .payment-toggle-btn.active-paypal {
-          border-color: #ffc439;
-          background: #fffdf0;
-          color: var(--text-primary);
-        }
-
-        /* PayPal button */
-        .paypal-checkout-btn-yellow {
-          background: #ffc439;
-          border-radius: var(--radius-sm);
-          padding: 14px;
-          width: 100%;
-          border: none;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: background 0.15s;
-          box-shadow: 0 3px 10px rgba(255,196,57,0.2);
-        }
-        .paypal-checkout-btn-yellow:hover { background: #f0b800; }
-
-        /* Credit card form */
-        .credit-card-form-embedded {
-          background: var(--white);
-          border: 1.5px solid var(--border);
-          border-radius: var(--radius-sm);
-          padding: 16px;
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          box-shadow: var(--shadow-sm);
-        }
-        .cc-header-bar {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 6px;
-          font-size: 0.7rem;
-          font-weight: 700;
-          color: var(--text-secondary);
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-        }
-
-        /* ── SUBMIT BUTTON ── */
-        .complete-purchase-btn-green {
-          background: var(--green);
-          color: #ffffff;
-          width: 100%;
-          padding: 16px;
-          border: none;
-          border-radius: var(--radius-sm);
-          cursor: pointer;
-          font-size: 0.95rem;
-          font-weight: 800;
-          letter-spacing: 0.2px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          box-shadow: 0 4px 14px rgba(26,122,74,0.35);
-          transition: all 0.25s ease;
-          font-family: var(--font-dm-sans), sans-serif;
-        }
-        .complete-purchase-btn-green:hover {
-          background: #155c38;
-          transform: translateY(-1px);
-          box-shadow: 0 6px 20px rgba(26,122,74,0.45);
-        }
-        .complete-purchase-btn-green:active { transform: translateY(0); }
-
-        /* ── STICKY ACTION BANNER ── */
-        .sticky-action-banner {
-          position: fixed;
-          bottom: 0; left: 0; right: 0;
-          background: rgba(255,255,255,0.97);
-          backdrop-filter: blur(10px);
-          border-top: 1px solid var(--border);
-          padding: 14px 24px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          z-index: 1000;
-          box-shadow: 0 -4px 20px rgba(0,0,0,0.06);
-        }
-
-        /* ── TERMINAL OVERLAY ── */
-        .preservation-terminal-overlay {
-          position: fixed;
-          inset: 0;
-          background: rgba(0,0,0,0.75);
-          backdrop-filter: blur(4px);
-          z-index: 9999;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 24px;
-        }
-        .terminal-box {
-          background: #0a1a10;
-          border-radius: var(--radius);
-          padding: 28px;
-          color: var(--green-light);
-          font-family: var(--font-dm-mono), monospace;
-          width: 100%;
-          max-width: 660px;
-          border: 1px solid rgba(16,185,129,0.2);
-          box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-        }
-        .terminal-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          border-bottom: 1px solid rgba(16,185,129,0.12);
-          padding-bottom: 14px;
-          margin-bottom: 20px;
-        }
-        .terminal-dots { display: flex; gap: 6px; }
-        .terminal-dot {
-          width: 11px;
-          height: 11px;
-          border-radius: 50%;
-        }
-        .terminal-dot.red { background: #ff5f56; }
-        .terminal-dot.yellow { background: #ffbd2e; }
-        .terminal-dot.green { background: #27c93f; }
-        .terminal-logs {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          min-height: 260px;
-          overflow-y: auto;
-          max-height: 320px;
-        }
-        .terminal-row {
-          font-size: 0.85rem;
-          line-height: 1.5;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          animation: consolePulse 0.4s ease-out;
-        }
-        @keyframes consolePulse {
-          from { opacity: 0; transform: translateY(3px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ── SUCCESS SCREEN ── */
-        .success-outer-panel {
-          max-width: 760px;
-          margin: 44px auto;
-          padding: 0 16px;
-        }
-        .success-card {
-          padding: 52px 36px;
-          text-align: center;
-          border: 2px solid var(--green-light);
-          border-radius: var(--radius-lg);
-          background: var(--white);
-          box-shadow: 0 20px 50px -10px rgba(16,185,129,0.14);
-        }
-        .success-tick-outer {
-          width: 80px;
-          height: 80px;
-          border-radius: 50%;
-          background: rgba(16,185,129,0.08);
-          border: 1.5px solid rgba(16,185,129,0.2);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin: 0 auto 22px;
-        }
-
-        /* ── BA BENEFIT TEXT ── */
-        .ba-benefit-title {
-          font-size: 1rem;
-          font-weight: 700;
-          color: var(--text-primary);
-          line-height: 1.4;
-        }
-        .ba-benefit-desc {
-          font-size: 0.83rem;
-          color: var(--text-secondary);
-          line-height: 1.5;
-        }
-
-        /* ── REDACTED ── */
-        .redacted-value {
-          filter: blur(4px);
-          background: rgba(239,68,68,0.08);
-          padding: 1px 6px;
-          border-radius: 4px;
-          user-select: none;
-          cursor: not-allowed;
-          font-weight: 700;
-          font-family: var(--font-dm-mono), monospace;
-          display: inline;
-        }
-        .badge-locked {
-          font-size: 0.58rem;
-          background: var(--red);
-          color: #fff;
-          padding: 2px 5px;
-          border-radius: 3px;
-          margin-left: 5px;
-          font-weight: 700;
-          letter-spacing: 0.3px;
-          display: inline-block;
-        }
-
-        /* ── RESPONSIVE ── */
-        @media (max-width: 900px) {
-          .before-after-card-wrapper {
-            grid-template-columns: 1fr;
-            gap: 20px;
-            padding: 16px;
-            margin: 16px 12px 28px;
-          }
-          .gis-map-container { aspect-ratio: 16 / 9; }
-          .checkout-grid-split {
-            grid-template-columns: 1fr;
-            gap: 28px;
-            padding: 0 16px;
-          }
-          .page-intro-title { font-size: 1.5rem; }
-          .sticky-action-banner {
-            flex-direction: column;
-            gap: 10px;
-            text-align: center;
-          }
-          .reviews-grid {
-            grid-template-columns: repeat(2,1fr) !important;
-          }
-        }
-
-        @media (max-width: 480px) {
-          .before-after-card-wrapper { padding: 14px; }
-          .cta-unlock-banner { padding: 16px; }
-          .reviews-grid {
-            grid-template-columns: 1fr !important;
-          }
-        }
-
-        /* ── REVIEWS ANIMATIONS ── */
-        @keyframes reviews-fadeUp {
-          from { opacity: 0; transform: translateY(16px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes reviews-pulse {
-          0%, 100% { opacity: 0.5; transform: scale(0.9); }
-          50% { opacity: 1; transform: scale(1.2); }
-        }
-
-        /* ── DIAGNOSTIC TRAP ── */
-        @keyframes dt-fade-in {
-          from { opacity: 0; transform: translateY(6px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes dt-blink {
-          0%,100% { opacity: 1; } 50% { opacity: 0; }
-        }
-        @keyframes dt-pulse-red {
-          0%,100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.5); }
-          50%      { box-shadow: 0 0 0 8px rgba(220,38,38,0); }
-        }
-        @keyframes dt-shake {
-          0%,100% { transform: translateX(0); }
-          20%     { transform: translateX(-3px); }
-          40%     { transform: translateX(3px); }
-          60%     { transform: translateX(-2px); }
-          80%     { transform: translateX(2px); }
-        }
-        @keyframes dt-scan-line {
-          0%   { top: -4px; opacity: 0; }
-          10%  { opacity: 1; }
-          90%  { opacity: 1; }
-          100% { top: 100%; opacity: 0; }
-        }
-        @keyframes dt-redact-flash {
-          0%,100% { background: rgba(220,38,38,0.15); }
-          50%     { background: rgba(220,38,38,0.3); }
-        }
-        .dt-wrapper {
-          max-width: 760px;
-          margin: 0 auto 44px;
-          padding: 0 20px;
-        }
-        .dt-scan-card {
-          background: #fff;
-          border: 1.5px solid var(--border);
-          border-radius: var(--radius-lg);
-          overflow: hidden;
-          box-shadow: var(--shadow-md);
-        }
-        /* scan phase top bar */
-        .dt-scan-header {
-          background: #0f1a13;
-          padding: 14px 22px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 12px;
-        }
-        .dt-scan-dot {
-          width: 8px; height: 8px;
-          border-radius: 50%;
-          background: #dc2626;
-          animation: dt-pulse-red 1.2s infinite;
-          flex-shrink: 0;
-        }
-        .dt-scan-label {
-          font-size: 0.72rem;
-          font-weight: 700;
-          color: #10b981;
-          text-transform: uppercase;
-          letter-spacing: 1.2px;
-          font-family: var(--font-dm-mono), monospace;
-          flex: 1;
-        }
-        .dt-scan-addr {
-          font-size: 0.72rem;
-          font-weight: 600;
-          color: rgba(255,255,255,0.55);
-          font-family: var(--font-dm-mono), monospace;
-          max-width: 200px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-        }
-        /* progress bar */
-        .dt-progress-wrap {
-          height: 3px;
-          background: rgba(16,185,129,0.12);
-        }
-        .dt-progress-bar {
-          height: 100%;
-          background: linear-gradient(90deg, #10b981, #1a7a4a);
-          transition: width 0.3s ease;
-          position: relative;
-        }
-        .dt-progress-bar::after {
-          content: '';
-          position: absolute;
-          right: 0; top: -3px;
-          width: 8px; height: 8px;
-          border-radius: 50%;
-          background: #10b981;
-          box-shadow: 0 0 8px #10b981;
-        }
-        /* log list */
-        .dt-log-body {
-          padding: 20px 22px;
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          font-family: var(--font-dm-mono), monospace;
-          font-size: 0.78rem;
-        }
-        .dt-log-row {
-          display: flex;
-          align-items: flex-start;
-          gap: 10px;
-          color: #52695c;
-          animation: dt-fade-in 0.3s ease forwards;
-          line-height: 1.5;
-        }
-        .dt-log-row.alert {
-          color: #dc2626;
-          font-weight: 700;
-          animation: dt-fade-in 0.3s ease forwards, dt-shake 0.5s 0.1s ease;
-        }
-        .dt-log-icon { flex-shrink: 0; margin-top: 2px; }
-        /* result card */
-        .dt-result-card {
-          background: #fff;
-          border: 1.5px solid #fecaca;
-          border-radius: var(--radius-lg);
-          overflow: hidden;
-          box-shadow: 0 8px 32px rgba(220,38,38,0.07), var(--shadow-md);
-        }
-        /* Alert header */
-        .dt-alert-header {
-          background: #dc2626;
-          padding: 8px 18px;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 0.75rem;
-          font-weight: 700;
-          color: #fff;
-          letter-spacing: 0.1px;
-        }
-        .dt-alert-dot {
-          width: 7px; height: 7px;
-          border-radius: 50%;
-          background: #fff;
-          flex-shrink: 0;
-          animation: dt-pulse-white 1s ease-in-out infinite;
-        }
-        @keyframes dt-pulse-white {
-          0%,100% { opacity: 1; transform: scale(1); }
-          50%      { opacity: 0.35; transform: scale(0.75); }
-        }
-        /* Risk score section */
-        .dt-risk-section {
-          padding: 20px 24px;
-          display: flex;
-          align-items: center;
-          gap: 24px;
-          border-bottom: 1px solid #fef2f2;
-          background: #fffafa;
-        }
-        .dt-risk-left { flex: 1; min-width: 0; }
-        .dt-risk-label {
-          font-size: 0.6rem;
-          font-weight: 900;
-          color: var(--text-muted);
-          letter-spacing: 1.5px;
-          text-transform: uppercase;
-          margin-bottom: 11px;
-        }
-        .dt-risk-gauge-track {
-          position: relative;
-          height: 8px;
-          background: linear-gradient(90deg, #10b981 0%, #f59e0b 45%, #ef4444 72%, #991b1b 100%);
-          border-radius: 99px;
-          margin-bottom: 7px;
-        }
-        .dt-risk-gauge-marker {
-          position: absolute;
-          top: 50%;
-          transform: translate(-50%, -50%);
-          width: 18px; height: 18px;
-          border-radius: 50%;
-          background: #fff;
-          border: 3px solid #dc2626;
-          box-shadow: 0 0 0 3px rgba(220,38,38,0.22), 0 2px 6px rgba(0,0,0,0.12);
-        }
-        .dt-risk-legend {
-          display: flex;
-          justify-content: space-between;
-          font-size: 0.58rem;
-          color: var(--text-muted);
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.4px;
-        }
-        .dt-risk-score-right {
-          text-align: center;
-          flex-shrink: 0;
-        }
-        .dt-risk-number {
-          font-size: 3rem;
-          font-weight: 900;
-          color: #dc2626;
-          font-family: var(--font-dm-mono), monospace;
-          line-height: 1;
-          letter-spacing: -0.04em;
-          filter: blur(7px);
-          user-select: none;
-        }
-        .dt-risk-denom {
-          font-size: 0.68rem;
-          color: var(--text-muted);
-          font-weight: 600;
-          margin-top: 4px;
-        }
-        .dt-risk-badge {
-          display: inline-block;
-          background: #dc2626;
-          color: #fff;
-          font-size: 0.57rem;
-          font-weight: 900;
-          padding: 3px 10px;
-          border-radius: 99px;
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          margin-top: 7px;
-        }
-        /* Findings list */
-        .dt-findings-list {
-          padding: 16px 18px;
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          background: #fff;
-        }
-        .dt-finding-card {
-          border: 1.5px solid #fecaca;
-          border-radius: var(--radius-sm);
-          overflow: hidden;
-          animation: dt-fade-in 0.35s ease forwards;
-        }
-        .dt-finding-head {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 10px 14px;
-          background: #fef2f2;
-          border-bottom: 1px solid #fecaca;
-        }
-        .dt-finding-emoji { font-size: 1rem; flex-shrink: 0; line-height: 1; }
-        .dt-finding-title {
-          flex: 1;
-          font-size: 0.82rem;
-          font-weight: 700;
-          color: #991b1b;
-          line-height: 1.3;
-        }
-        .dt-locked-badge {
-          font-family: var(--font-dm-mono), monospace;
-          font-size: 0.57rem;
-          font-weight: 900;
-          background: #dc2626;
-          color: #fff;
-          padding: 3px 8px;
-          border-radius: 3px;
-          letter-spacing: 0.8px;
-          flex-shrink: 0;
-          text-transform: uppercase;
-        }
-        .dt-finding-body {
-          padding: 10px 14px;
-          display: flex;
-          flex-direction: column;
-          gap: 7px;
-          background: #fff;
-        }
-        .dt-redact-row {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          font-size: 0.73rem;
-        }
-        .dt-redact-label {
-          color: var(--text-muted);
-          font-weight: 700;
-          width: 86px;
-          flex-shrink: 0;
-          font-size: 0.67rem;
-          text-transform: uppercase;
-          letter-spacing: 0.4px;
-        }
-        .dt-redact-block {
-          font-family: var(--font-dm-mono), monospace;
-          font-size: 0.78rem;
-          font-weight: 700;
-          background: #1f2937;
-          color: #1f2937;
-          border-radius: 3px;
-          padding: 2px 6px;
-          user-select: none;
-          cursor: not-allowed;
-          letter-spacing: 1px;
-          line-height: 1.4;
-        }
-        .dt-redact-suffix {
-          font-size: 0.71rem;
-          color: var(--text-muted);
-          font-weight: 600;
-        }
-        .dt-redact-danger {
-          font-size: 0.72rem;
-          color: #dc2626;
-          font-weight: 800;
-        }
-        /* Loss frame */
-        .dt-loss-frame {
-          padding: 14px 24px;
-          text-align: center;
-          font-size: 0.84rem;
-          color: var(--text-secondary);
-          line-height: 1.65;
-          border-top: 1px solid var(--border);
-          border-bottom: 1px solid var(--border);
-          background: #fafafa;
-        }
-        .dt-loss-frame strong { color: #dc2626; }
-        /* CTA section */
-        .dt-cta-section {
-          padding: 18px 20px 22px;
-          background: #fff;
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-        .dt-main-cta {
-          width: 100%;
-          padding: 17px 20px;
-          background: var(--green);
-          color: #fff;
-          border: none;
-          border-radius: var(--radius-sm);
-          font-size: 1rem;
-          font-weight: 800;
-          cursor: pointer;
-          font-family: var(--font-dm-sans), sans-serif;
-          box-shadow: 0 4px 20px rgba(26,122,74,0.38);
-          transition: all 0.2s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          letter-spacing: 0.1px;
-          line-height: 1.25;
-        }
-        .dt-main-cta:hover {
-          background: #155c38;
-          transform: translateY(-1px);
-          box-shadow: 0 6px 26px rgba(26,122,74,0.48);
-        }
-        .dt-cta-meta {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 18px;
-          font-size: 0.69rem;
-          color: var(--text-muted);
-          font-weight: 600;
-        }
+        /* ── REVIEWS ── */
+        .rev-section { margin-top:64px; border-top:1px solid var(--border); padding-top:52px; }
+        .rev-stats-bar { display:grid; grid-template-columns:repeat(4,1fr); background:#0d1f14; border-radius:var(--radius); margin-bottom:44px; overflow:hidden; }
+        .rev-stat { text-align:center; padding:22px 16px; border-right:1px solid rgba(255,255,255,.07); }
+        .rev-stat:last-child { border-right:none; }
+        .rev-stat-num { font-size:1.65rem; font-weight:900; color:#10b981; letter-spacing:-0.04em; line-height:1; font-family:var(--font-dm-mono),monospace; }
+        .rev-stat-lbl { font-size:0.59rem; font-weight:600; color:rgba(255,255,255,.36); margin-top:5px; text-transform:uppercase; letter-spacing:.6px; }
+        .rev-heading { text-align:center; margin-bottom:36px; }
+        .rev-tag { display:inline-flex; align-items:center; gap:4px; background:var(--green-pale); border:1px solid #a7f3d0; color:#065f46; font-size:0.64rem; font-weight:800; padding:3px 10px; border-radius:99px; margin-bottom:11px; text-transform:uppercase; letter-spacing:.5px; }
+        .rev-heading h2 { font-size:clamp(1.4rem,3vw,1.85rem); font-weight:800; letter-spacing:-0.035em; line-height:1.2; margin:0 0 8px; color:var(--text-primary); }
+        .rev-heading p { font-size:0.88rem; color:var(--text-secondary); margin:0; }
+        .rev-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+        .rev-card { background:var(--white); border:1.5px solid var(--border); border-radius:var(--radius); padding:18px 20px; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; gap:11px; }
+        .rev-result { background:linear-gradient(90deg,#f0faf5,#fff); border:1px solid #a7f3d0; border-left:3px solid var(--green-light); border-radius:6px; padding:8px 11px; font-size:0.79rem; font-weight:800; color:var(--text-primary); line-height:1.35; }
+        .rev-stars { color:#f59e0b; font-size:0.82rem; letter-spacing:1px; }
+        .rev-text { font-size:0.77rem; color:var(--text-secondary); line-height:1.62; margin:0; flex:1; }
+        .rev-footer { display:flex; align-items:center; gap:9px; padding-top:9px; border-top:1px solid #f0f4f2; margin-top:auto; }
+        .rev-avatar { width:32px; height:32px; border-radius:50%; color:#fff; font-size:0.62rem; font-weight:900; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .rev-author { display:flex; flex-direction:column; gap:2px; flex:1; min-width:0; }
+        .rev-name { font-size:0.74rem; font-weight:700; color:var(--text-primary); }
+        .rev-loc { font-size:0.65rem; color:var(--text-muted); }
+        .rev-badge { display:inline-block; font-size:0.54rem; font-weight:700; background:var(--green-pale); border:1px solid #a7f3d0; color:#065f46; padding:1px 6px; border-radius:99px; }
+        .rev-cta-bar { margin-top:40px; background:linear-gradient(135deg,#0d1f14 0%,#1a4a2e 100%); border-radius:var(--radius); padding:32px 36px; display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap; }
+        .rev-cta-left h3 { font-size:1.35rem; font-weight:800; color:#fff; margin:0 0 6px; letter-spacing:-0.03em; line-height:1.25; }
+        .rev-cta-left p { color:rgba(255,255,255,.5); font-size:0.83rem; margin:0; line-height:1.5; }
+        .rev-cta-btn { background:#10b981; color:#fff; border:none; border-radius:var(--radius-sm); padding:14px 28px; font-size:0.9rem; font-weight:800; cursor:pointer; font-family:var(--font-dm-sans),sans-serif; box-shadow:0 4px 14px rgba(16,185,129,.4); white-space:nowrap; flex-shrink:0; }
+        @media (max-width:860px) { .rev-grid { grid-template-columns:repeat(2,1fr); } .rev-stats-bar { grid-template-columns:repeat(2,1fr); } .rev-stat { border-right:none; border-bottom:1px solid rgba(255,255,255,.07); } .rev-stat:nth-child(odd) { border-right:1px solid rgba(255,255,255,.07); } .rev-cta-bar { flex-direction:column; text-align:center; } }
+        @media (max-width:480px) { .rev-grid { grid-template-columns:1fr; } }
       `}</style>
 
-      {/* 1. Top Announcement Bar */}
-      <div className="announcement-bar">
+      <div className="ann-bar">
         ⚡ 574 buyers are checking properties right now — Complete your report and lock in our 30-day money-back guarantee
       </div>
 
-      {/* 2. Centered Logo Header */}
-      <header className="checkout-header">
-        <div className="container">
-          <Link href="/" className="checkout-logo-link">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.svg" alt="Front Door Fax Logo" className="checkout-logo-img" />
-          </Link>
-          <br />
-          
-          {/* 3. Countdown Ticking Timer */}
-          <div className="countdown-ticker-box">
-            <Clock size={18} strokeWidth={2.5} />
-            <span>{formatTime(timeLeft)}</span>
+      <header className="co-header">
+        <Link href="/" className="co-logo-link">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.svg" alt="Front Door Fax" className="co-logo-img" />
+        </Link>
+        <div className="co-header-right">
+          <span className="co-secure-badge">
+            <ShieldCheck size={13} strokeWidth={2.5} style={{ color: 'var(--green-light)' }} />
+            Secure Checkout
+          </span>
+          <div className="co-timer">
+            <Clock size={13} strokeWidth={2.5} />
+            <span suppressHydrationWarning>{formatTime(timeLeft)}</span>
           </div>
         </div>
       </header>
 
-      <main className="container" style={{ padding: 0, maxWidth: '1040px' }}>
-        
-        {/* Core Checkout Layout Screen */}
+      <main className="co-main">
         {checkoutState !== 'success' && (
-          <div id="checkout-main-content">
-            
-            {/* 4. Editorial Copy intro block */}
-            <div className="page-intro-header">
-              <h1 className="page-intro-title">
-                Know what&apos;s in your water, air, and soil before you sign.
-              </h1>
-              <p className="page-intro-subtitle">
-                Property-specific reports compiled from <strong style={{ color: '#10b981' }}>15+ federal, state, and local agencies</strong> — so you can negotiate a better price or walk away before it&apos;s too late.
-              </p>
+          <>
+          {/* ── FEAR STAT — full width above grid ── */}
+          <div className="fear-block">
+            <div className="fear-row">
+              <div className="fear-left">
+                <div className="fear-warn-icon">⚠</div>
+                <div className="fear-num">633×</div>
+                <div className="fear-lbl">MORE EXPENSIVE<br/>IF YOU&apos;RE WRONG</div>
+              </div>
+              <div className="fear-right">
+                <p className="fear-subhead">You&apos;re signing a mortgage. You haven&apos;t checked if the property is contaminated.</p>
+                <p className="fear-text">
+                  Standard inspections <strong>cannot detect</strong> Superfund contamination, toxic groundwater, or soil hazards — and sellers aren&apos;t required to disclose what they don&apos;t test. Once the deed transfers, it&apos;s your liability. Your bill. Your problem. Forever.
+                </p>
+                <div className="fear-stats">
+                  <div className="fear-stat">
+                    <span className="fear-stat-num fear-stat-num-cta">$49</span>
+                    <span className="fear-stat-lbl">cost of this report</span>
+                  </div>
+                  <div className="fear-div" />
+                  <div className="fear-stat">
+                    <span className="fear-stat-num">$31K</span>
+                    <span className="fear-stat-lbl">avg remediation bill</span>
+                  </div>
+                  <div className="fear-div fear-hide-mobile" />
+                  <div className="fear-stat fear-hide-mobile">
+                    <span className="fear-stat-num fear-stat-num-alert">$0</span>
+                    <span className="fear-stat-lbl">recourse after closing</span>
+                  </div>
+                </div>
+                <div className="fear-source">Source: EPA Superfund Database · Bankrate Hidden Cost of Homeownership Survey 2024 · USGS National Water Quality Assessment</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="co-grid">
+
+            {/* ── LEFT COLUMN ── */}
+            <div className="co-left">
+
+              {/* Product card */}
+              <div className="prod-card">
+                <div className="prod-card-hdr">
+                  <div className="prod-card-brand">FRONT DOOR FAX™</div>
+                  <div className="prod-card-title">Environmental Risk Report</div>
+                  {addressLine1 && <div className="prod-card-addr">📍 {addressLine1}</div>}
+                </div>
+
+                {/* What's included */}
+                <div className="prod-body">
+                  <div className="prod-sub-lbl">WHAT&apos;S INCLUDED</div>
+                  <ul className="prod-list">
+                    {[
+                      'EPA ECHO & EJScreen contamination scan',
+                      'FEMA flood zone & disaster history',
+                      'Superfund & Brownfield proximity (2-mile radius)',
+                      'CDC radon zone & air quality index',
+                      'Property price negotiation script (PDF)',
+                    ].map((item, i) => (
+                      <li key={i}><Check size={13} className="prod-check" />{item}</li>
+                    ))}
+                  </ul>
+
+                  <div className="prod-guarantee">
+                    <div className="prod-guar-seal">30</div>
+                    <div>
+                      <div className="prod-guar-title">30-Day Money-Back Guarantee</div>
+                      <div className="prod-guar-text">No questions asked. If we don&apos;t surface a risk, you get a full refund.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Testimonials from REVIEWS */}
+              <div className="testi-list">
+                {REVIEWS.slice(0, 3).map((r, i) => (
+                  <div key={i} className="testi-item">
+                    <div className="testi-result">{r.result}</div>
+                    <div className="testi-stars">{'★'.repeat(r.stars)}</div>
+                    <p className="testi-text">{r.text}</p>
+                    <div className="testi-footer">
+                      <div className="testi-avatar" style={{ background: r.color }}>{r.initials}</div>
+                      <div>
+                        <div className="testi-name">{r.name} · {r.loc}</div>
+                        <div className="testi-badge">✓ {r.badge}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Data sources */}
+              <div className="data-src">
+                <div className="data-src-lbl">Data sourced from</div>
+                <div className="data-src-list">
+                  {['EPA ECHO', 'FEMA', 'CDC', 'USGS', 'EJScreen', 'NPL Registry'].map(s => (
+                    <span key={s} className="data-src-chip">{s}</span>
+                  ))}
+                </div>
+              </div>
             </div>
 
-            {/* 5. HORMOZI DIAGNOSTIC TRAP — Full width, single column */}
-            <DiagnosticTrap
-              prepProgress={prepProgress}
-              prepFinished={prepFinished}
-              addressLine1={addressLine1}
-              onScrollToForm={scrollToForm}
-            />
+            {/* ── RIGHT COLUMN ── */}
+            <div className="co-right">
 
-            {/* 6. Two-Column Checkout Layout */}
-            <div className="checkout-grid-split">
-              
-              {/* Left Column: Packages Selection, Receipts & Guarantees */}
-              <div>
-                
-                {/* Step 1 Header */}
-                <div className="step-title-row">
-                  <span className="step-number-circle">1</span>
-                  <span>Step 1: Select Your Diagnostic Package</span>
-                </div>
-
-                {/* Tab Switcher */}
-                <div className="tab-toggle-container">
-                  <button 
-                    type="button" 
-                    className={`tab-toggle-button ${purchaseType === 'save' ? 'active' : ''}`}
-                    onClick={() => handleTabChange('save')}
-                  >
+              {/* Package selector */}
+              <div className="co-card">
+                <div className="pkg-tabs">
+                  <button type="button" className={`pkg-tab ${purchaseType === 'save' ? 'active' : ''}`} onClick={() => handleTabChange('save')}>
                     ⚡ Save 42% — 5-Property Bundle
                   </button>
-                  <button 
-                    type="button" 
-                    className={`tab-toggle-button ${purchaseType === 'onetime' ? 'active' : ''}`}
-                    onClick={() => handleTabChange('onetime')}
-                  >
-                    Single Report — 1 Property
+                  <button type="button" className={`pkg-tab ${purchaseType === 'onetime' ? 'active' : ''}`} onClick={() => handleTabChange('onetime')}>
+                    Single Report
                   </button>
                 </div>
 
-                {/* Supply Warning board */}
-                <div className="availability-meter-panel">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '0.72rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '0.5px' }}>FEDERAL DATABASE QUERY LOAD</span>
-                    <span style={{ background: '#FEF2F2', border: '1px solid rgba(16,185,129,0.15)', color: '#10B981', fontSize: '0.65rem', fontWeight: 900, padding: '2px 10px', borderRadius: '99px', textTransform: 'uppercase' }}>HIGH SEARCH VOLUME</span>
+                <div className="supply-warn">
+                  <div className="supply-warn-top">
+                    <span className="supply-warn-lbl">FEDERAL DATABASE QUERY LOAD</span>
+                    <span className="supply-warn-badge">HIGH VOLUME</span>
                   </div>
-                  <div className="availability-bar-grid">
-                    <span className="availability-bar-block active"></span>
-                    <span className="availability-bar-block active"></span>
-                    <span className="availability-bar-block active"></span>
-                    <span className="availability-bar-block active"></span>
-                    <span className="availability-bar-block active"></span>
-                    <span className="availability-bar-block active"></span>
-                    <span className="availability-bar-block active"></span>
-                    <span className="availability-bar-block inactive"></span>
-                    <span className="availability-bar-block inactive"></span>
-                    <span className="availability-bar-block inactive"></span>
+                  <div className="supply-bars">
+                    {Array.from({ length: 10 }, (_, i) => (
+                      <span key={i} className={`supply-bar ${i < 7 ? 'on' : 'off'}`} />
+                    ))}
                   </div>
-                  <p style={{ color: '#059669', fontSize: '0.75rem', fontWeight: 700, margin: '4px 0 0 0', lineHeight: 1.3 }}>High query volume detected. Complete checkout now to guarantee priority 5-minute report delivery.</p>
+                  <p className="supply-warn-txt">High query volume detected. Complete checkout now to guarantee priority 5-minute delivery.</p>
                 </div>
 
-                {/* Selector cards */}
-                {/* 1 Property Card */}
-                <div 
-                  className={`package-selector-card ${selectedPackage === 'single' ? 'active' : ''}`}
-                  onClick={() => setSelectedPackage('single')}
-                >
-                  <input 
-                    type="radio" 
-                    name="printQtyRadio" 
-                    checked={selectedPackage === 'single'}
-                    onChange={() => setSelectedPackage('single')}
-                    style={{ accentColor: 'var(--accent-primary, #10b981)', cursor: 'pointer' }}
-                  />
-                  <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-                    <div className="package-image-placeholder">
-                      <FileText size={20} />
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-primary)' }}>Single Property Report — 30% Off Today</div>
-                      <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '2px 0 0 0', lineHeight: 1.3 }}>1 full environmental report. PDF delivered to your inbox.</p>
-                    </div>
+                <div className={`pkg-card ${selectedPackage === 'single' ? 'active' : ''}`} onClick={() => setSelectedPackage('single')}>
+                  <input type="radio" name="pkg" checked={selectedPackage === 'single'} onChange={() => setSelectedPackage('single')} style={{ accentColor: 'var(--green-light)', cursor: 'pointer' }} />
+                  <div className="pkg-icon"><FileText size={18} /></div>
+                  <div>
+                    <div className="pkg-name">Single Report — 30% Off Today</div>
+                    <div className="pkg-desc">1 full environmental report · PDF to your inbox</div>
                   </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '0.7rem', color: '#EF4444', textDecoration: 'line-through', fontWeight: 700 }}>Reg $69</div>
-                    <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)' }}>$49.00 each</div>
-                    <div style={{ fontSize: '0.72rem', color: '#10B981', fontWeight: 800 }}>Saved $20</div>
-                    <div style={{ fontSize: '0.62rem', color: '#3B82F6', fontWeight: 900, textTransform: 'uppercase', marginTop: '2px' }}>FREE NEGOTIATION SCRIPT</div>
+                  <div className="pkg-price">
+                    <div className="pkg-price-reg">Reg $69</div>
+                    <div className="pkg-price-now">$49</div>
+                    <div className="pkg-price-save">Save $20</div>
                   </div>
                 </div>
 
-                {/* 5 Properties Card (Gold/Green Special) */}
-                <div 
-                  className={`package-selector-card most-popular ${selectedPackage === 'bundle' ? 'active' : ''}`}
-                  onClick={() => setSelectedPackage('bundle')}
-                >
-                  <div className="most-popular-tag-ribbon" style={{ backgroundColor: '#10B981' }}>
-                    <Star size={10} fill="currentColor" stroke="none" />
-                    Best Value
+                <div className={`pkg-card popular ${selectedPackage === 'bundle' ? 'active' : ''}`} onClick={() => setSelectedPackage('bundle')}>
+                  <div className="pkg-pop-tag">★ Best Value</div>
+                  <input type="radio" name="pkg" checked={selectedPackage === 'bundle'} onChange={() => setSelectedPackage('bundle')} style={{ accentColor: 'var(--green-light)', cursor: 'pointer' }} />
+                  <div className="pkg-icon"><ShieldAlert size={18} /></div>
+                  <div>
+                    <div className="pkg-name">5-Property Bundle — Save 42%</div>
+                    <div className="pkg-desc">Scan 5 properties · Compare & choose safest · 6 months valid</div>
                   </div>
-                  <input 
-                    type="radio" 
-                    name="printQtyRadio" 
-                    checked={selectedPackage === 'bundle'}
-                    onChange={() => setSelectedPackage('bundle')}
-                    style={{ accentColor: '#10B981', cursor: 'pointer' }}
-                  />
-                  <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-                    <div className="package-image-placeholder" style={{ borderColor: '#A7F3D0' }}>
-                      <ShieldAlert size={20} />
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        5-Property Bundle — Save 42%
-                        <span style={{ background: '#10B981', color: '#ffffff', fontSize: '0.58rem', fontWeight: 900, padding: '1px 6px', borderRadius: '99px' }}>POPULAR</span>
-                      </div>
-                      <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: '2px 0 0 0', lineHeight: 1.3 }}>Scan up to 5 properties. Identify the safest one. Valid 6 months.</p>
-                    </div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div style={{ fontSize: '0.7rem', color: '#EF4444', textDecoration: 'line-through', fontWeight: 700 }}>Reg $345</div>
-                    <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)' }}>$39.80 each</div>
-                    <div style={{ fontSize: '0.72rem', color: '#10B981', fontWeight: 800 }}>Saved $146</div>
-                    <div style={{ fontSize: '0.62rem', color: '#3B82F6', fontWeight: 900, textTransform: 'uppercase', marginTop: '2px' }}>FREE COMPARISON TABLE</div>
+                  <div className="pkg-price">
+                    <div className="pkg-price-reg">Reg $345</div>
+                    <div className="pkg-price-now">$199</div>
+                    <div className="pkg-price-save">Save $146</div>
                   </div>
                 </div>
 
-                {/* Computed Receipt details */}
-                <div className="itemized-receipt-container">
+                <div className="receipt">
                   <div className="receipt-row">
                     <span>{priceInfo.name}</span>
                     <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>${priceInfo.price.toFixed(2)}</span>
                   </div>
                   {promoApplied && (
-                    <div className="receipt-row" style={{ color: '#10B981', fontWeight: 700 }}>
-                      <span>Coupon Discount ({promoCode.toUpperCase()})</span>
+                    <div className="receipt-row receipt-discount">
+                      <span>Promo ({promoCode.toUpperCase()})</span>
                       <span>-${discountAmount.toFixed(2)}</span>
                     </div>
                   )}
-                  <div className="receipt-row">
-                    <span>Database Querying & GIS Geocoding</span>
-                    <span style={{ color: '#10B981', fontWeight: 800, textTransform: 'uppercase', fontSize: '0.75rem' }}>FREE</span>
+                  <hr className="receipt-sep" />
+                  <div className="receipt-bonus">
+                    <span className="receipt-bonus-lbl">✓ Buyer Negotiation Script (PDF)</span>
+                    <span className="receipt-free">FREE</span>
                   </div>
-                  <div className="receipt-row">
-                    <span>Negotiation PDF Builder Tool</span>
-                    <span style={{ color: '#10B981', fontWeight: 800, textTransform: 'uppercase', fontSize: '0.75rem' }}>FREE</span>
+                  <div className="receipt-bonus">
+                    <span className="receipt-bonus-lbl">✓ Instant digital delivery (under 2 min)</span>
+                    <span className="receipt-incl">INSTANT</span>
                   </div>
-                  <div className="receipt-row receipt-total-row">
-                    <span>Total due today:</span>
-                    <span style={{ color: '#10B981' }}>${finalPrice.toFixed(2)}</span>
+                  <div className="receipt-bonus">
+                    <span className="receipt-bonus-lbl">✓ EPA · FEMA · USGS data — 48 states</span>
+                    <span className="receipt-incl">INCLUDED</span>
                   </div>
-                </div>
-
-                {/* Saved sticker card (Blue Badge) */}
-                <div className="saved-card-dotted">
-                  <div className="saved-card-badge">
-                    TODAY<br />YOU SAVED
+                  <div className="receipt-bonus">
+                    <span className="receipt-bonus-lbl">✓ 30-day money-back guarantee</span>
+                    <span className="receipt-incl">INCLUDED</span>
                   </div>
-                  <div className="saved-card-amount-pane">
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Environmental Diagnostic Savings</div>
-                    <div style={{ fontSize: '1.6rem', fontWeight: 900, color: '#059669' }}>-${totalSavings.toFixed(2)}</div>
-                    <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>on your complete hazard report suite compiled for {addressLine1 || "your target US address"}</div>
-                  </div>
-                </div>
-
-                {/* Guarantee Seal stamp card */}
-                <div className="guarantee-gold-card">
-                  <svg className="gold-stamp-seal-svg" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="42" fill="#E6F4EA" stroke="#10B981" strokeWidth="2.5" />
-                    <circle cx="50" cy="50" r="37" fill="none" stroke="#10B981" strokeWidth="1" strokeDasharray="2,2" />
-                    <path d="M 38,72 L 32,95 L 48,88 L 64,95 L 58,72 Z" fill="#10B981" opacity="0.85" />
-                    <path d="M 44,72 L 50,95 L 56,92 L 62,95 L 54,72 Z" fill="#047857" opacity="0.6" />
-                    <circle cx="50" cy="46" r="22" fill="#10B981" />
-                    <polygon points="50,34 54.5,42.5 64,43.5 57,50 59,59 50,54 41,59 43,50 36,43.5 45.5,42.5" fill="#ffffff" />
-                    <text x="50" y="78" fill="#047857" fontFamily="'Inter', sans-serif" fontSize="6.5" fontWeight="900" textAnchor="middle" letterSpacing="0.2">30-DAY GUARANTEE</text>
-                  </svg>
-                  <div>
-                    <h4 style={{ fontSize: '0.9rem', fontWeight: 800, color: '#047857', margin: '0 0 4px 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>30-Day Money-Back Guarantee:</h4>
-                    <p style={{ fontSize: '0.75rem', color: '#065F46', margin: 0, lineHeight: 1.4 }}>
-                      We cross-reference direct government datasets. If our report fails to surface hidden hazard risks, highlight air or water contaminants, or give you a clear edge when negotiating price, simply request a full, hassle-free refund.
-                    </p>
+                  <div className="receipt-total">
+                    <div className="receipt-total-left">
+                      <span className="receipt-total-label">Total due today</span>
+                      <span className="receipt-total-sub">One-time · No subscription · No renewal</span>
+                    </div>
+                    <div className="receipt-total-right">
+                      <span className="receipt-total-price">${finalPrice.toFixed(2)}</span>
+                      <span className="receipt-total-lock">🔒 Secure checkout</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Trust checklists */}
-                <ul className="trust-check-list">
-                  <li>Vetted Government Datasets (EPA ECHO, EJScreen, FEMA, NOAA, USGS, CDC)</li>
-                  <li>Deep-dive heavy metals drinking water audits (Lead, PFAS, nitrates, disinfection byproducts)</li>
-                  <li>Real-time local Air Quality Index with 5-year criteria historical averages</li>
-                  <li>Interactive Soil Diagnostics scanning Superfund proximity and toxic spill registries</li>
-                  <li>Property price negotiation toolkit including specific, structured dialogue talking points</li>
-                </ul>
-
+                <div className="savings-badge">
+                  <div className="savings-sticker">TODAY<br/>YOU<br/>SAVED</div>
+                  <div className="savings-main">
+                    <div className="savings-num">-${totalSavings.toFixed(2)}</div>
+                    <div className="savings-desc">vs. regular ${priceInfo.reg.toFixed(2)}{addressLine1 ? ` · ${addressLine1}` : ''}</div>
+                  </div>
+                  <div className="savings-vdiv" />
+                  <div className="savings-contrast">
+                    <div className="savings-contrast-num">vs $31K</div>
+                    <div className="savings-contrast-lbl">avg remediation<br/>without this report</div>
+                  </div>
+                </div>
               </div>
 
-              {/* Right Column: Contact fields, Autocompletes, dynamic payment switches & submit */}
-              <div>
-                
-                <form id="shipping-payment-form" onSubmit={handleFormSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                  
-                  {/* Step 2 contact/property form */}
-                  <div>
-                    <div className="step-title-row">
-                      <span className="step-number-circle">2</span>
-                      <span>Step 2: Your Property &amp; Contact Details</span>
-                    </div>
+              {/* Form */}
+              <form id="checkout-form" onSubmit={handleFormSubmit} className="co-form">
+                <div className="form-2">
+                  <input type="text" placeholder="First Name" id="ship-firstname" required className="co-input" value={firstName} onChange={e => setFirstName(e.target.value)} />
+                  <input type="text" placeholder="Last Name" required className="co-input" value={lastName} onChange={e => setLastName(e.target.value)} />
+                </div>
+                <input type="email" placeholder="Email Address" required className="co-input" value={email} onChange={e => setEmail(e.target.value)} onBlur={handleLeadEmailBlur} />
+                <input type="tel" placeholder="Phone (optional)" className="co-input" value={phone} onChange={e => setPhone(e.target.value)} />
 
-                    <div className="shipping-grid-2col">
-                      <div>
-                        <input 
-                          type="text" 
-                          placeholder="First Name" 
-                          id="ship-firstname" 
-                          required 
-                          className="shipping-input-box"
-                          value={firstName}
-                          onChange={(e) => setFirstName(e.target.value)}
-                        />
-                      </div>
-                      <div>
-                        <input 
-                          type="text" 
-                          placeholder="Last Name" 
-                          id="ship-lastname" 
-                          required 
-                          className="shipping-input-box"
-                          value={lastName}
-                          onChange={(e) => setLastName(e.target.value)}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="shipping-full-row">
-                      <input 
-                        type="email" 
-                        placeholder="Email Address" 
-                        id="ship-email" 
-                        required 
-                        className="shipping-input-box"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        onBlur={handleLeadEmailBlur}
-                      />
-                    </div>
-
-                    <div className="shipping-full-row">
-                      <input
-                        type="tel"
-                        placeholder="Phone Number (optional)"
-                        id="ship-phone"
-                        className="shipping-input-box"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                      />
-                    </div>
-
-                    {/* Address Line 1 with live custom suggestion list dropdown */}
-                    <div className="shipping-full-row">
-                      <input 
-                        type="text" 
-                        placeholder="Property Address (e.g. 123 Beacon Street)" 
-                        id="ship-address1" 
-                        autoComplete="off" 
-                        required 
-                        className="shipping-input-box"
-                        value={addressLine1}
-                        onChange={(e) => handleAddressChange(e.target.value)}
-                        onBlur={() => {
-                          if (addressLine1.trim() && addressLine1.trim() !== lastScannedAddress.current) {
-                            lastScannedAddress.current = addressLine1.trim();
-                            setPrepFinished(false);
-                          }
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            e.preventDefault();
-                            if (addressLine1.trim() && addressLine1.trim() !== lastScannedAddress.current) {
-                              lastScannedAddress.current = addressLine1.trim();
-                              setPrepFinished(false);
-                            }
-                          }
-                        }}
-                      />
-                      {showSuggestions && suggestions.length > 0 && (
-                        <div className="autocomplete-suggestions-box">
-                          {suggestions.map((prediction, idx) => (
-                            <div 
-                              key={idx} 
-                              className="autocomplete-suggestion-item"
-                              onClick={() => handleSuggestionClick(prediction)}
-                            >
-                              <span className="autocomplete-pin-icon">📍</span>
-                              <span>{prediction.description}</span>
-                            </div>
-                          ))}
+                <div className="form-auto">
+                  <input type="text" placeholder="Property Address (e.g. 123 Beacon St)" id="ship-address1" autoComplete="off" required className="co-input" value={addressLine1} onChange={e => setAddressLine1(e.target.value)} />
+                  {showSuggestions && suggestions.length > 0 && (
+                    <div className="autocomplete-suggestions-box">
+                      {suggestions.map((p, i) => (
+                        <div key={i} className="autocomplete-suggestion-item" onClick={() => handleSuggestionClick(p)}>
+                          <span className="autocomplete-pin-icon">📍</span>
+                          <span>{p.description}</span>
                         </div>
-                      )}
+                      ))}
                     </div>
+                  )}
+                </div>
 
-                    <div className="shipping-full-row">
-                      <input 
-                        type="text" 
-                        placeholder="Unit, Apt, or Suite (Optional)" 
-                        id="ship-address2" 
-                        className="shipping-input-box"
-                        value={addressLine2}
-                        onChange={(e) => setAddressLine2(e.target.value)}
-                      />
-                    </div>
+                <input type="text" placeholder="Unit / Apt (optional)" className="co-input" value={addressLine2} onChange={e => setAddressLine2(e.target.value)} />
+                <input type="text" placeholder="City" required className="co-input" value={city} onChange={e => setCity(e.target.value)} />
+                <div className="form-2">
+                  <select className="co-input" value={country} onChange={e => setCountry(e.target.value)}>
+                    <option value="United States">United States</option>
+                    <option value="Canada">Canada</option>
+                  </select>
+                  <input type="text" placeholder="State / Province" required className="co-input" value={shippingState} onChange={e => setShippingState(e.target.value)} />
+                </div>
+                <input type="text" placeholder="ZIP Code" required className="co-input" value={zipCode} onChange={e => setZipCode(e.target.value)} />
 
-                    <div className="shipping-full-row">
-                      <input 
-                        type="text" 
-                        placeholder="City" 
-                        id="ship-city" 
-                        required 
-                        className="shipping-input-box"
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                      />
-                    </div>
+                <div className="cta-wrap">
+                  <button type="submit" className="cta-btn">
+                    <Lock size={16} strokeWidth={2.5} />
+                    Get My Environmental Report — ${finalPrice.toFixed(2)}
+                  </button>
+                  <p className="cta-sub">🔒 256-bit encrypted · 30-day guarantee · Instant delivery</p>
+                </div>
+              </form>
+            </div>
+          </div>
+          </>
+        )}
 
-                    <div className="shipping-grid-2col">
-                      <div>
-                        <select 
-                          id="ship-country" 
-                          className="shipping-input-box"
-                          value={country}
-                          onChange={(e) => setCountry(e.target.value)}
-                        >
-                          <option value="United States">United States</option>
-                          <option value="Canada">Canada</option>
-                        </select>
-                      </div>
-                      <div>
-                        <input 
-                          type="text" 
-                          placeholder="State / Province" 
-                          id="ship-state" 
-                          required 
-                          className="shipping-input-box"
-                          value={shippingState}
-                          onChange={(e) => setShippingState(e.target.value)}
-                        />
-                      </div>
-                    </div>
+        {/* ── REVIEWS SECTION ── */}
+        {checkoutState === 'idle' && (
+          <div className="rev-section">
 
-                    <div className="shipping-full-row">
-                      <input 
-                        type="text" 
-                        placeholder="ZIP Code / Postal Code" 
-                        id="ship-zip" 
-                        required 
-                        className="shipping-input-box"
-                        value={zipCode}
-                        onChange={(e) => setZipCode(e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Step 3 Secure dynamic payments */}
-                  <div>
-                    {/* Dual toggles */}
-                    <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
-                      <button 
-                        type="button" 
-                        className={`payment-toggle-btn ${paymentMethod === 'paypal' ? 'active-paypal' : ''}`}
-                        onClick={() => setPaymentMethod('paypal')}
-                      >
-                        PayPal QuickPay
-                      </button>
-                      <button 
-                        type="button" 
-                        className={`payment-toggle-btn ${paymentMethod === 'card' ? 'active-card' : ''}`}
-                        onClick={() => setPaymentMethod('card')}
-                      >
-                        Credit / Debit Card
-                      </button>
-                    </div>
-
-                    {/* PayPal yellow pill pane */}
-                    {paymentMethod === 'paypal' && (
-                      <div id="payment-pane-paypal">
-                        <button type="submit" className="paypal-checkout-btn-yellow">
-                          <span style={{ fontStyle: 'italic', fontSize: '1.15rem', fontWeight: 900, color: '#1E3A8A', fontFamily: "'Inter', sans-serif" }}>
-                            Pay<span style={{ color: '#3B82F6' }}>Pal</span>
-                          </span>
-                        </button>
-                      </div>
-                    )}
-
-                    {/* CC Form panel */}
-                    {paymentMethod === 'card' && (
-                      <div id="payment-pane-card">
-                        <div className="credit-card-form-embedded">
-                          <div className="cc-header-bar">
-                            <span style={{ fontSize: '0.72rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '0.5px' }}>SECURE CARD GATEWAY</span>
-                            <div style={{ display: 'flex', gap: '6px' }}>
-                              <span style={{ fontStyle: 'italic', fontSize: '0.55rem', fontWeight: 900, color: '#1A1F71', background: '#ffffff', padding: '1px 4px', border: '1px solid #e4e4e7', borderRadius: '2px' }}>VISA</span>
-                              <span style={{ fontStyle: 'italic', fontSize: '0.55rem', fontWeight: 900, color: '#EB001B', background: '#ffffff', padding: '1px 4px', border: '1px solid #e4e4e7', borderRadius: '2px' }}>MC</span>
-                            </div>
-                          </div>
-
-                          <div className="shipping-full-row" style={{ position: 'relative' }}>
-                            <input 
-                              type="text" 
-                              placeholder="Card Number" 
-                              required 
-                              className="shipping-input-box" 
-                              style={{ paddingRight: '36px' }}
-                              value={ccNumber}
-                              onChange={(e) => setCcNumber(e.target.value)}
-                            />
-                            <Lock size={14} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#A1A1AA' }} />
-                          </div>
-
-                          <div className="shipping-grid-2col" style={{ marginBottom: 0 }}>
-                            <div>
-                              <input 
-                                type="text" 
-                                placeholder="CVV" 
-                                required 
-                                className="shipping-input-box"
-                                value={ccCsc}
-                                onChange={(e) => setCcCsc(e.target.value)}
-                              />
-                            </div>
-                            <div style={{ display: 'flex', gap: '6px' }}>
-                              <select 
-                                className="shipping-input-box"
-                                value={ccMonth}
-                                onChange={(e) => setCcMonth(e.target.value)}
-                              >
-                                <option value="January">Jan (01)</option>
-                                <option value="February">Feb (02)</option>
-                                <option value="March">Mar (03)</option>
-                                <option value="April">Apr (04)</option>
-                                <option value="May">May (05)</option>
-                                <option value="June">Jun (06)</option>
-                                <option value="July">Jul (07)</option>
-                                <option value="August">Aug (08)</option>
-                                <option value="September">Sep (09)</option>
-                                <option value="October">Oct (10)</option>
-                                <option value="November">Nov (11)</option>
-                                <option value="December">Dec (12)</option>
-                              </select>
-                              <select 
-                                className="shipping-input-box"
-                                value={ccYear}
-                                onChange={(e) => setCcYear(e.target.value)}
-                              >
-                                <option value="2026">2026</option>
-                                <option value="2027">2027</option>
-                                <option value="2028">2028</option>
-                              </select>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Coupons input field */}
-                    <div style={{ display: 'flex', gap: '10px', marginTop: '18px', borderTop: '1px dashed #e4e4e7', paddingTop: '18px' }}>
-                      <input 
-                        type="text" 
-                        placeholder="Promo Code (e.g. WELCOME10)" 
-                        className="shipping-input-box" 
-                        style={{ flex: 1 }}
-                        value={promoCode}
-                        onChange={(e) => setPromoCode(e.target.value)}
-                      />
-                      <button 
-                        type="button" 
-                        className="btn" 
-                        style={{ padding: '10px 18px', fontSize: '0.85rem', fontWeight: 800, border: '1px solid #e4e4e7', backgroundColor: '#F4F4F5', color: 'var(--text-primary)', borderRadius: '6px', cursor: 'pointer', height: 'auto' }} 
-                        onClick={handleApplyPromo}
-                      >
-                        Apply
-                      </button>
-                    </div>
-                    {promoError && (
-                      <p style={{ color: '#EF4444', fontSize: '0.75rem', fontWeight: 700, margin: '6px 0 0 0' }}>{promoError}</p>
-                    )}
-                    {promoSuccess && (
-                      <p style={{ color: '#10B981', fontSize: '0.75rem', fontWeight: 800, margin: '6px 0 0 0' }}>{promoSuccess}</p>
-                    )}
-
-                    {/* Submit purchase & compliance notice */}
-                    <div style={{ marginTop: '24px' }}>
-                      <p style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', lineHeight: 1.45, textAlign: 'center', marginBottom: '14px' }}>
-                        By clicking below you authorize Front Door Fax to compile environmental data for your target property address. Your payment is processed over a fully encrypted, bank-grade secure gateway.
-                      </p>
-                      
-                      <button type="submit" className="complete-purchase-btn-green">
-                        <Lock size={16} strokeWidth={2.5} />
-                        COMPLETE REPORT SCAN — ${finalPrice.toFixed(2)}
-                      </button>
-                    </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '16px' }}>
-                      <ShieldCheck size={14} strokeWidth={2.5} style={{ color: '#10B981' }} />
-                      <span style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--text-secondary)', letterSpacing: '0.5px' }}>SECURE 256-BIT ENCRYPTED CHECKOUT</span>
-                    </div>
-
-                  </div>
-
-                </form>
-
-              </div>
-
+            {/* Stats bar */}
+            <div className="rev-stats-bar">
+              {[
+                { num: '48,291', lbl: 'Reports Delivered' },
+                { num: '$2.1M+', lbl: 'Negotiated by Buyers' },
+                { num: '4.9 / 5', lbl: 'Average Rating' },
+                { num: '94%', lbl: 'Found Hidden Risks' },
+              ].map((s, i) => (
+                <div key={i} className="rev-stat">
+                  <div className="rev-stat-num">{s.num}</div>
+                  <div className="rev-stat-lbl">{s.lbl}</div>
+                </div>
+              ))}
             </div>
 
-            {/* ── REVIEWS SECTION ── */}
-            <div style={{ borderTop: '1px solid var(--border)', marginTop: 60, paddingTop: 60 }}>
-              <ReviewsSection onScrollToForm={scrollToForm} />
+            {/* Heading */}
+            <div className="rev-heading">
+              <div className="rev-tag">✓ Verified Customer Results</div>
+              <h2>Real buyers. Specific numbers. Documented outcomes.</h2>
+              <p>Every testimonial below names the exact result — not vague praise, not generic satisfaction. Outcomes only.</p>
             </div>
 
-            {/* 10. Sticky bottom action bar floating banner */}
-            <div className="sticky-action-banner">
-              <div>
-                <span style={{ fontSize: '0.72rem', fontWeight: 900, color: '#10B981', textTransform: 'uppercase', letterSpacing: '1px' }}>LIMITED-TIME OFFER</span>
-                <div style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                  Know what&apos;s hiding near your property — ${finalPrice.toFixed(2)} today, 30-day guarantee
+            {/* Review grid */}
+            <div className="rev-grid">
+              {REVIEWS.map((r, i) => (
+                <div key={i} className="rev-card">
+                  <div className="rev-result">{r.result}</div>
+                  <div className="rev-stars">{'★'.repeat(r.stars)}</div>
+                  <p className="rev-text">{r.text}</p>
+                  <div className="rev-footer">
+                    <div className="rev-avatar" style={{ background: r.color }}>{r.initials}</div>
+                    <div className="rev-author">
+                      <span className="rev-name">{r.name}</span>
+                      <span className="rev-loc">{r.loc}</span>
+                      <span className="rev-badge">✓ {r.badge}</span>
+                    </div>
+                  </div>
                 </div>
+              ))}
+            </div>
+
+            {/* CTA dark strip */}
+            <div className="rev-cta-bar">
+              <div className="rev-cta-left">
+                <h3>Don&apos;t close without knowing.</h3>
+                <p>Join 48,291 buyers who checked before signing. <strong style={{ color: '#10b981' }}>$49 · 30-day money-back guarantee.</strong></p>
               </div>
-              <button
-                type="button"
-                className="complete-purchase-btn-green"
-                style={{ width: 'auto', padding: '12px 32px', fontSize: '0.95rem', borderRadius: '6px' }}
-                onClick={scrollToForm}
-              >
+              <button type="button" className="rev-cta-btn" onClick={scrollToForm}>
                 Get My Property Report →
               </button>
             </div>
@@ -3050,37 +884,44 @@ function GetStartedContent() {
           </div>
         )}
 
-        {/* 8. Technical simulated layout compiling logs overlay */}
-        {checkoutState === 'processing' && (
-          <div className="preservation-terminal-overlay">
-            <div className="terminal-box">
-              <div className="terminal-header">
-                <div className="terminal-dots">
-                  <span className="terminal-dot red"></span>
-                  <span className="terminal-dot yellow"></span>
-                  <span className="terminal-dot green"></span>
-                </div>
-                <span style={{ fontSize: '0.7rem', color: '#10B981', opacity: 0.7, fontWeight: 700, textTransform: 'uppercase' }}>Front Door Fax Database compiler v4.5</span>
-              </div>
+        {/* Sticky bottom bar */}
+        {checkoutState === 'idle' && (
+          <div className="sticky-bar">
+            <div>
+              <div style={{ fontSize: '0.68rem', fontWeight: 900, color: '#10b981', textTransform: 'uppercase', letterSpacing: '1px' }}>Limited-Time Offer</div>
+              <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>Know what&apos;s hiding near your property — ${finalPrice.toFixed(2)} today, 30-day guarantee</div>
+            </div>
+            <button type="button" className="sticky-bar-btn" onClick={scrollToForm}>Get My Report →</button>
+          </div>
+        )}
 
-              <div className="terminal-logs">
-                {terminalLogs.map((log, index) => (
-                  <div key={index} className="terminal-row">
-                    {index < terminalLogs.length - 1 ? (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="3" style={{ flexShrink: 0 }}><polyline points="20 6 9 17 4 12"></polyline></svg>
+        {/* Processing terminal overlay */}
+        {checkoutState === 'processing' && (
+          <div className="term-overlay">
+            <div className="term-box">
+              <div className="term-hdr">
+                <div className="term-dots">
+                  <span className="term-dot r" /><span className="term-dot y" /><span className="term-dot g" />
+                </div>
+                <span style={{ fontSize: '0.68rem', color: '#10b981', opacity: 0.7, fontWeight: 700, textTransform: 'uppercase' }}>Front Door Fax Database Compiler v4.5</span>
+              </div>
+              <div className="term-logs">
+                {terminalLogs.map((log, i) => (
+                  <div key={i} className="term-row">
+                    {i < terminalLogs.length - 1 ? (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="3" style={{ flexShrink: 0 }}><polyline points="20 6 9 17 4 12" /></svg>
                     ) : (
-                      <span className="animate-spin" style={{ display: 'inline-block', width: '14px', height: '14px', border: '2px solid #10B981', borderTopColor: 'transparent', borderRadius: '50%', flexShrink: 0 }}></span>
+                      <span style={{ display: 'inline-block', width: 14, height: 14, border: '2px solid #10b981', borderTopColor: 'transparent', borderRadius: '50%', flexShrink: 0, animation: 'co-spin .8s linear infinite' }} />
                     )}
                     <span>{log}</span>
                   </div>
                 ))}
                 <div ref={terminalLogsEndRef} />
               </div>
-
-              <div style={{ borderTop: '1px solid rgba(16,185,129,0.1)', paddingTop: '18px', marginTop: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.78rem', opacity: 0.6 }}>
-                <span>Scanning property for: <strong style={{ color: '#ffffff' }}>{firstName} {lastName}</strong></span>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#FF5F56', display: 'block', animation: 'pulse 1s infinite' }}></span>
+              <div style={{ borderTop: '1px solid rgba(16,185,129,.1)', paddingTop: 16, marginTop: 22, display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.76rem', opacity: 0.6 }}>
+                <span>Scanning for: <strong style={{ color: '#fff' }}>{firstName} {lastName}</strong></span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#ff5f56', display: 'block' }} />
                   SECURED MULTI-SERVER QUERY
                 </span>
               </div>
@@ -3088,55 +929,44 @@ function GetStartedContent() {
           </div>
         )}
 
-        {/* 9. Gorgeous success invoice receipt panel */}
+        {/* Success screen */}
         {checkoutState === 'success' && (
-          <div className="success-outer-panel" id="success-screen">
+          <div className="success-outer" id="success-screen">
             <div className="success-card">
-              <div className="success-tick-outer">
-                <Check size={42} strokeWidth={3} style={{ color: '#10B981' }} />
+              <div className="success-tick">
+                <Check size={40} strokeWidth={3} style={{ color: '#10b981' }} />
               </div>
-
-              <span style={{ textTransform: 'uppercase', color: '#10B981', fontSize: '0.85rem', fontWeight: 800, letterSpacing: '1.5px' }}>Property Scan Complete &amp; Verified</span>
-              <h1 style={{ fontSize: '2.3rem', fontWeight: 800, margin: '12px 0 16px 0', letterSpacing: '-0.03em', lineHeight: 1.2 }}>Your Property Environmental Report is Ready</h1>
-              
-              <p style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', lineHeight: 1.6, maxWidth: '620px', margin: '0 auto 36px auto' }}>
-                Payment of <strong style={{ color: 'var(--text-primary)' }}>${finalPrice.toFixed(2)}</strong> confirmed. We&apos;ve compiled and verified your full environmental data for <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{addressLine1}</span>. Your PDF report and negotiation letters have been sent to <strong style={{ color: 'var(--text-primary)' }}>{email}</strong>.
+              <span style={{ textTransform: 'uppercase', color: '#10b981', fontSize: '0.82rem', fontWeight: 800, letterSpacing: '1.5px' }}>Property Scan Complete &amp; Verified</span>
+              <h1 style={{ fontSize: '2.1rem', fontWeight: 800, margin: '10px 0 14px', letterSpacing: '-0.03em', lineHeight: 1.2 }}>Your Environmental Report is Ready</h1>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: 1.6, maxWidth: '560px', margin: '0 auto 32px' }}>
+                Payment of <strong style={{ color: 'var(--text-primary)' }}>${finalPrice.toFixed(2)}</strong> confirmed. Your PDF report and negotiation letters have been sent to <strong style={{ color: 'var(--text-primary)' }}>{email}</strong>.
               </p>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', maxWidth: '400px', margin: '0 auto' }}>
-                <button 
-                  type="button" 
-                  className="complete-purchase-btn-green" 
-                  style={{ background: 'linear-gradient(135deg, #10B981, #059669)', boxShadow: '0 4px 15px rgba(16,185,129,0.25)' }} 
-                  onClick={() => alert('Simulation: Fetching secure environmental health report PDF payload from server...')}
-                >
-                  <Sparkles size={18} strokeWidth={2.5} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 380, margin: '0 auto' }}>
+                <button type="button" className="success-dl-btn" onClick={() => alert('Simulation: Fetching your report PDF…')}>
+                  <Sparkles size={17} strokeWidth={2.5} />
                   Download Complete PDF Report
                 </button>
-                <Link href="/dashboard" style={{ width: '100%', padding: '14px', fontSize: '0.95rem', background: '#ffffff', color: 'var(--text-secondary)', border: '1px solid #e4e4e7', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: '700', borderRadius: '6px' }}>
+                <Link href="/dashboard" style={{ width: '100%', padding: '13px', fontSize: '0.9rem', background: '#fff', color: 'var(--text-secondary)', border: '1px solid #e4e4e7', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, borderRadius: '6px' }}>
                   Return to Dashboard
                 </Link>
               </div>
-
-              <div style={{ background: '#FAFDFC', border: '1px solid #e4e4e7', borderRadius: '12px', padding: '24px', marginTop: '44px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '20px', textAlign: 'left' }}>
+              <div className="success-meta">
                 <div>
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', textTransform: 'uppercase', display: 'block', marginBottom: '4px', fontWeight: 700, letterSpacing: '0.5px' }}>Transaction Reference</span>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)', fontFamily: 'monospace' }}>FDF-2026-9842A</span>
+                  <span className="success-meta-lbl">Transaction Reference</span>
+                  <span className="success-meta-val">FDF-2026-9842A</span>
                 </div>
                 <div>
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', textTransform: 'uppercase', display: 'block', marginBottom: '4px', fontWeight: 700, letterSpacing: '0.5px' }}>Delivery Destination</span>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{email}</span>
+                  <span className="success-meta-lbl">Delivery Destination</span>
+                  <span className="success-meta-val" style={{ fontFamily: 'inherit', fontSize: '0.83rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{email}</span>
                 </div>
                 <div>
-                  <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', textTransform: 'uppercase', display: 'block', marginBottom: '4px', fontWeight: 700, letterSpacing: '0.5px' }}>Scope Vetted</span>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--text-primary)' }}>{priceInfo.metaLabel}</span>
+                  <span className="success-meta-lbl">Scope</span>
+                  <span className="success-meta-val" style={{ fontFamily: 'inherit' }}>{priceInfo.metaLabel}</span>
                 </div>
               </div>
-
             </div>
           </div>
         )}
-
       </main>
     </div>
   );
@@ -3144,7 +974,7 @@ function GetStartedContent() {
 
 export default function GetStarted() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center" style={{ color: 'var(--text-secondary)', background: 'var(--fdf-bg-primary, #FAFDFB)' }}>Loading security database gateway…</div>}>
+    <Suspense fallback={<div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#52695c', background: '#f9fdfb' }}>Loading…</div>}>
       <GetStartedContent />
     </Suspense>
   );

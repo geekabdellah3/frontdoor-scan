@@ -1,3 +1,7 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ShieldCheck, LayoutDashboard, FileText, CreditCard, Settings, LogOut, ShieldAlert } from 'lucide-react';
 
@@ -6,6 +10,30 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const [mounted, setMounted] = useState(false);
+  const [user, setUser] = useState<{ email: string; name: string; role: string } | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    setMounted(true);
+    const stored = localStorage.getItem('frontdoor_user');
+    if (stored) {
+      try {
+        setUser(JSON.parse(stored));
+      } catch (e) {
+        console.error('Failed to parse user from localStorage:', e);
+      }
+    }
+  }, []);
+
+  const handleSignOut = (e: React.MouseEvent) => {
+    e.preventDefault();
+    localStorage.removeItem('frontdoor_user');
+    router.push('/signin');
+  };
+
+  const isAdmin = user?.role === 'admin' || user?.email === 'hamzaabdou2003@gmail.com';
+
   return (
     <div className="flex h-screen" style={{ height: '100vh', overflow: 'hidden' }}>
       {/* Sidebar */}
@@ -20,29 +48,33 @@ export default function DashboardLayout({
             <LayoutDashboard size={20} color="var(--accent-primary)" />
             <span style={{ fontWeight: 500 }}>Overview</span>
           </Link>
-          <Link href="/dashboard/reports" className="flex items-center" style={{ gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', color: 'var(--text-secondary)' }}>
+          <Link href="/dashboard/reports" className="flex items-center" style={{ gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', color: 'var(--text-secondary)' }} onClick={(e) => { e.preventDefault(); alert("Reports library feature is coming soon!"); }}>
             <FileText size={20} />
             <span style={{ fontWeight: 500 }}>My Reports</span>
           </Link>
-          <Link href="/dashboard/billing" className="flex items-center" style={{ gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', color: 'var(--text-secondary)' }}>
+          <Link href="/dashboard/billing" className="flex items-center" style={{ gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', color: 'var(--text-secondary)' }} onClick={(e) => { e.preventDefault(); alert("Billing details portal is coming soon!"); }}>
             <CreditCard size={20} />
             <span style={{ fontWeight: 500 }}>Billing</span>
           </Link>
-          <Link href="/dashboard/settings" className="flex items-center" style={{ gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', color: 'var(--text-secondary)' }}>
+          <Link href="/dashboard/settings" className="flex items-center" style={{ gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', color: 'var(--text-secondary)' }} onClick={(e) => { e.preventDefault(); alert("Account Settings are coming soon!"); }}>
             <Settings size={20} />
             <span style={{ fontWeight: 500 }}>Settings</span>
           </Link>
-          <Link href="/dashboard/admin" className="flex items-center animate-pulse" style={{ gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', color: 'var(--accent-primary)', background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.1)' }}>
-            <ShieldAlert size={20} />
-            <span style={{ fontWeight: 700 }}>Admin Portal</span>
-          </Link>
+
+          {/* Conditional Admin Portal Sidebar Button */}
+          {mounted && isAdmin && (
+            <Link href="/dashboard/admin" className="flex items-center animate-pulse" style={{ gap: '12px', padding: '12px 16px', borderRadius: 'var(--border-radius-sm)', color: 'var(--accent-primary)', background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.1)' }}>
+              <ShieldAlert size={20} />
+              <span style={{ fontWeight: 700 }}>Admin Portal</span>
+            </Link>
+          )}
         </nav>
         
         <div style={{ marginTop: 'auto', paddingTop: '24px', borderTop: '1px solid var(--border-color)' }}>
-          <Link href="/" className="flex items-center" style={{ gap: '12px', padding: '12px 16px', color: 'var(--text-secondary)' }}>
+          <a href="#" onClick={handleSignOut} className="flex items-center" style={{ gap: '12px', padding: '12px 16px', color: 'var(--text-secondary)', textDecoration: 'none' }}>
             <LogOut size={20} />
             <span style={{ fontWeight: 500 }}>Sign Out</span>
-          </Link>
+          </a>
         </div>
       </aside>
 

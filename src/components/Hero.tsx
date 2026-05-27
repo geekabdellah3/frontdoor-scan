@@ -240,7 +240,7 @@ export default function Hero() {
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(135deg, rgba(248,250,252,0.92) 0%, rgba(255,255,255,0.96) 100%)' }} />
       </div>
 
-      <div className="container" style={{ position: 'relative', zIndex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '64px', alignItems: 'center' }}>
+      <div className="container" style={{ position: 'relative', zIndex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '64px', alignItems: 'center' }}>
         
         {/* Left Column */}
         <div>
@@ -258,7 +258,7 @@ export default function Hero() {
           </p>
 
           {/* Form Card */}
-          <div style={{ 
+          <div className="hero-form-card" style={{ 
             background: 'rgba(255, 255, 255, 0.75)', 
             border: '1px solid rgba(226, 232, 240, 0.8)', 
             borderRadius: '24px', 
@@ -539,10 +539,9 @@ export default function Hero() {
         <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: '16px 0' }}>
           
           {/* Floating Top Left */}
-          <div style={{ 
+          <div className="hero-badge-left" style={{ 
             position: 'absolute', 
             top: '0', 
-            left: '-20px', 
             background: 'rgba(255, 255, 255, 0.9)', 
             color: '#09090b', 
             padding: '8px 16px', 
@@ -567,10 +566,9 @@ export default function Hero() {
           </div>
 
           {/* Floating Bottom Right */}
-          <div style={{ 
+          <div className="hero-badge-right" style={{ 
             position: 'absolute', 
             bottom: '0', 
-            right: '-20px', 
             background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
             color: 'white', 
             padding: '10px 20px', 

@@ -205,3 +205,26 @@ h1, h2, h3, h4, h5, h6 {
   z-index: -1;
   filter: blur(60px);
 }
+
+/* Hero Section Responsive Fixes */
+.hero-badge-left {
+  left: -20px;
+}
+.hero-badge-right {
+  right: -20px;
+}
+@media (max-width: 640px) {
+  .hero-badge-left {
+    left: 10px !important;
+    top: 10px !important;
+  }
+  .hero-badge-right {
+    right: 10px !important;
+    bottom: 10px !important;
+  }
+}
+@media (max-width: 480px) {
+  .hero-form-card {
+    padding: 24px 20px !important;
+  }
+}

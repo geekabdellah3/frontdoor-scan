@@ -500,17 +500,18 @@ function GetStartedContent() {
           .fear-source { display:none; }
         }
         @media (max-width:480px) {
+          .ann-bar { font-size: 0.64rem; padding: 6px 12px; letter-spacing: 0.1px; }
           .co-main { padding:14px 12px 80px; }
           .form-3 { grid-template-columns:1fr 1fr; }
-          .fear-num { font-size:4rem; }
-          .fear-lbl { font-size:0.9rem; letter-spacing:1.4px; }
-          .fear-warn-icon { font-size:1.5rem; }
-          .fear-right { padding:18px 16px 20px; gap:12px; }
-          .fear-subhead { font-size:1.5rem; line-height:1.3; }
-          .fear-stats { gap:10px; }
-          .fear-stat { padding:14px 16px; }
-          .fear-stat-num { font-size:1.5rem; }
-          .fear-stat-lbl { font-size:1rem; }
+          .fear-num { font-size:2.2rem; }
+          .fear-lbl { font-size:0.55rem; letter-spacing:1px; }
+          .fear-warn-icon { font-size:1.2rem; }
+          .fear-right { padding:14px 12px 16px; gap:8px; }
+          .fear-subhead { font-size:0.88rem; line-height:1.3; }
+          .fear-stats { gap:8px; }
+          .fear-stat { padding:10px 12px; gap:4px; }
+          .fear-stat-num { font-size:1.1rem; }
+          .fear-stat-lbl { font-size:0.65rem; }
         }
 
         /* ── REVIEWS ── */

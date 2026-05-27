@@ -40,7 +40,7 @@ The page layout on desktop will utilize a `58%` to `42%` split. On mobile, it wi
 
 ```
 +-----------------------------------------------------------------------+
-|  HEADER: Front Door Fax                                               |
+|  HEADER: Front Door Scan                                               |
 +-------------------------------------------------------+---------------+
 |                                                       |               |
 |  LEFT COLUMN (58% Width)                              | RIGHT COLUMN  |
@@ -72,7 +72,7 @@ The page layout on desktop will utilize a `58%` to `42%` split. On mobile, it wi
 ### 3.1 Left Column Pane (`#ffffff`)
 
 #### A. Header & Navigation Links
-* Minimalist header holding the "Front Door Fax" branding on the left and a "🔒 Secure checkout" text lock with a back button on the right.
+* Minimalist header holding the "Front Door Scan" branding on the left and a "🔒 Secure checkout" text lock with a back button on the right.
 
 #### B. Breadcrumb Navigation
 * High-trust text path: `Address` ➔ `Select Package` ➔ `Secure Payment` (with `Secure Payment` in active bold charcoal, others in quiet gray).
@@ -110,7 +110,7 @@ The right sidebar is separated by a solid `#e2e8f0` vertical border and has a su
 
 #### A. PDF Cover Thumbnail Mockup
 * Features an elegant digital mockup of a **"15-Page Neighborhood Safety Diagnostic Report Cover"** with a custom address tag ("30 North"), a shadow, and a neat border.
-* Displayed side-by-side with a summary description: "Front Door Fax Environmental Report (Neighborhood Safety Diagnostic PDF)".
+* Displayed side-by-side with a summary description: "Front Door Scan Environmental Report (Neighborhood Safety Diagnostic PDF)".
 
 #### B. Promo Code Field
 * Text input side-by-side with a flat, light-gray "Apply" button. Supports our existing `WELCOME10` coupon and displays successful discount messages.

@@ -8,7 +8,7 @@ export default function Footer() {
         <div>
           <Link href="/" className="flex items-center" style={{ gap: '10px', fontSize: '1.25rem', fontWeight: 700, marginBottom: '16px' }}>
             <ShieldCheck color="var(--accent-primary)" size={28} />
-            <span>Front Door Fax</span>
+            <span>Front Door Scan</span>
           </Link>
           <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>
             Comprehensive environmental health reports for most US addresses. Know before you sign.
@@ -37,7 +37,7 @@ export default function Footer() {
       </div>
       
       <div className="container" style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem', paddingTop: '24px', borderTop: '1px solid var(--border-color)' }}>
-        © {new Date().getFullYear()} Front Door Fax. All rights reserved.
+        © {new Date().getFullYear()} Front Door Scan. All rights reserved.
       </div>
     </footer>
   );

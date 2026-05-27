@@ -172,8 +172,8 @@ function GetStartedContent() {
   const [discountAmount, setPromoDiscountAmount] = useState(0);
 
   const getPackagePriceInfo = () => {
-    if (selectedPackage === 'single') return { price:49, reg:69, saving:20, name:'Front Door Fax Environmental Report (1 Property)', metaLabel:'1 Property (Single Report)' };
-    return { price:199, reg:345, saving:146, name:'Front Door Fax Environmental Report Bundle (5 Properties)', metaLabel:'5 Properties (Comparison Bundle)' };
+    if (selectedPackage === 'single') return { price:49, reg:69, saving:20, name:'SafeTrace Environmental Report (1 Property)', metaLabel:'1 Property (Single Report)' };
+    return { price:199, reg:345, saving:146, name:'SafeTrace Environmental Report Bundle (5 Properties)', metaLabel:'5 Properties (Comparison Bundle)' };
   };
   const priceInfo = getPackagePriceInfo();
   const finalPrice = Math.max(0, priceInfo.price - discountAmount);
@@ -261,7 +261,7 @@ function GetStartedContent() {
     }
   };
 
-  const SHOPIFY_CHECKOUT_URL = 'https://frontdoorfax.myshopify.com/cart';
+  const SHOPIFY_CHECKOUT_URL = 'https://frontdoorscan.myshopify.com/cart';
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -550,7 +550,7 @@ function GetStartedContent() {
       <header className="co-header">
         <Link href="/" className="co-logo-link">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.svg" alt="Front Door Fax" className="co-logo-img" />
+          <img src="/logo.svg" alt="SafeTrace" className="co-logo-img" />
         </Link>
         <div className="co-header-right">
           <span className="co-secure-badge">
@@ -609,7 +609,7 @@ function GetStartedContent() {
               {/* Product card */}
               <div className="prod-card">
                 <div className="prod-card-hdr">
-                  <div className="prod-card-brand">FRONT DOOR FAX™</div>
+                  <div className="prod-card-brand">SAFETRACE™</div>
                   <div className="prod-card-title">Environmental Risk Report</div>
                   {addressLine1 && <div className="prod-card-addr">📍 {addressLine1}</div>}
                 </div>
@@ -903,7 +903,7 @@ function GetStartedContent() {
                 <div className="term-dots">
                   <span className="term-dot r" /><span className="term-dot y" /><span className="term-dot g" />
                 </div>
-                <span style={{ fontSize: '0.68rem', color: '#10b981', opacity: 0.7, fontWeight: 700, textTransform: 'uppercase' }}>Front Door Fax Database Compiler v4.5</span>
+                <span style={{ fontSize: '0.68rem', color: '#10b981', opacity: 0.7, fontWeight: 700, textTransform: 'uppercase' }}>Front Door Scan Database Compiler v4.5</span>
               </div>
               <div className="term-logs">
                 {terminalLogs.map((log, i) => (

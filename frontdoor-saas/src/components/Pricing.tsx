@@ -20,7 +20,7 @@ export default function Pricing() {
           />
         </div>
         <div style={{ order: 1 }}>
-          <h2 style={{ fontSize: '2rem', marginBottom: '16px' }}>Why homebuyers and renters use Front Door Fax</h2>
+          <h2 style={{ fontSize: '2rem', marginBottom: '16px' }}>Why homebuyers and renters use Front Door Scan</h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', marginBottom: '24px', lineHeight: 1.6 }}>
             Buyers have used these reports to negotiate price reductions, request remediation, or walk away from properties with serious hidden risks.
           </p>

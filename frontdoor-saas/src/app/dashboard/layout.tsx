@@ -40,7 +40,7 @@ export default function DashboardLayout({
       <aside style={{ width: '280px', borderRight: '1px solid var(--border-color)', background: 'var(--bg-secondary)', padding: '24px', display: 'flex', flexDirection: 'column' }}>
         <Link href="/" className="flex items-center" style={{ gap: '10px', fontSize: '1.25rem', fontWeight: 700, marginBottom: '48px' }}>
           <ShieldCheck color="var(--accent-primary)" size={28} />
-          <span>Front Door Fax</span>
+          <span>Front Door Scan</span>
         </Link>
         
         <nav className="flex flex-col" style={{ gap: '8px', flex: 1 }}>

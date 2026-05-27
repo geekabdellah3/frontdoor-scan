@@ -268,15 +268,8 @@ export default function Hero() {
             WebkitBackdropFilter: 'blur(20px)',
             boxShadow: '0 20px 40px -15px rgba(0,0,0,0.06), 0 0 1px 0 rgba(0,0,0,0.1)' 
           }}>
-            <div style={{ 
-              color: 'var(--accent-primary)', 
-              fontSize: '0.85rem', 
-              fontWeight: 700, 
-              letterSpacing: '1px', 
-              marginBottom: '8px', 
-              textTransform: 'uppercase' 
-            }}>
-              FRONTDOORFAX HOME REPORT
+            <div style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.8rem', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '8px' }}>
+              ENVIRONMENTAL DATA REPORT
             </div>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '24px', color: '#09090b', letterSpacing: '-0.01em' }}>
               Enter any US address to see what&apos;s around the home

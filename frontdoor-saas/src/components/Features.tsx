@@ -44,7 +44,7 @@ export default function Features() {
           <div>
             <h2 style={{ fontSize: '2.5rem', marginBottom: '16px' }}>Standard inspections check the <span className="text-gradient">building.</span></h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem', marginBottom: '24px', lineHeight: 1.6 }}>
-              They do not cover water contamination, air pollution, Superfund proximity, radon, or flood risk. Front Door Fax fills that gap with the same federal data environmental consultants use.
+              They do not cover water contamination, air pollution, Superfund proximity, radon, or flood risk. Front Door Scan fills that gap with the same federal data environmental consultants use.
             </p>
             <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem', lineHeight: 1.6 }}>
               Each report includes a dedicated negotiation section with property-specific talking points you can use with sellers, landlords, or agents.

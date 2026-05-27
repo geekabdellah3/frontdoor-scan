@@ -26,7 +26,7 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Front Door Fax | Check Environmental Health of Any Home",
+  title: "Front Door Scan | Check Environmental Health of Any Home",
   description: "Comprehensive environmental health reports for most US addresses (48 states covered). Water, air, soil, flood, Superfund & radon risk — using EPA, FEMA & USGS data.",
 };
 

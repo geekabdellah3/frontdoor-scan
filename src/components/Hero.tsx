@@ -275,46 +275,6 @@ export default function Hero() {
               Enter any US address to see what&apos;s around the home
             </h2>
             
-            {/* Toggle */}
-            <div style={{ 
-              display: 'flex', 
-              background: '#f1f5f9', 
-              borderRadius: '12px', 
-              padding: '4px', 
-              marginBottom: '24px',
-              border: '1px solid rgba(0, 0, 0, 0.02)'
-            }}>
-               <div style={{ 
-                 flex: 1, 
-                 background: 'white', 
-                 color: '#09090b', 
-                 textAlign: 'center', 
-                 padding: '10px', 
-                 borderRadius: '8px', 
-                 fontWeight: 600, 
-                 fontSize: '0.9rem',
-                 boxShadow: '0 2px 8px rgba(0,0,0,0.06), 0 0 1px 0 rgba(0,0,0,0.05)',
-                 border: '1px solid rgba(0,0,0,0.01)'
-               }}>
-                 Full Report $49
-               </div>
-               <div style={{ 
-                 flex: 1, 
-                 color: '#64748b', 
-                 textAlign: 'center', 
-                 padding: '10px', 
-                 borderRadius: '8px', 
-                 fontWeight: 500, 
-                 fontSize: '0.9rem', 
-                 cursor: 'pointer',
-                 transition: 'color 0.2s'
-               }}
-               onMouseEnter={(e) => e.currentTarget.style.color = '#09090b'}
-               onMouseLeave={(e) => e.currentTarget.style.color = '#64748b'}
-               >
-                 Free Preview
-               </div>
-            </div>
 
             {/* Form wrapping both input and submit button cleanly */}
             <form onSubmit={handleSearch} style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>

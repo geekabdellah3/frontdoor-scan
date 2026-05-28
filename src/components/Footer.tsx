@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ShieldCheck, Mail, MapPin, Twitter, Github } from 'lucide-react';
+import { ShieldCheck, Mail, MapPin, Globe, Code } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -21,7 +21,7 @@ export default function Footer() {
               We provide professional environmental health data for every US home. Know exactly what you&apos;re moving into.
             </p>
             <div style={{ display: 'flex', gap: '16px' }}>
-              {[Twitter, Github].map((Icon, i) => (
+              {[Globe, Code].map((Icon, i) => (
                 <a key={i} href="#" style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-primary)', transition: 'all 0.3s ease' }} className="hover:bg-accent">
                   <Icon size={20} />
                 </a>
@@ -50,7 +50,7 @@ export default function Footer() {
           </div>
         </div>
         
-        <div style={{ pt: '40px', borderTop: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', md: 'row', justifyContent: 'space-between', alignItems: 'center', gap: '24px', paddingTop: '40px' }}>
+        <div style={{ borderTop: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', gap: '24px', paddingTop: '40px' }}>
           <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 500 }}>
             © {new Date().getFullYear()} Front Door Scan. Built for peace of mind.
           </div>

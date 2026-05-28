@@ -157,7 +157,7 @@ export default function Hero() {
                   ))}
                 </div>
 
-                <div style={{ marginTop: '32px', pt: '32px', borderTop: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px', paddingTop: '24px' }}>
+                <div style={{ marginTop: '32px', borderTop: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px', paddingTop: '24px' }}>
                   <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Activity size={20} color="var(--accent-primary)" />
                   </div>

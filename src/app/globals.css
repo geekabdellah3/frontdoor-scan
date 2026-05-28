@@ -209,10 +209,52 @@ h1, h2, h3, h4, h5, h6 {
 /* Hero Section Responsive Fixes */
 .hero-badge-left {
   left: -20px;
+  animation: float-slow 6s ease-in-out infinite alternate;
 }
 .hero-badge-right {
   right: -20px;
+  animation: float-slow 6s ease-in-out infinite alternate-reverse;
 }
+
+/* Antigravity Design & Spatial Depth Rules */
+.perspective-container {
+  perspective: 1000px;
+  transform-style: preserve-3d;
+}
+
+.float-card-interactive {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+.float-card-interactive:hover {
+  transform: translateY(-8px) rotateX(4deg) rotateY(-4deg);
+  box-shadow: 0 40px 80px -15px rgba(0, 0, 0, 0.12), 0 0 1px 0 rgba(0, 0, 0, 0.1);
+}
+
+@keyframes float-slow {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-6px) rotate(1deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+/* Glassmorphism Refinements */
+.glass-panel-spatial {
+  background: rgba(255, 255, 255, 0.65) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.7) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.04), 0 0 1px rgba(0,0,0,0.1) !important;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.glass-panel-spatial:hover {
+  transform: translateY(-6px) translateZ(10px) !important;
+  border-color: rgba(16, 185, 129, 0.25) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08), 0 0 25px rgba(16, 185, 129, 0.08) !important;
+}
+
 @media (max-width: 640px) {
   .hero-badge-left {
     left: 10px !important;

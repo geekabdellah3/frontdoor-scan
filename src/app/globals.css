@@ -150,6 +150,11 @@
 .delay-2 { animation-delay: 0.2s; opacity: 0; }
 .delay-3 { animation-delay: 0.3s; opacity: 0; }
 
+/* Global Stagger Utility */
+.stagger-in {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 /* Responsive Overrides */
 @media (max-width: 1024px) {
   .hero-section {

@@ -11,73 +11,103 @@ export default function PrivacyPage() {
   return (
     <>
       <Navbar />
-      <main style={{ padding: '120px 24px 64px', maxWidth: '800px', margin: '0 auto', color: 'var(--text-secondary)' }}>
-        <div style={{ 
-          background: 'rgba(255,255,255,0.7)', 
-          backdropFilter: 'blur(12px)',
-          WebkitBackdropFilter: 'blur(12px)',
-          padding: '48px', 
-          borderRadius: '16px',
-          boxShadow: '0 4px 24px -1px rgba(0,0,0,0.05)',
-          border: '1px solid var(--border-color)'
-        }}>
-          <h1 style={{ fontSize: '2.5rem', color: '#09090b', marginBottom: '8px', fontWeight: 700 }}>Privacy Policy</h1>
-          <p style={{ marginBottom: '32px', color: 'var(--text-secondary)' }}>Last Updated: May 2026</p>
+      <main className="pt-32 pb-20 px-6">
+        <div className="max-w-4xl mx-auto stagger-in">
+          <div className="glass-panel-spatial p-8 md:p-16 bg-white/70 border-white rounded-[40px] shadow-2xl relative group overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 blur-[100px] rounded-full pointer-events-none -mr-32 -mt-32" />
+            
+            <div className="relative">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 text-[10px] font-black uppercase tracking-widest mb-8">
+                Legal Documentation
+              </div>
+              <h1 className="text-4xl md:text-5xl font-black text-zinc-900 tracking-tight leading-tight mb-4">Privacy Policy</h1>
+              <p className="text-zinc-400 text-xs font-black uppercase tracking-[0.2em] mb-12">Effective Date: May 2026</p>
 
-          <section style={{ marginBottom: '32px' }}>
-            <h2 style={{ fontSize: '1.5rem', color: '#09090b', marginBottom: '16px', fontWeight: 600 }}>1. Information We Collect</h2>
-            <p style={{ lineHeight: 1.6, marginBottom: '16px' }}>
-              We collect information you provide directly to us when using Front Door Scan, including:
-            </p>
-            <ul style={{ listStyleType: 'disc', paddingLeft: '24px', lineHeight: 1.6, marginBottom: '16px' }}>
-              <li>Name and contact information (email address)</li>
-              <li>Billing address and payment details</li>
-              <li>Property addresses you search for and compile reports on</li>
-            </ul>
-          </section>
+              <div className="prose prose-zinc prose-lg max-w-none space-y-12">
+                <section className="space-y-6">
+                  <h2 className="text-2xl font-black text-zinc-900 tracking-tight flex items-center gap-4">
+                    <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-sm font-black">01</span>
+                    Information We Collect
+                  </h2>
+                  <p className="text-zinc-500 font-medium leading-relaxed">
+                    We collect information you provide directly to us when using Front Door Scan, including:
+                  </p>
+                  <ul className="space-y-4">
+                    {['Name and contact information (email address)', 'Billing address and payment details', 'Property addresses you search for and compile reports on'].map((item, i) => (
+                      <li key={i} className="flex items-start gap-3 text-zinc-500 font-medium">
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 flex-shrink-0" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </section>
 
-          <section style={{ marginBottom: '32px' }}>
-            <h2 style={{ fontSize: '1.5rem', color: '#09090b', marginBottom: '16px', fontWeight: 600 }}>2. How We Use Information</h2>
-            <p style={{ lineHeight: 1.6, marginBottom: '16px' }}>
-              We use the collected information to:
-            </p>
-            <ul style={{ listStyleType: 'disc', paddingLeft: '24px', lineHeight: 1.6, marginBottom: '16px' }}>
-              <li>Generate and deliver environmental health reports</li>
-              <li>Process payments and manage your account</li>
-              <li>Communicate with you regarding your reports or our service</li>
-              <li>Improve and optimize our platform</li>
-            </ul>
-          </section>
+                <section className="space-y-6">
+                  <h2 className="text-2xl font-black text-zinc-900 tracking-tight flex items-center gap-4">
+                    <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-sm font-black">02</span>
+                    How We Use Information
+                  </h2>
+                  <p className="text-zinc-500 font-medium leading-relaxed">
+                    We use the collected information to:
+                  </p>
+                  <ul className="space-y-4">
+                    {[
+                      'Generate and deliver environmental health reports',
+                      'Process payments and manage your account',
+                      'Communicate with you regarding your reports or our service',
+                      'Improve and optimize our platform'
+                    ].map((item, i) => (
+                      <li key={i} className="flex items-start gap-3 text-zinc-500 font-medium">
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-2 flex-shrink-0" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </section>
 
-          <section style={{ marginBottom: '32px' }}>
-            <h2 style={{ fontSize: '1.5rem', color: '#09090b', marginBottom: '16px', fontWeight: 600 }}>3. Data Sources</h2>
-            <p style={{ lineHeight: 1.6, marginBottom: '16px' }}>
-              Our reports are generated using publicly available data from federal databases, including EPA ECHO, FEMA NFIP, USGS, and CDC ATSDR. We do not use proprietary sensors or private investigators.
-            </p>
-          </section>
+                <section className="space-y-6">
+                  <h2 className="text-2xl font-black text-zinc-900 tracking-tight flex items-center gap-4">
+                    <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-sm font-black">03</span>
+                    Data Sources
+                  </h2>
+                  <p className="text-zinc-500 font-medium leading-relaxed">
+                    Our reports are generated using publicly available data from federal databases, including EPA ECHO, FEMA NFIP, USGS, and CDC ATSDR. We do not use proprietary sensors or private investigators.
+                  </p>
+                </section>
 
-          <section style={{ marginBottom: '32px' }}>
-            <h2 style={{ fontSize: '1.5rem', color: '#09090b', marginBottom: '16px', fontWeight: 600 }}>4. Data Sharing</h2>
-            <p style={{ lineHeight: 1.6, marginBottom: '16px' }}>
-              We respect your privacy and <strong>do not sell your personal data</strong> to third parties. We only share information with trusted third-party service providers (like payment processors) necessary to operate our service.
-            </p>
-          </section>
+                <section className="space-y-6">
+                  <h2 className="text-2xl font-black text-zinc-900 tracking-tight flex items-center gap-4">
+                    <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-sm font-black">04</span>
+                    Data Sharing
+                  </h2>
+                  <p className="text-zinc-500 font-medium leading-relaxed">
+                    We respect your privacy and <span className="text-zinc-900 font-bold underline decoration-emerald-500/30 decoration-4">do not sell your personal data</span> to third parties. We only share information with trusted third-party service providers (like payment processors) necessary to operate our service.
+                  </p>
+                </section>
 
-          <section style={{ marginBottom: '32px' }}>
-            <h2 style={{ fontSize: '1.5rem', color: '#09090b', marginBottom: '16px', fontWeight: 600 }}>5. Data Security</h2>
-            <p style={{ lineHeight: 1.6, marginBottom: '16px' }}>
-              We implement industry-standard security measures to protect your information. However, no electronic transmission over the internet or information storage technology can be guaranteed to be 100% secure.
-            </p>
-          </section>
+                <section className="space-y-6">
+                  <h2 className="text-2xl font-black text-zinc-900 tracking-tight flex items-center gap-4">
+                    <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-sm font-black">05</span>
+                    Data Security
+                  </h2>
+                  <p className="text-zinc-500 font-medium leading-relaxed">
+                    We implement industry-standard security measures to protect your information. However, no electronic transmission over the internet or information storage technology can be guaranteed to be 100% secure.
+                  </p>
+                </section>
 
-          <section style={{ marginBottom: '32px' }}>
-            <h2 style={{ fontSize: '1.5rem', color: '#09090b', marginBottom: '16px', fontWeight: 600 }}>6. Contact Us</h2>
-            <p style={{ lineHeight: 1.6 }}>
-              If you have any questions or concerns about this Privacy Policy, please contact us at: <br/>
-              <strong>Email:</strong> support@frontdoorscan.com
-            </p>
-          </section>
-
+                <section className="p-8 bg-zinc-50 border border-zinc-100 rounded-[24px] space-y-4">
+                  <h2 className="text-xl font-black text-zinc-900 tracking-tight">Contact Information</h2>
+                  <p className="text-zinc-500 font-medium text-sm leading-relaxed">
+                    If you have any questions or concerns about this Privacy Policy, please contact us at:
+                  </p>
+                  <div className="pt-2">
+                    <div className="text-xs font-black text-zinc-400 uppercase tracking-widest mb-1">Support Email</div>
+                    <div className="text-emerald-600 font-black text-lg">support@frontdoorscan.com</div>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
       <Footer />

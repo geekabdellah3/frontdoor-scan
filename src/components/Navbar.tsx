@@ -2,21 +2,31 @@
 
 import Link from 'next/link';
 import { ShieldCheck, LogIn, Menu } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import gsap from 'gsap';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
+
+  const navRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
     window.addEventListener('scroll', handleScroll);
+    
+    // Entrance Animation
+    gsap.fromTo(navRef.current, 
+      { y: -20, opacity: 0, filter: 'blur(10px)' },
+      { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.2, ease: 'expo.out', delay: 0.2 }
+    );
+
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
-    <div className={`fixed top-0 left-0 right-0 z-[1000] px-4 md:px-6 transition-all duration-500 ${
+    <div ref={navRef} className={`fixed top-0 left-0 right-0 z-[1000] px-4 md:px-6 transition-all duration-500 ${
       isScrolled ? 'py-4' : 'py-6'
     }`}>
       <nav className={`max-w-7xl mx-auto flex items-center justify-between px-6 py-3 rounded-2xl transition-all duration-500 ${

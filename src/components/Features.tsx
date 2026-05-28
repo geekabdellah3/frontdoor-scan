@@ -79,49 +79,58 @@ export default function Features() {
       gsap.from(headerRef.current, {
         scrollTrigger: {
           trigger: headerRef.current,
-          start: 'top 85%',
+          start: 'top 90%',
+          once: true
         },
-        y: 40,
+        y: 20,
         opacity: 0,
-        duration: 1,
-        ease: 'power4.out'
+        filter: 'blur(10px)',
+        duration: 1.2,
+        ease: 'expo.out'
       });
 
       // Cards Entrance
       gsap.from(cardRefs.current, {
         scrollTrigger: {
           trigger: containerRef.current,
-          start: 'top 70%',
+          start: 'top 85%',
+          once: true
         },
-        y: 60,
+        y: 20,
         opacity: 0,
+        filter: 'blur(10px)',
         stagger: 0.1,
-        duration: 1.2,
-        ease: 'power4.out'
+        duration: 1.4,
+        ease: 'expo.out',
+        clearProps: 'all'
       });
 
       // Split Section Entrance
       gsap.from('.feature-split-content > *', {
         scrollTrigger: {
           trigger: '.feature-split-content',
-          start: 'top 80%',
+          start: 'top 90%',
+          once: true
         },
-        x: -40,
+        y: 20,
         opacity: 0,
-        stagger: 0.2,
-        duration: 1,
-        ease: 'power3.out'
+        filter: 'blur(10px)',
+        stagger: 0.1,
+        duration: 1.2,
+        ease: 'expo.out'
       });
 
       gsap.from('.feature-split-visual', {
         scrollTrigger: {
           trigger: '.feature-split-content',
-          start: 'top 80%',
+          start: 'top 85%',
+          once: true
         },
-        x: 40,
+        y: 20,
         opacity: 0,
-        duration: 1.2,
-        ease: 'power3.out'
+        filter: 'blur(10px)',
+        duration: 1.6,
+        ease: 'expo.out'
       });
     }, containerRef);
 

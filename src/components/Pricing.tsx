@@ -23,36 +23,55 @@ export default function Pricing() {
       gsap.from(headerRef.current, {
         scrollTrigger: {
           trigger: headerRef.current,
-          start: 'top 85%',
+          start: 'top 90%',
+          once: true
         },
-        y: 30,
+        y: 20,
         opacity: 0,
-        duration: 1,
-        ease: 'power3.out'
+        filter: 'blur(10px)',
+        duration: 1.2,
+        ease: 'expo.out'
+      });
+
+      gsap.from(headerRef.current, {
+        scrollTrigger: {
+          trigger: headerRef.current,
+          start: 'top 90%',
+          once: true
+        },
+        y: 20,
+        opacity: 0,
+        filter: 'blur(10px)',
+        duration: 1.2,
+        ease: 'expo.out'
       });
 
       gsap.from(splitRef.current?.children || [], {
         scrollTrigger: {
           trigger: splitRef.current,
-          start: 'top 80%',
+          start: 'top 90%',
+          once: true
         },
-        x: -30,
+        y: 20,
         opacity: 0,
-        stagger: 0.2,
+        filter: 'blur(10px)',
+        stagger: 0.1,
         duration: 1.2,
-        ease: 'power3.out'
+        ease: 'expo.out'
       });
 
       gsap.from(cardsRef.current?.children || [], {
         scrollTrigger: {
           trigger: cardsRef.current,
           start: 'top 85%',
+          once: true
         },
-        y: 50,
+        y: 30,
         opacity: 0,
+        filter: 'blur(10px)',
         stagger: 0.15,
-        duration: 1.2,
-        ease: 'power4.out',
+        duration: 1.4,
+        ease: 'expo.out',
         clearProps: 'all'
       });
     }, containerRef);
@@ -171,8 +190,8 @@ export default function Pricing() {
               ))}
             </ul>
             
-            <Link href="/get-started" className="w-full btn btn-primary py-5 text-lg">
-              Get Single Report
+            <Link href="/signup" className="btn btn-accent px-6 py-2.5 text-xs tracking-widest uppercase">
+              Get Started
             </Link>
           </div>
           

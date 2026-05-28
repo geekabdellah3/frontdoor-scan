@@ -37,23 +37,27 @@ export default function FAQ() {
         scrollTrigger: {
           trigger: '.faq-title',
           start: 'top 90%',
+          once: true
         },
         y: 20,
         opacity: 0,
-        duration: 1,
-        ease: 'power3.out'
+        filter: 'blur(10px)',
+        duration: 1.2,
+        ease: 'expo.out'
       });
 
       gsap.from('.faq-item', {
         scrollTrigger: {
           trigger: '.faq-list',
           start: 'top 85%',
+          once: true
         },
-        y: 30,
+        y: 20,
         opacity: 0,
+        filter: 'blur(10px)',
         stagger: 0.1,
         duration: 1.2,
-        ease: 'power3.out'
+        ease: 'expo.out'
       });
     }, containerRef);
 

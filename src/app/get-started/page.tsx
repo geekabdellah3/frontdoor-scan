@@ -49,14 +49,16 @@ function GetStartedContent() {
 
   const [userLocation, setUserLocation] = useState<{lat: number, lon: number} | null>(null);
 
-  // Get user location for biased search
+  // Silent IP-based localization (no permission popup)
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => setUserLocation({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
-        () => console.log('Geolocation permission denied')
-      );
-    }
+    fetch('https://ipapi.co/json/')
+      .then(res => res.json())
+      .then(data => {
+        if (data.latitude && data.longitude) {
+          setUserLocation({ lat: data.latitude, lon: data.longitude });
+        }
+      })
+      .catch(() => console.log('IP localization failed'));
   }, []);
 
   const attributionRef = useRef<Record<string, string>>({});

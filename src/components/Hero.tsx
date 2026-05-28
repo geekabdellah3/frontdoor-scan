@@ -54,18 +54,18 @@ export default function Hero() {
   const [isTouchDevice, setIsTouchDevice] = useState(false);
   const [userLocation, setUserLocation] = useState<{lat: number, lon: number} | null>(null);
 
-  // Detect touch device & get location for bias
+  // Silent IP-based localization (no permission popup)
   useEffect(() => {
     setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
     
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        setUserLocation({
-          lat: position.coords.latitude,
-          lon: position.coords.longitude
-        });
-      }, null, { enableHighAccuracy: false, timeout: 5000 });
-    }
+    fetch('https://ipapi.co/json/')
+      .then(res => res.json())
+      .then(data => {
+        if (data.latitude && data.longitude) {
+          setUserLocation({ lat: data.latitude, lon: data.longitude });
+        }
+      })
+      .catch(() => console.log('IP localization failed, using global search'));
   }, []);
 
   // Handle clicking outside the dropdown
@@ -79,16 +79,23 @@ export default function Hero() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // GSAP Entrance
+  // Premium Entrance Reveal
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: 'power4.out', duration: 1.2 } });
+      // Set initial states
+      gsap.set([titleRef.current, subtitleRef.current, formCardRef.current, '.trust-badge', mockupRef.current], { 
+        opacity: 0, 
+        y: 20,
+        filter: 'blur(10px)'
+      });
+
+      const tl = gsap.timeline({ defaults: { ease: 'expo.out', duration: 1.2 } });
       
-      tl.from(titleRef.current, { y: 60, opacity: 0, skewY: 2 }, 0.2)
-        .from(subtitleRef.current, { y: 40, opacity: 0 }, 0.4)
-        .from(formCardRef.current, { y: 50, opacity: 0, rotateX: -15, transformPerspective: 1000 }, 0.5)
-        .from('.trust-badge', { y: 20, opacity: 0, stagger: 0.1 }, 0.7)
-        .from(mockupRef.current, { x: 100, opacity: 0, rotateY: -20, transformPerspective: 1500 }, 0.3);
+      tl.to(titleRef.current, { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.4 }, 0.2)
+        .to(subtitleRef.current, { y: 0, opacity: 1, filter: 'blur(0px)' }, 0.4)
+        .to(formCardRef.current, { y: 0, opacity: 1, filter: 'blur(0px)' }, 0.6)
+        .to('.trust-badge', { y: 0, opacity: 1, filter: 'blur(0px)', stagger: 0.1 }, 0.8)
+        .to(mockupRef.current, { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.6 }, 0.4);
         
     }, heroRef);
     return () => ctx.revert();

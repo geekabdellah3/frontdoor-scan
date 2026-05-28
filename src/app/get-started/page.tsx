@@ -283,9 +283,6 @@ function GetStartedContent() {
                       </div>
                     </div>
 
-                    <p className="roi-disclaimer">
-                      <strong>Disclaimer:</strong> This ROI estimate is illustrative only. Front Door Scan does not guarantee savings, seller credits, risk findings, or negotiation outcomes. The report summarizes public environmental datasets and does not replace professional environmental testing, legal advice, or a certified environmental assessment.
-                    </p>
                   </div>
                 )}
               </section>
@@ -628,8 +625,6 @@ function GetStartedContent() {
         .unlock-btn { background: var(--text-primary); color: #fff; border: none; padding: 14px 24px; border-radius: 10px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .unlock-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
         .micro-row { display: flex; gap: 12px; font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-top: 12px; }
-
-        .roi-disclaimer { margin: 0; padding: 20px 32px; background: #f8fafc; border-top: 1px solid #e2e8f0; font-size: 0.7rem; color: var(--text-muted); line-height: 1.5; }
 
         /* ── HERO ── */
         .hero-section { margin-bottom: 60px; }

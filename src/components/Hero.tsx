@@ -5,10 +5,13 @@ import { Search, Check, ShieldCheck, Activity, Droplets, Wind, Waves, MapPin } f
 
 export default function Hero() {
   const [address, setAddress] = useState('');
-  const [addressLine1, setAddressLine1] = useState('Checking location...');
+  const [addressLine1, setAddressLine1] = useState('Search any US address');
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [transitionProgress, setTransitionProgress] = useState(0);
   const [transitionStep, setTransitionStep] = useState(0);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
 
   // Silent localization logic
   useEffect(() => {
@@ -18,20 +21,50 @@ export default function Hero() {
         const data = await response.json();
         if (data.city && data.region_code) {
           setAddressLine1(`${data.city}, ${data.region_code}`);
-        } else {
-          setAddressLine1('Search any US address');
         }
       } catch (err) {
-        setAddressLine1('Search any US address');
+        // Fallback to default
       }
     };
     fetchLocation();
   }, []);
 
+  // Autocomplete search
+  useEffect(() => {
+    if (address.length < 3 || isSearching) {
+      setSuggestions([]);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/places?input=${encodeURIComponent(address)}`);
+        const data = await res.json();
+        if (data.predictions) {
+          setSuggestions(data.predictions);
+          setShowSuggestions(true);
+        }
+      } catch (err) {
+        console.error("Search failed", err);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [address, isSearching]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!address.trim()) return;
     setIsTransitioning(true);
+  };
+
+  const selectSuggestion = (desc: string) => {
+    setAddress(desc);
+    setSuggestions([]);
+    setShowSuggestions(false);
+    setIsSearching(true);
+    // Briefly disable searching to prevent re-triggering autocomplete
+    setTimeout(() => setIsSearching(false), 500);
   };
 
   useEffect(() => {
@@ -90,7 +123,7 @@ export default function Hero() {
               We scan 90+ federal datasets to reveal air quality, water contaminants, and environmental hazards that standard inspections miss.
             </p>
 
-            <div className="glass-card" style={{ padding: '12px', borderRadius: '24px', maxWidth: '540px' }}>
+            <div className="glass-card" style={{ padding: '12px', borderRadius: '24px', maxWidth: '540px', position: 'relative' }}>
               <form onSubmit={handleSearch} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }} className="sm:flex-row">
                 <div style={{ position: 'relative', flex: 1 }}>
                   <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
@@ -101,6 +134,7 @@ export default function Hero() {
                     placeholder={addressLine1}
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
+                    onFocus={() => address.length >= 3 && setShowSuggestions(true)}
                     style={{
                       width: '100%',
                       padding: '16px 16px 16px 48px',
@@ -112,6 +146,42 @@ export default function Hero() {
                       transition: 'all 0.3s ease'
                     }}
                   />
+                  
+                  {/* Autocomplete Suggestions */}
+                  {showSuggestions && suggestions.length > 0 && (
+                    <div className="glass-card" style={{ 
+                      position: 'absolute', 
+                      top: 'calc(100% + 12px)', 
+                      left: 0, 
+                      right: 0, 
+                      zIndex: 100, 
+                      borderRadius: '16px', 
+                      overflow: 'hidden',
+                      boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
+                    }}>
+                      {suggestions.map((s, i) => (
+                        <div 
+                          key={i} 
+                          onClick={() => selectSuggestion(s.description)}
+                          style={{ 
+                            padding: '12px 16px', 
+                            cursor: 'pointer', 
+                            fontSize: '0.9rem', 
+                            borderBottom: i === suggestions.length - 1 ? 'none' : '1px solid var(--border-color)',
+                            background: 'transparent',
+                            transition: 'background 0.2s ease'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-secondary)'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <MapPin size={14} color="var(--accent-primary)" />
+                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.description}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <button type="submit" className="btn-antigravity" disabled={isTransitioning}>
                   {isTransitioning ? 'Analyzing...' : 'Scan Address'}

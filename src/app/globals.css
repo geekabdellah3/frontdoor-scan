@@ -24,8 +24,8 @@
   
   --border-color: rgba(0, 0, 0, 0.1);
   --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.8);
-  --glass-blur: 16px;
+  --glass-border: rgba(0, 0, 0, 0.05);
+  --glass-blur: 12px;
 }
 
 @layer base {
@@ -40,14 +40,14 @@
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-bold tracking-tight text-zinc-900;
-    line-height: 1.1;
+    line-height: 1.2;
   }
 }
 
 @layer components {
-  /* Original Utility Classes */
+  /* Original Utility Classes Restoration */
   .container {
-    @apply w-full max-w-7xl mx-auto px-6;
+    @apply w-full max-w-[1200px] mx-auto px-6;
   }
 
   .glass-panel {
@@ -63,6 +63,7 @@
   .glass-panel:hover {
     @apply -translate-y-1;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08), 0 0 20px var(--color-accent-primary-glow);
+    border-color: rgba(0, 0, 0, 0.1);
   }
 
   /* Buttons */
@@ -102,11 +103,14 @@
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-emerald-600 to-blue-600;
+    background: linear-gradient(135deg, var(--color-accent-primary), #3b82f6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 }
 
-/* Hero Section Specifics */
+/* Hero & Badge Utilities */
 .hero-section {
   @apply relative min-h-screen flex items-center pt-32 lg:pt-0 overflow-hidden bg-[#fafafa];
 }
@@ -123,6 +127,9 @@
   @apply -translate-y-1 border-emerald-500/20 bg-emerald-50/5;
 }
 
+.hero-badge-left { left: -20px; }
+.hero-badge-right { right: -20px; }
+
 /* Background Effects */
 .bg-glow {
   @apply absolute rounded-full blur-[100px] pointer-events-none -z-10;
@@ -138,6 +145,10 @@
 .animate-fade-in {
   animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+.delay-1 { animation-delay: 0.1s; opacity: 0; }
+.delay-2 { animation-delay: 0.2s; opacity: 0; }
+.delay-3 { animation-delay: 0.3s; opacity: 0; }
 
 /* Responsive Overrides */
 @media (max-width: 1024px) {
@@ -156,12 +167,18 @@
     @apply px-4;
   }
 
-  .hero-section {
-    padding-top: 120px;
+  .hero-badge-left {
+    left: 10px !important;
+    top: 10px !important;
+  }
+  
+  .hero-badge-right {
+    right: 10px !important;
+    bottom: 10px !important;
   }
 }
 
-/* Scrollbar */
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
 }

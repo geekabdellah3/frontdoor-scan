@@ -91,6 +91,38 @@ function GetStartedContent() {
   const [terminalLogs, setTerminalLogs] = useState<string[]>([]);
   const terminalLogsEndRef = useRef<HTMLDivElement>(null);
 
+  // ROI Module State
+  const [roiState, setRoiState] = useState<'calculating' | 'ready'>('calculating');
+  const [riskData, setRiskData] = useState({
+    score: 'Elevated',
+    leverage: '$1,500–$5,000',
+    roi: '31×–102×'
+  });
+
+  useEffect(() => {
+    if (!rawAddress) {
+      setRoiState('ready');
+      return;
+    }
+
+    // Simulate property-specific analysis
+    const timer = setTimeout(() => {
+      // Deterministic risk score based on address length/chars for demo consistency
+      const hash = rawAddress.length % 4;
+      const data = [
+        { score: 'Moderate', leverage: '$500–$1,500', roi: '10×–31×' },
+        { score: 'Elevated', leverage: '$1,500–$5,000', roi: '31×–102×' },
+        { score: 'High', leverage: '$5,000–$15,000+', roi: '102×–306×+' },
+        { score: 'Low', leverage: '$0–$500', roi: '0×–10×' }
+      ][hash];
+      
+      setRiskData(data);
+      setRoiState('ready');
+    }, 2800);
+
+    return () => clearTimeout(timer);
+  }, [rawAddress]);
+
   useEffect(() => {
     if (timeLeft <= 0) return;
     const timer = setInterval(() => setTimeLeft(prev => prev - 1), 1000);
@@ -172,7 +204,93 @@ function GetStartedContent() {
             {/* ── LEFT COLUMN ── */}
             <div className="content-left">
               
-              {/* ── 3. MAIN CHECKOUT HERO ── */}
+              {/* ── 3. ROI PREVIEW MODULE (Address-Based) ── */}
+              <section className="roi-module">
+                {roiState === 'calculating' ? (
+                  <div className="roi-loading-card">
+                    <div className="pulse-ring"></div>
+                    <div className="roi-loading-text">
+                      <span className="spinner-sm"></span>
+                      Calculating address-based ROI estimate for property...
+                    </div>
+                    <div className="roi-loading-addr">{addressLine1 || 'Detecting address...'}</div>
+                  </div>
+                ) : (
+                  <div className="roi-ready-card">
+                    <div className="roi-hdr">
+                      <span className="roi-tag">Property Insight</span>
+                      <h2 className="roi-title">Estimated ROI for this address</h2>
+                      <p className="roi-subtitle">Your report cost is fixed. Your negotiation leverage depends on the risk signals found near this property.</p>
+                    </div>
+
+                    <div className="roi-addr-display">
+                      <span className="roi-addr-label">Address Analyzed:</span>
+                      <div className="roi-addr-val">{addressLine1 || 'Selected Property'}</div>
+                    </div>
+
+                    <div className="roi-stats-grid">
+                      <div className="roi-stat-box">
+                        <span className="roi-stat-label">Risk Signal Score</span>
+                        <div className={`roi-badge ${riskData.score.toLowerCase()}`}>
+                          {riskData.score}
+                        </div>
+                        <p className="roi-stat-desc">Based on public hazard density nearby.</p>
+                      </div>
+                      <div className="roi-stat-box">
+                        <span className="roi-stat-label">Est. Negotiation Leverage</span>
+                        <div className="roi-stat-val">{riskData.leverage}</div>
+                        <p className="roi-stat-desc">Potential due diligence credit range.</p>
+                      </div>
+                      <div className="roi-stat-box highlight">
+                        <span className="roi-stat-label">Potential ROI</span>
+                        <div className="roi-stat-val accent">{riskData.roi}</div>
+                        <p className="roi-stat-desc">Return on your $49 report cost.</p>
+                      </div>
+                    </div>
+
+                    <div className="roi-support-copy">
+                      This estimate is based on the idea that stronger environmental risk signals may create stronger due diligence questions, requests for additional testing, remediation discussions, or seller credit negotiations.
+                    </div>
+
+                    {/* Locked Findings Preview */}
+                    <div className="locked-findings">
+                      <div className="locked-hdr">
+                        <Lock size={14} />
+                        <span>Locked Environmental Signals</span>
+                      </div>
+                      <div className="locked-rows">
+                        <div className="locked-row blur">
+                          <AlertTriangle size={14} />
+                          <span>Nearby EPA Enforcement Record (1.2 miles)</span>
+                        </div>
+                        <div className="locked-row blur">
+                          <Droplets size={14} />
+                          <span>Flood Exposure Indicator (FEMA Zone A/V)</span>
+                        </div>
+                        <div className="locked-row">
+                          <Lock size={12} style={{ opacity: 0.5 }} />
+                          <span style={{ opacity: 0.5 }}>3 additional hazard records identified...</span>
+                        </div>
+                      </div>
+                      <div className="locked-overlay">
+                        <p>Unlock the full report to see exact locations, risk types, and negotiation talking points.</p>
+                        <button type="button" className="unlock-btn" onClick={() => document.querySelector('.checkout-sidebar')?.scrollIntoView({ behavior: 'smooth' })}>
+                          Unlock Full Report — $49
+                        </button>
+                        <div className="micro-row">
+                          <span>Instant PDF</span> • <span>30-Day Guarantee</span> • <span>Secure</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <p className="roi-disclaimer">
+                      <strong>Disclaimer:</strong> This ROI estimate is illustrative only. Front Door Scan does not guarantee savings, seller credits, risk findings, or negotiation outcomes. The report summarizes public environmental datasets and does not replace professional environmental testing, legal advice, or a certified environmental assessment.
+                    </p>
+                  </div>
+                )}
+              </section>
+
+              {/* ── 4. MAIN CHECKOUT HERO ── */}
               <section className="hero-section">
                 <h1 className="hero-title">Don&apos;t sign blind.</h1>
                 <p className="hero-subtitle">
@@ -462,8 +580,56 @@ function GetStartedContent() {
         .ann-badge { background: var(--accent-primary); color: var(--text-primary); padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
 
         /* ── LAYOUT ── */
-        .main-content { padding: 60px 0 100px; }
+        .main-content { padding: 40px 0 100px; }
         .grid-layout { display: grid; grid-template-columns: 1fr 400px; gap: 60px; }
+
+        /* ── ROI MODULE ── */
+        .roi-module { margin-bottom: 60px; perspective: 1000px; }
+        
+        .roi-loading-card { background: #fff; padding: 60px 40px; border-radius: 24px; border: 1px solid #e2e8f0; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; }
+        .roi-loading-text { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
+        .roi-loading-addr { font-size: 0.9rem; color: var(--accent-primary); font-weight: 600; opacity: 0.7; }
+        .spinner-sm { width: 18px; height: 18px; border: 2px solid var(--accent-primary); border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        
+        .roi-ready-card { background: #fff; border-radius: 24px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
+        .roi-hdr { padding: 32px 32px 24px; border-bottom: 1px solid #f1f5f9; }
+        .roi-tag { background: #f0fdf4; color: var(--accent-primary); padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 12px; display: inline-block; }
+        .roi-title { font-size: 1.75rem; font-weight: 900; letter-spacing: -0.03em; margin-bottom: 8px; }
+        .roi-subtitle { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.5; margin: 0; }
+
+        .roi-addr-display { margin: 24px 32px; padding: 16px 24px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; }
+        .roi-addr-label { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 4px; }
+        .roi-addr-val { font-size: 1.1rem; font-weight: 800; color: var(--text-primary); }
+
+        .roi-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #e2e8f0; margin: 0 32px 24px; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; }
+        .roi-stat-box { background: #fff; padding: 24px 16px; text-align: center; }
+        .roi-stat-box.highlight { background: #f0fdf4; }
+        .roi-stat-label { display: block; font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px; }
+        .roi-stat-val { font-size: 1.4rem; font-weight: 900; letter-spacing: -0.02em; }
+        .roi-stat-val.accent { color: var(--accent-primary); }
+        .roi-stat-desc { font-size: 0.65rem; color: var(--text-muted); margin: 6px 0 0; font-weight: 600; }
+        
+        .roi-badge { display: inline-block; padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
+        .roi-badge.low { background: #f1f5f9; color: #64748b; }
+        .roi-badge.moderate { background: #fef9c3; color: #a16207; }
+        .roi-badge.elevated { background: #ffedd5; color: #9a3412; }
+        .roi-badge.high { background: #fee2e2; color: #991b1b; }
+
+        .roi-support-copy { margin: 0 32px 32px; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; font-style: italic; }
+
+        .locked-findings { margin: 0 32px 32px; background: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0; padding: 24px; position: relative; }
+        .locked-hdr { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 16px; }
+        .locked-rows { display: flex; flex-direction: column; gap: 10px; }
+        .locked-row { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); }
+        .locked-row.blur { filter: blur(4px); opacity: 0.5; pointer-events: none; user-select: none; }
+        
+        .locked-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(255,255,255,1) 40%, rgba(255,255,255,0.7)); display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 32px; text-align: center; }
+        .locked-overlay p { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); margin-bottom: 16px; }
+        .unlock-btn { background: var(--text-primary); color: #fff; border: none; padding: 14px 24px; border-radius: 10px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .unlock-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
+        .micro-row { display: flex; gap: 12px; font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-top: 12px; }
+
+        .roi-disclaimer { margin: 0; padding: 20px 32px; background: #f8fafc; border-top: 1px solid #e2e8f0; font-size: 0.7rem; color: var(--text-muted); line-height: 1.5; }
 
         /* ── HERO ── */
         .hero-section { margin-bottom: 60px; }

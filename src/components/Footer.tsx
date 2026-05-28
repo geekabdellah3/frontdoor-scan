@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ShieldCheck, Twitter, Github, Linkedin, Mail } from 'lucide-react';
+import { ShieldCheck, Globe, Mail } from 'lucide-react';
 
 export default function Footer() {
   return (
@@ -20,7 +20,7 @@ export default function Footer() {
               Comprehensive environmental health reports for US residential properties. Empowering homebuyers with data.
             </p>
             <div style={{ display: 'flex', gap: '16px' }}>
-              {[Twitter, Github, Linkedin, Mail].map((Icon, i) => (
+              {[Globe, Mail].map((Icon, i) => (
                 <a key={i} href="#" style={{ color: '#64748b', transition: 'color 0.2s ease' }} onMouseEnter={e => e.currentTarget.style.color = '#10b981'} onMouseLeave={e => e.currentTarget.style.color = '#64748b'}>
                   <Icon size={20} />
                 </a>

@@ -75,6 +75,14 @@ function GetStartedContent() {
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [address, setAddress] = useState(addressLine1);
+  const [unit, setUnit] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [zip, setZip] = useState('');
+  const [country, setCountry] = useState('United States');
+  
   const [cardNumber, setCardNumber] = useState('');
   const [cardExpiry, setCardExpiry] = useState('');
   const [cardCvc, setCardCvc] = useState('');
@@ -100,10 +108,9 @@ function GetStartedContent() {
     bundle: 199
   };
 
-  const handleNextStep = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (checkoutStep < 2) setCheckoutStep(2);
-    else handleFinalSubmit();
+    handleFinalSubmit();
   };
 
   const handleFinalSubmit = () => {
@@ -321,76 +328,68 @@ function GetStartedContent() {
                   </div>
                 </div>
 
-                {/* ── 9. CHECKOUT FORM ── */}
+                {/* ── 9. CHECKOUT FORM (Matched to Screenshot) ── */}
                 <div className="checkout-form-card">
-                  <h3 className="sidebar-title">{checkoutStep === 1 ? '2. Contact Information' : '2. Secure Payment'}</h3>
-                  <form onSubmit={handleNextStep}>
-                    {checkoutStep === 1 ? (
-                      <div className="form-step">
-                        <div className="input-group">
-                          <label>Email Address</label>
-                          <div className="input-wrap">
-                            <Mail size={16} className="input-icon" />
-                            <input 
-                              type="email" 
-                              placeholder="you@example.com" 
-                              required 
-                              value={email}
-                              onChange={(e) => setEmail(e.target.value)}
-                            />
-                          </div>
-                        </div>
-                        <div className="input-row">
-                          <div className="input-group">
-                            <label>First Name</label>
-                            <input type="text" placeholder="Jane" required value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-                          </div>
-                          <div className="input-group">
-                            <label>Last Name</label>
-                            <input type="text" placeholder="Doe" required value={lastName} onChange={(e) => setLastName(e.target.value)} />
-                          </div>
-                        </div>
-                        <button type="submit" className="cta-button">
-                          Continue to Payment
-                          <ArrowRight size={18} />
-                        </button>
+                  <form onSubmit={handleSubmit}>
+                    <div className="input-row">
+                      <div className="input-group">
+                        <input type="text" placeholder="First Name" required value={firstName} onChange={(e) => setFirstName(e.target.value)} />
                       </div>
-                    ) : (
-                      <div className="form-step">
-                        <div className="input-group">
-                          <label>Card Number</label>
-                          <div className="input-wrap">
-                            <CreditCard size={16} className="input-icon" />
-                            <input type="text" placeholder="0000 0000 0000 0000" required value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} />
-                          </div>
-                        </div>
-                        <div className="input-row">
-                          <div className="input-group">
-                            <label>Expiry (MM/YY)</label>
-                            <input type="text" placeholder="MM/YY" required value={cardExpiry} onChange={(e) => setCardExpiry(e.target.value)} />
-                          </div>
-                          <div className="input-group">
-                            <label>CVC</label>
-                            <input type="text" placeholder="123" required value={cardCvc} onChange={(e) => setCardCvc(e.target.value)} />
-                          </div>
-                        </div>
-                        <div className="summary-row">
-                          <span>Total to Pay:</span>
-                          <span className="total-amount">${prices[selectedPlan].toFixed(2)}</span>
-                        </div>
-                        <button type="submit" className="cta-button">
-                          Get My Report — ${prices[selectedPlan]}
-                          <Lock size={16} />
-                        </button>
-                        <button type="button" className="back-link" onClick={() => setCheckoutStep(1)}>← Change contact info</button>
+                      <div className="input-group">
+                        <input type="text" placeholder="Last Name" required value={lastName} onChange={(e) => setLastName(e.target.value)} />
                       </div>
-                    )}
+                    </div>
+
+                    <div className="input-group">
+                      <input type="email" placeholder="Email Address" required value={email} onChange={(e) => setEmail(e.target.value)} />
+                    </div>
+
+                    <div className="input-group">
+                      <input type="text" placeholder="Phone (optional)" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                    </div>
+
+                    <div className="input-group">
+                      <input type="text" placeholder="Street Address" required value={address} onChange={(e) => setAddress(e.target.value)} />
+                    </div>
+
+                    <div className="input-group">
+                      <input type="text" placeholder="Unit / Apt (optional)" value={unit} onChange={(e) => setUnit(e.target.value)} />
+                    </div>
+
+                    <div className="input-group">
+                      <input type="text" placeholder="City" required value={city} onChange={(e) => setCity(e.target.value)} />
+                    </div>
+
+                    <div className="input-row">
+                      <div className="input-group">
+                        <input type="text" placeholder="United States" value={country} disabled />
+                      </div>
+                      <div className="input-group">
+                        <input type="text" placeholder="State / Province" required value={state} onChange={(e) => setState(e.target.value)} />
+                      </div>
+                    </div>
+
+                    <div className="input-group">
+                      <input type="text" placeholder="ZIP Code" required value={zip} onChange={(e) => setZip(e.target.value)} />
+                    </div>
+
+                    {/* Simple Card Row for Demo */}
+                    <div className="input-group">
+                      <div className="input-wrap">
+                        <CreditCard size={14} className="input-icon" />
+                        <input type="text" placeholder="Card Number (Demo Only)" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} />
+                      </div>
+                    </div>
+
+                    <button type="submit" className="cta-button final-cta">
+                      <Lock size={18} fill="currentColor" />
+                      Get My Environmental Report — ${prices[selectedPlan].toFixed(2)}
+                    </button>
                   </form>
                   
-                  <div className="security-badges">
-                    <div className="sec-item"><Lock size={12} /> SSL Secure</div>
-                    <div className="sec-item"><Zap size={12} /> Instant Delivery</div>
-                    <div className="sec-item"><Clock size={12} /> Expires: {formatTime(timeLeft)}</div>
+                  <div className="security-badges-row">
+                    <Lock size={10} style={{ color: '#94a3b8' }} />
+                    <span>256-bit encrypted · 30-day guarantee · Instant delivery</span>
                   </div>
                 </div>
 
@@ -540,22 +539,28 @@ function GetStartedContent() {
         .badge-best { position: absolute; top: -8px; right: 12px; background: var(--text-primary); color: #fff; font-size: 0.6rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; }
 
         /* Form Card */
-        .checkout-form-card { background: #fff; padding: 24px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
-        .input-group { margin-bottom: 16px; }
-        .input-group label { display: block; font-size: 0.75rem; font-weight: 800; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .checkout-form-card { background: #fff; padding: 24px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .input-group { margin-bottom: 12px; }
         .input-wrap { position: relative; display: flex; align-items: center; }
-        .input-icon { position: absolute; left: 12px; color: var(--text-muted); }
-        .input-wrap input { width: 100%; padding: 12px 12px 12px 36px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.9rem; font-family: inherit; outline: none; transition: border-color 0.2s; }
-        .input-wrap input:focus { border-color: var(--accent-primary); }
-        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .input-row input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.9rem; outline: none; }
-        .summary-row { display: flex; justify-content: space-between; align-items: center; margin: 20px 0; border-top: 1px solid #f1f5f9; padding-top: 16px; }
-        .total-amount { font-size: 1.5rem; font-weight: 900; }
-        .cta-button { width: 100%; background: var(--accent-primary); color: #fff; border: none; padding: 16px; border-radius: 12px; font-size: 1rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; transition: all 0.2s; box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2); }
-        .cta-button:hover { background: var(--accent-primary-hover); transform: translateY(-1px); }
-        .back-link { display: block; width: 100%; text-align: center; background: none; border: none; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; margin-top: 12px; cursor: pointer; }
-        .security-badges { display: flex; justify-content: center; gap: 12px; margin-top: 20px; }
-        .sec-item { display: flex; align-items: center; gap: 4px; font-size: 0.6rem; font-weight: 700; color: var(--text-muted); }
+        .input-icon { position: absolute; left: 12px; color: #94a3b8; }
+        .input-group input { width: 100%; padding: 14px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.95rem; font-family: inherit; outline: none; transition: all 0.2s; color: #1e293b; }
+        .input-group input::placeholder { color: #94a3b8; font-weight: 400; }
+        .input-group input:focus { border-color: var(--accent-primary); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
+        .input-wrap input { padding-left: 36px; }
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+        .input-row .input-group { margin-bottom: 0; }
+        
+        .cta-button.final-cta {
+          background: #3d7a5e;
+          padding: 18px;
+          border-radius: 10px;
+          margin-top: 12px;
+          font-size: 1rem;
+          box-shadow: 0 4px 6px -1px rgba(61, 122, 94, 0.2);
+        }
+        .cta-button.final-cta:hover { background: #346951; }
+
+        .security-badges-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 16px; font-size: 0.75rem; color: #94a3b8; font-weight: 500; }
 
         /* ── TERMINAL OVERLAY ── */
         .term-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(8px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }

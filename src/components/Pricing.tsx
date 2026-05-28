@@ -93,55 +93,51 @@ export default function Pricing() {
   };
 
   return (
-    <section ref={containerRef} id="pricing" style={{ padding: '120px 24px', background: '#f8fafc', position: 'relative', overflow: 'hidden' }}>
-      <style>{`
-        @media (max-width: 768px) {
-          #pricing { padding: 80px 16px !important; }
-          .pricing-split { grid-template-columns: 1fr !important; gap: 40px !important; text-align: center; }
-          .pricing-split div:first-child { order: 2; }
-          .pricing-split div:last-child { order: 1; }
-          .pricing-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
-          .pricing-header h2 { font-size: 2.2rem !important; }
-        }
-      `}</style>
-
+    <section ref={containerRef} id="pricing" className="section-padding bg-zinc-50 relative overflow-hidden">
       {/* Background Decor */}
-      <div style={{ position: 'absolute', top: '20%', left: '-10%', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.04) 0%, transparent 70%)', filter: 'blur(80px)', pointerEvents: 'none' }} />
+      <div className="bg-glow -top-24 -left-24 w-[600px] h-[600px] opacity-40" />
+      <div className="bg-glow -bottom-24 -right-24 w-[600px] h-[600px] opacity-30" />
 
-      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-        <div ref={headerRef} className="pricing-header" style={{ textAlign: 'center', marginBottom: '80px' }}>
-          <h2 style={{ fontSize: 'clamp(2.2rem, 4vw, 3rem)', fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '20px', color: '#09090b' }}>
-            Simple, <span style={{ color: '#10b981' }}>Transparent Pricing</span>
+      <div className="container mx-auto px-6 relative z-10">
+        <div ref={headerRef} className="pricing-header text-center mb-16 lg:mb-24">
+          <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-zinc-900 tracking-tight leading-[1.1] mb-6">
+            Simple, <span className="text-emerald-600">Transparent Pricing</span>
           </h2>
-          <p style={{ color: '#64748b', fontSize: '1.2rem', fontWeight: 500, maxWidth: '600px', margin: '0 auto' }}>
+          <p className="text-lg md:text-xl text-zinc-500 font-medium max-w-2xl mx-auto leading-relaxed">
             Get the data you need to make an informed decision without the hidden fees.
           </p>
         </div>
 
-        <div ref={splitRef} className="pricing-split" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '80px', alignItems: 'center', marginBottom: '120px' }}>
-          <div style={{ position: 'relative', borderRadius: '32px', overflow: 'hidden', boxShadow: '0 40px 100px -20px rgba(0,0,0,0.15)', aspectRatio: '16/10' }}>
-            <Image 
-              src="/couple-reviewing.jpg" 
-              alt="Couple reviewing a report" 
-              fill
-              style={{ objectFit: 'cover' }}
-            />
-            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.4), transparent)' }} />
+        <div ref={splitRef} className="pricing-split grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-center mb-24 lg:mb-32">
+          <div className="lg:col-span-7 relative group">
+            <div className="relative rounded-[32px] overflow-hidden shadow-2xl aspect-[16/10]">
+              <Image 
+                src="/couple-reviewing.jpg" 
+                alt="Couple reviewing a report" 
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+            </div>
+            {/* Decorative element */}
+            <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl -z-10" />
           </div>
-          <div>
-            <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '24px', color: '#09090b', letterSpacing: '-0.02em', lineHeight: 1.2 }}>Why homebuyers and renters use Front Door Scan</h2>
-            <p style={{ color: '#64748b', fontSize: '1.1rem', marginBottom: '32px', lineHeight: 1.6, fontWeight: 500 }}>
+          <div className="lg:col-span-5 space-y-8">
+            <h2 className="text-3xl lg:text-4xl font-black text-zinc-900 tracking-tight leading-tight">
+              Why homebuyers and renters use Front Door Scan
+            </h2>
+            <p className="text-lg text-zinc-500 font-medium leading-relaxed">
               Buyers have used these reports to negotiate price reductions, request remediation, or walk away from properties with serious hidden risks.
             </p>
-            <ul style={{ display: 'flex', flexDirection: 'column', gap: '16px', listStyle: 'none', padding: 0 }}>
+            <ul className="space-y-4">
               {[
-                { text: 'Identify unseen environmental risks', color: '#10b981' },
-                { text: 'Strengthen your negotiating position', color: '#3b82f6' },
-                { text: 'Ensure long-term safety for your family', color: '#8b5cf6' }
+                { text: 'Identify unseen environmental risks', color: 'emerald' },
+                { text: 'Strengthen your negotiating position', color: 'blue' },
+                { text: 'Ensure long-term safety for your family', color: 'purple' }
               ].map((item, i) => (
-                <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '14px', color: '#334155', fontWeight: 600, fontSize: '1.05rem' }}>
-                  <div style={{ background: `${item.color}15`, padding: '6px', borderRadius: '50%', display: 'flex' }}>
-                    <CheckCircle2 color={item.color} size={18} />
+                <li key={i} className="flex items-center gap-4 text-zinc-700 font-bold text-lg">
+                  <div className={`p-1.5 rounded-full bg-${item.color}-500/10 text-${item.color}-500`}>
+                    <CheckCircle2 size={20} />
                   </div>
                   {item.text}
                 </li>
@@ -150,111 +146,65 @@ export default function Pricing() {
           </div>
         </div>
         
-        <div ref={cardsRef} className="pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '32px', width: '100%', maxWidth: '1000px', margin: '0 auto', perspective: '1500px' }}>
+        <div ref={cardsRef} className="pricing-grid grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto perspective-container">
           
           {/* Single Report */}
           <div 
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            style={{ 
-              padding: '48px 40px', 
-              background: 'rgba(255, 255, 255, 0.7)', 
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255, 255, 255, 0.8)',
-              borderRadius: '32px',
-              boxShadow: '0 20px 50px -15px rgba(0,0,0,0.05)',
-              display: 'flex',
-              flexDirection: 'column',
-              transformStyle: 'preserve-3d',
-              transition: 'border-color 0.3s ease'
-            }}
+            className="glass-panel-spatial p-10 md:p-12 flex flex-col items-start bg-white/70 hover:bg-white transition-all duration-500"
           >
-            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '8px', color: '#09090b', letterSpacing: '-0.01em' }}>Single Property</h3>
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px', marginBottom: '24px' }}>
-              <span style={{ fontSize: '3.5rem', fontWeight: 800, color: '#09090b', letterSpacing: '-0.04em' }}>$49</span>
-              <span style={{ color: '#94a3b8', textDecoration: 'line-through', marginBottom: '14px', fontSize: '1.2rem', fontWeight: 600 }}>$69</span>
+            <h3 className="text-xl font-black text-zinc-900 uppercase tracking-widest mb-4">Single Property</h3>
+            <div className="flex items-baseline gap-2 mb-6">
+              <span className="text-6xl font-black text-zinc-900 tracking-tighter">$49</span>
+              <span className="text-xl text-zinc-400 font-bold line-through">$69</span>
             </div>
-            <p style={{ color: '#64748b', marginBottom: '32px', lineHeight: 1.6, fontWeight: 500 }}>
+            <p className="text-zinc-500 font-medium mb-10 leading-relaxed">
               One full environmental health report with PDF download, valid forever.
             </p>
             
-            <ul style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '48px', listStyle: 'none', padding: 0 }}>
+            <ul className="space-y-4 mb-12 w-full">
               {['Water & Air Quality', 'Flood & Soil Risk', 'Superfund & Radon', 'Negotiation Points'].map((feat, i) => (
-                <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#475569', fontWeight: 600, fontSize: '0.95rem' }}>
-                  <CheckCircle2 color="#10b981" size={18} /> {feat}
+                <li key={i} className="flex items-center gap-3 text-zinc-700 font-bold text-sm">
+                  <CheckCircle2 className="text-emerald-500" size={18} /> {feat}
                 </li>
               ))}
             </ul>
             
-            <Link href="/get-started" style={{ 
-              background: '#09090b', 
-              color: 'white', 
-              padding: '18px', 
-              borderRadius: '16px', 
-              textAlign: 'center', 
-              fontWeight: 800, 
-              textDecoration: 'none',
-              marginTop: 'auto',
-              boxShadow: '0 10px 20px -5px rgba(0,0,0,0.2)',
-              transition: 'all 0.3s ease'
-            }}
-            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-            >Get Single Report</Link>
+            <Link href="/get-started" className="w-full btn btn-primary py-5 text-lg">
+              Get Single Report
+            </Link>
           </div>
           
           {/* Bundle */}
           <div 
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            style={{ 
-              padding: '48px 40px', 
-              background: 'rgba(255, 255, 255, 0.8)', 
-              backdropFilter: 'blur(24px)',
-              border: '2px solid #10b981',
-              borderRadius: '32px',
-              boxShadow: '0 30px 60px -20px rgba(16, 185, 129, 0.15)',
-              display: 'flex',
-              flexDirection: 'column',
-              position: 'relative',
-              transformStyle: 'preserve-3d'
-            }}
+            className="glass-panel-spatial p-10 md:p-12 flex flex-col items-start bg-white border-emerald-500/50 relative"
           >
-            <div style={{ position: 'absolute', top: '-14px', left: '50%', transform: 'translateX(-50%) translateZ(30px)', background: '#10b981', color: 'white', padding: '6px 20px', borderRadius: '999px', fontSize: '0.8rem', fontWeight: 800, letterSpacing: '1px' }}>
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-6 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20">
               MOST POPULAR
             </div>
-            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '8px', color: '#09090b', letterSpacing: '-0.01em' }}>5-Property Bundle</h3>
-            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px', marginBottom: '24px' }}>
-              <span style={{ fontSize: '3.5rem', fontWeight: 800, color: '#09090b', letterSpacing: '-0.04em' }}>$199</span>
-              <span style={{ color: '#64748b', marginBottom: '14px', fontSize: '1rem', fontWeight: 700 }}>($39.80 / report)</span>
+            <h3 className="text-xl font-black text-emerald-600 uppercase tracking-widest mb-4">5-Property Bundle</h3>
+            <div className="flex items-baseline gap-2 mb-6">
+              <span className="text-6xl font-black text-zinc-900 tracking-tighter">$199</span>
+              <span className="text-sm text-zinc-400 font-bold">($39.80 / report)</span>
             </div>
-            <p style={{ color: '#64748b', marginBottom: '32px', lineHeight: 1.6, fontWeight: 500 }}>
+            <p className="text-zinc-500 font-medium mb-10 leading-relaxed">
               Compare up to 5 homes side-by-side. Credits valid for 6 months.
             </p>
             
-            <ul style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '48px', listStyle: 'none', padding: 0 }}>
+            <ul className="space-y-4 mb-12 w-full">
               {['Everything in Single', '5 Report Credits', 'Side-by-side Comparison', 'Priority Email Support'].map((feat, i) => (
-                <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#475569', fontWeight: 600, fontSize: '0.95rem' }}>
-                  <CheckCircle2 color="#10b981" size={18} /> {feat}
+                <li key={i} className="flex items-center gap-3 text-zinc-700 font-bold text-sm">
+                  <CheckCircle2 className="text-emerald-500" size={18} /> {feat}
                 </li>
               ))}
             </ul>
             
-            <Link href="/get-started" style={{ 
-              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
-              color: 'white', 
-              padding: '18px', 
-              borderRadius: '16px', 
-              textAlign: 'center', 
-              fontWeight: 800, 
-              textDecoration: 'none',
-              marginTop: 'auto',
-              boxShadow: '0 12px 24px -8px rgba(16, 185, 129, 0.4)',
-              transition: 'all 0.3s ease'
-            }}
-            onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
-            onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-            >Get Bundle Now</Link>
+            <Link href="/get-started" className="w-full btn btn-accent py-5 text-lg">
+              Get Bundle Now
+            </Link>
           </div>
           
         </div>

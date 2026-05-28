@@ -16,130 +16,38 @@ export default function Navbar() {
   }, []);
 
   return (
-    <>
-      <style>{`
-        .nav-fixed-container {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          z-index: 1000;
-          padding: 16px 24px;
-          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .nav-glass {
-          max-width: 1280px;
-          margin: 0 auto;
-          background: ${isScrolled ? 'rgba(255, 255, 255, 0.7)' : 'rgba(255, 255, 255, 0)'};
-          backdrop-filter: ${isScrolled ? 'blur(16px)' : 'none'};
-          -webkit-backdrop-filter: ${isScrolled ? 'blur(16px)' : 'none'};
-          border: 1px solid ${isScrolled ? 'rgba(255, 255, 255, 0.5)' : 'rgba(255, 255, 255, 0)'};
-          border-radius: 20px;
-          padding: 12px 24px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          box-shadow: ${isScrolled ? '0 10px 30px -10px rgba(0,0,0,0.08), 0 0 1px rgba(0,0,0,0.1)' : 'none'};
-          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .nav-logo {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          font-size: 1.1rem;
-          font-weight: 800;
-          text-decoration: none;
-          color: #09090b;
-          letter-spacing: -0.02em;
-        }
-        .nav-actions {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-        }
-        .nav-link {
-          font-size: 0.9rem;
-          font-weight: 600;
-          color: #64748b;
-          text-decoration: none;
-          transition: color 0.2s ease;
-          padding: 8px 12px;
-          border-radius: 8px;
-        }
-        .nav-link:hover {
-          color: #09090b;
-          background: rgba(0,0,0,0.03);
-        }
-        .nav-btn-signin {
-          font-size: 0.9rem;
-          font-weight: 700;
-          color: #09090b;
-          text-decoration: none;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          padding: 10px 16px;
-          border-radius: 12px;
-          transition: background 0.2s ease;
-        }
-        .nav-btn-signin:hover {
-          background: rgba(0,0,0,0.04);
-        }
-        .nav-btn-primary {
-          background: #10b981;
-          color: white;
-          font-size: 0.9rem;
-          font-weight: 800;
-          text-decoration: none;
-          padding: 10px 20px;
-          border-radius: 12px;
-          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
-          transition: all 0.3s ease;
-        }
-        .nav-btn-primary:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
-          background: #059669;
-        }
+    <div className={`fixed top-0 left-0 right-0 z-[1000] px-4 md:px-6 transition-all duration-500 ${
+      isScrolled ? 'py-4' : 'py-6'
+    }`}>
+      <nav className={`max-w-7xl mx-auto flex items-center justify-between px-6 py-3 rounded-2xl transition-all duration-500 ${
+        isScrolled 
+          ? 'bg-white/70 backdrop-blur-xl border border-white/50 shadow-xl shadow-zinc-900/5' 
+          : 'bg-transparent border border-transparent'
+      }`}>
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="bg-emerald-500/10 p-2 rounded-xl group-hover:bg-emerald-500 group-hover:text-white transition-all duration-500">
+            <ShieldCheck className={isScrolled ? "text-emerald-500 group-hover:text-white" : "text-emerald-600 group-hover:text-white"} size={22} />
+          </div>
+          <span className="font-black text-xl tracking-tight text-zinc-900">Front Door <span className="text-emerald-600">Scan</span></span>
+        </Link>
 
-        @media (max-width: 768px) {
-          .nav-fixed-container { padding: 12px 16px; }
-          .nav-glass { padding: 8px 16px; }
-          .nav-logo span { font-size: 1rem; }
-          .nav-links-desktop { display: none !important; }
-          .nav-btn-signin { padding: 8px 10px; }
-          .nav-btn-signin span { display: none; }
-          .nav-btn-primary { padding: 8px 16px; font-size: 0.85rem; }
-        }
-      `}</style>
+        <div className="hidden md:flex items-center gap-2">
+          <Link href="/#features" className="px-4 py-2 text-sm font-bold text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100/50 rounded-xl transition-all">Features</Link>
+          <Link href="/#pricing" className="px-4 py-2 text-sm font-bold text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100/50 rounded-xl transition-all">Pricing</Link>
+          <Link href="/#faq" className="px-4 py-2 text-sm font-bold text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100/50 rounded-xl transition-all">FAQ</Link>
+        </div>
 
-      <div className="nav-fixed-container">
-        <nav className="nav-glass">
-          <Link href="/" className="nav-logo">
-            <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '6px', borderRadius: '10px' }}>
-              <ShieldCheck color="#10b981" size={20} />
-            </div>
-            <span>Front Door Scan</span>
+        <div className="flex items-center gap-3">
+          <Link href="/signin" className="hidden sm:flex items-center gap-2 px-4 py-2 text-sm font-bold text-zinc-600 hover:text-zinc-900 transition-colors">
+            <LogIn size={18} />
+            Sign In
           </Link>
-
-          <div className="nav-links-desktop" style={{ display: 'flex', gap: '8px' }}>
-            <Link href="/#features" className="nav-link">Features</Link>
-            <Link href="/#pricing" className="nav-link">Pricing</Link>
-            <Link href="/#faq" className="nav-link">FAQ</Link>
-          </div>
-
-          <div className="nav-actions">
-            <Link href="/signin" className="nav-btn-signin">
-              <LogIn size={18} />
-              <span>Sign In</span>
-            </Link>
-            <Link href="/signup" className="nav-btn-primary">
-              Get Started
-            </Link>
-          </div>
-        </nav>
-      </div>
-    </>
+          <Link href="/signup" className="btn btn-primary px-6 py-2.5 text-xs tracking-widest uppercase">
+            Get Started
+          </Link>
+        </div>
+      </nav>
+    </div>
   );
 }
 

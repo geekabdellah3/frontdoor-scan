@@ -61,68 +61,45 @@ export default function FAQ() {
   }, []);
 
   return (
-    <section ref={containerRef} id="faq" style={{ padding: '120px 24px', background: 'white', position: 'relative' }}>
-      <div style={{ position: 'absolute', top: '50%', right: '-10%', width: '400px', height: '400px', background: 'radial-gradient(circle, rgba(16,185,129,0.03) 0%, transparent 70%)', filter: 'blur(60px)', pointerEvents: 'none' }} />
+    <section ref={containerRef} id="faq" className="section-padding bg-white relative overflow-hidden">
+      <div className="bg-glow top-1/2 -right-24 w-96 h-96 opacity-30" />
       
-      <div className="container" style={{ maxWidth: '900px', position: 'relative' }}>
-        <div className="faq-title" style={{ textAlign: 'center', marginBottom: '64px' }}>
-          <h2 style={{ fontSize: 'clamp(2rem, 4vw, 2.5rem)', fontWeight: 800, letterSpacing: '-0.03em', color: '#09090b', marginBottom: '16px' }}>Frequently Asked Questions</h2>
-          <p style={{ color: '#64748b', fontSize: '1.1rem', fontWeight: 500 }}>Everything you need to know about Front Door Scan reports.</p>
+      <div className="container mx-auto max-w-4xl relative">
+        <div className="faq-title text-center mb-16 lg:mb-24">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-black text-zinc-900 tracking-tight leading-[1.1] mb-6">
+            Frequently Asked <span className="text-emerald-600">Questions</span>
+          </h2>
+          <p className="text-lg text-zinc-500 font-medium">Everything you need to know about Front Door Scan reports.</p>
         </div>
         
-        <div className="faq-list" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="faq-list space-y-4">
           {faqs.map((faq, i) => (
             <div 
               key={i} 
-              className="faq-item"
-              style={{ 
-                background: openIndex === i ? 'rgba(255, 255, 255, 0.9)' : 'rgba(248, 250, 252, 0.5)',
-                border: '1px solid',
-                borderColor: openIndex === i ? 'rgba(16, 185, 129, 0.2)' : 'rgba(226, 232, 240, 0.8)',
-                borderRadius: '24px',
-                overflow: 'hidden',
-                transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                boxShadow: openIndex === i ? '0 15px 30px -10px rgba(0,0,0,0.05)' : 'none'
-              }}
+              className={`faq-item glass-panel-spatial overflow-hidden transition-all duration-500 ${
+                openIndex === i ? 'bg-white/90 border-emerald-200' : 'bg-white/50 border-white hover:border-zinc-200'
+              }`}
             >
               <button 
                 onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                style={{ 
-                  width: '100%',
-                  padding: '24px 32px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  gap: '20px'
-                }}
+                className="w-full p-6 md:p-8 flex items-center justify-between gap-6 text-left"
               >
-                <span style={{ fontSize: '1.15rem', fontWeight: 700, color: openIndex === i ? '#09090b' : '#334155', transition: 'color 0.3s ease' }}>
+                <span className={`text-lg font-bold tracking-tight transition-colors duration-300 ${
+                  openIndex === i ? 'text-zinc-900' : 'text-zinc-700'
+                }`}>
                   {faq.q}
                 </span>
-                <div style={{ 
-                  background: openIndex === i ? '#10b981' : 'rgba(226, 232, 240, 0.8)', 
-                  padding: '8px', 
-                  borderRadius: '12px', 
-                  color: openIndex === i ? 'white' : '#64748b',
-                  transition: 'all 0.3s ease',
-                  flexShrink: 0
-                }}>
+                <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-500 ${
+                  openIndex === i ? 'bg-emerald-500 text-white' : 'bg-zinc-100 text-zinc-400'
+                }`}>
                   {openIndex === i ? <Minus size={18} strokeWidth={3} /> : <Plus size={18} strokeWidth={3} />}
                 </div>
               </button>
               
-              <div style={{ 
-                maxHeight: openIndex === i ? '300px' : '0',
-                opacity: openIndex === i ? 1 : 0,
-                overflow: 'hidden',
-                transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                padding: openIndex === i ? '0 32px 32px 32px' : '0 32px'
-              }}>
-                <p style={{ color: '#64748b', lineHeight: 1.7, fontSize: '1rem', fontWeight: 500 }}>
+              <div className={`transition-all duration-500 ease-in-out overflow-hidden ${
+                openIndex === i ? 'max-h-[500px] opacity-100 pb-8 px-6 md:px-8' : 'max-h-0 opacity-0 px-6 md:px-8'
+              }`}>
+                <p className="text-zinc-500 font-medium leading-relaxed">
                   {faq.a}
                 </p>
               </div>

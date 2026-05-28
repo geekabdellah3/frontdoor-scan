@@ -5,80 +5,76 @@ import { ShieldCheck, Globe, Mail } from 'lucide-react';
 
 export default function Footer() {
   return (
-    <footer style={{ background: '#09090b', color: 'white', padding: '100px 24px 40px', position: 'relative', overflow: 'hidden' }}>
+    <footer className="bg-zinc-950 text-white pt-24 pb-12 px-6 relative overflow-hidden">
       {/* Background Decor */}
-      <div style={{ position: 'absolute', bottom: '-10%', left: '50%', transform: 'translateX(-50%)', width: '80%', height: '300px', background: 'radial-gradient(ellipse at center, rgba(16,185,129,0.1) 0%, transparent 70%)', filter: 'blur(50px)', pointerEvents: 'none' }} />
+      <div className="absolute bottom-[-10%] left-1/2 -translate-x-1/2 w-[80%] h-[300px] bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.1)_0%,transparent_70%)] blur-[50px] pointer-events-none" />
 
-      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr repeat(3, 1fr)', gap: '60px', marginBottom: '80px' }}>
-          <div className="footer-brand">
-            <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1.4rem', fontWeight: 800, color: 'white', textDecoration: 'none', marginBottom: '24px', letterSpacing: '-0.02em' }}>
-              <div style={{ background: 'rgba(16, 185, 129, 0.2)', padding: '8px', borderRadius: '12px', border: '1px solid rgba(16, 185, 129, 0.3)' }}>
-                <ShieldCheck color="#10b981" size={24} />
+      <div className="container mx-auto relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-16 mb-20">
+          <div className="lg:col-span-5 space-y-8">
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="bg-emerald-500/20 p-2 rounded-xl border border-emerald-500/30 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-500">
+                <ShieldCheck className="text-emerald-500 group-hover:text-white" size={24} />
               </div>
-              <span>Front Door Scan</span>
+              <span className="font-black text-2xl tracking-tight text-white">Front Door <span className="text-emerald-600">Scan</span></span>
             </Link>
-            <p style={{ color: '#94a3b8', lineHeight: 1.7, fontSize: '1.05rem', fontWeight: 500, maxWidth: '320px', marginBottom: '32px' }}>
-              Comprehensive environmental health reports for US residential properties. Empowering homebuyers with data.
+            <p className="text-zinc-400 font-medium text-lg leading-relaxed max-w-md">
+              Comprehensive environmental health reports for US residential properties. Empowering homebuyers with federal data transparency.
             </p>
-            <div style={{ display: 'flex', gap: '16px' }}>
+            <div className="flex gap-4">
               {[Globe, Mail].map((Icon, i) => (
-                <a key={i} href="#" style={{ color: '#64748b', transition: 'color 0.2s ease' }} onMouseEnter={e => e.currentTarget.style.color = '#10b981'} onMouseLeave={e => e.currentTarget.style.color = '#64748b'}>
+                <a key={i} href="#" className="w-10 h-10 rounded-xl bg-zinc-900 flex items-center justify-center text-zinc-500 hover:text-emerald-500 hover:bg-emerald-500/10 transition-all">
                   <Icon size={20} />
                 </a>
               ))}
             </div>
           </div>
           
-          {[
-            { 
-              title: 'Product', 
-              links: [{label: 'Features', href: '#features'}, {label: 'Pricing', href: '#pricing'}, {label: 'Success Stories', href: '#'}, {label: 'Get Started', href: '/get-started'}] 
-            },
-            { 
-              title: 'Company', 
-              links: [{label: 'About Us', href: '#'}, {label: 'Our Data', href: '#'}, {label: 'Blog', href: '#'}, {label: 'Contact', href: '#'}] 
-            },
-            { 
-              title: 'Legal', 
-              links: [{label: 'Terms of Service', href: '/terms'}, {label: 'Privacy Policy', href: '/privacy'}, {label: 'Cookie Policy', href: '#'}, {label: 'Disclaimer', href: '#'}] 
-            }
-          ].map((col, i) => (
-            <div key={i} className="footer-col">
-              <h4 style={{ color: 'white', fontWeight: 700, fontSize: '1rem', marginBottom: '24px', textTransform: 'uppercase', letterSpacing: '1px' }}>{col.title}</h4>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                {col.links.map((link, j) => (
-                  <Link key={j} href={link.href} style={{ color: '#94a3b8', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 600, transition: 'all 0.2s ease' }} onMouseEnter={e => { e.currentTarget.style.color = 'white'; e.currentTarget.style.transform = 'translateX(4px)'; }} onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.transform = 'translateX(0)'; }}>
-                    {link.label}
-                  </Link>
-                ))}
+          <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-12">
+            {[
+              { 
+                title: 'Product', 
+                links: [{label: 'Features', href: '/#features'}, {label: 'Pricing', href: '/#pricing'}, {label: 'Success Stories', href: '#'}, {label: 'Get Started', href: '/get-started'}] 
+              },
+              { 
+                title: 'Company', 
+                links: [{label: 'About Us', href: '#'}, {label: 'Our Data', href: '#'}, {label: 'Blog', href: '#'}, {label: 'Contact', href: '#'}] 
+              },
+              { 
+                title: 'Legal', 
+                links: [{label: 'Terms of Service', href: '/terms'}, {label: 'Privacy Policy', href: '/privacy'}, {label: 'Cookie Policy', href: '#'}, {label: 'Disclaimer', href: '#'}] 
+              }
+            ].map((col, i) => (
+              <div key={i} className="space-y-6">
+                <h4 className="text-white font-black text-xs uppercase tracking-[0.2em]">{col.title}</h4>
+                <div className="flex flex-col gap-4">
+                  {col.links.map((link, j) => (
+                    <Link key={j} href={link.href} className="text-zinc-500 font-bold text-sm hover:text-white hover:translate-x-1 transition-all duration-300">
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
         
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
-          <p style={{ color: '#64748b', fontSize: '0.9rem', fontWeight: 600 }}>
-            © {new Date().getFullYear()} Front Door Scan Inc. Built for transparency.
+        <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+          <p className="text-zinc-600 font-bold text-sm">
+            © {new Date().getFullYear()} Front Door Scan Inc. Built for spatial transparency.
           </p>
-          <div style={{ display: 'flex', gap: '24px', color: '#64748b', fontSize: '0.9rem', fontWeight: 600 }}>
-            <span>Privacy Preferred</span>
-            <span>U.S. Data Only</span>
+          <div className="flex gap-8 text-zinc-600 font-black text-[10px] uppercase tracking-widest">
+            <span className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              Privacy Preferred
+            </span>
+            <span className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              U.S. Data Only
+            </span>
           </div>
         </div>
       </div>
-
-      <style>{`
-        @media (max-width: 900px) {
-          footer div.container > div:first-child { grid-template-columns: 1fr 1fr !important; gap: 40px !important; }
-        }
-        @media (max-width: 600px) {
-          footer div.container > div:first-child { grid-template-columns: 1fr !important; gap: 48px !important; text-align: center; }
-          .footer-brand { display: flex; flex-direction: column; align-items: center; }
-          .footer-brand p { margin-left: auto; margin-right: auto; }
-          .footer-brand div { justify-content: center; }
-        }
-      `}</style>
     </footer>
   );
 }

@@ -683,14 +683,42 @@ function GetStartedContent() {
         .input-row .input-group { margin-bottom: 0; }
         
         .cta-button.final-cta {
-          background: #3d7a5e;
-          padding: 18px;
-          border-radius: 10px;
-          margin-top: 12px;
-          font-size: 1rem;
-          box-shadow: 0 4px 6px -1px rgba(61, 122, 94, 0.2);
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          padding: 20px 24px;
+          border-radius: 12px;
+          margin-top: 16px;
+          font-size: 1.05rem;
+          font-weight: 800;
+          letter-spacing: -0.01em;
+          box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25), 0 2px 4px rgba(0, 0, 0, 0.05);
+          position: relative;
+          overflow: hidden;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .cta-button.final-cta:hover { background: #346951; }
+        .cta-button.final-cta::after {
+          content: '';
+          position: absolute;
+          top: -50%;
+          left: -60%;
+          width: 20%;
+          height: 200%;
+          background: rgba(255, 255, 255, 0.2);
+          transform: rotate(30deg);
+          animation: shimmer 4s infinite;
+        }
+        @keyframes shimmer {
+          0% { left: -60%; }
+          20% { left: 150%; }
+          100% { left: 150%; }
+        }
+        .cta-button.final-cta:hover { 
+          transform: translateY(-2px) scale(1.02);
+          box-shadow: 0 8px 25px rgba(16, 185, 129, 0.35), 0 4px 6px rgba(0, 0, 0, 0.08);
+          background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+        .cta-button.final-cta:active {
+          transform: translateY(0) scale(0.98);
+        }
 
         .security-badges-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 16px; font-size: 0.75rem; color: #94a3b8; font-weight: 500; }
 

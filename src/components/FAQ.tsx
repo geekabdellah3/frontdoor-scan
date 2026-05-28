@@ -1,42 +1,103 @@
+'use client';
+
+import { useState } from 'react';
+import { Plus, Minus, HelpCircle } from 'lucide-react';
+
 const faqs = [
   {
-    q: "How quickly will I receive my report?",
-    a: "Most reports are generated within 5–10 minutes after purchase. You'll receive an email with a link to view and download your report as soon as it's ready."
+    question: "What exactly is in a Front Door Scan report?",
+    answer: "Each report aggregates 90+ federal and state datasets covering water quality (PFAS, lead, contaminants), air quality (historical PM2.5/Ozone), flood risk (FEMA & NOAA), soil contamination (Superfund/Brownfield proximity), and radon risk. We also provide property-specific negotiation talking points."
   },
   {
-    q: "What data sources do you use?",
-    a: "Official government sources including the EPA, FEMA, USGS, AirNow, Census Bureau, CDC, and state environmental agencies — 15+ federal databases in total."
+    question: "How long does it take to get my report?",
+    answer: "Delivery is near-instant. Once you complete the payment and enter your email at checkout, our system compiles the live data and emails you a professional 15-page PDF report, typically within 2-5 minutes."
   },
   {
-    q: "Can I use this to negotiate my home price or lease?",
-    a: "Yes. Each report includes a dedicated negotiation section with property-specific talking points for sellers, landlords, and realtors."
+    question: "Is this the same as a standard home inspection?",
+    answer: "No. Standard inspections focus on the structure of the building (roof, HVAC, plumbing). They almost never cover environmental factors like water purity, air pollution, or nearby industrial hazards. We provide the environmental data that standard inspectors miss."
   },
   {
-    q: "Is this useful for renters?",
-    a: "Yes. Renters benefit just as much — knowing about water, air, or contamination issues helps inform lease decisions and landlord negotiations."
+    question: "Where do you get your data from?",
+    answer: "We source our data directly from verified public records including the EPA (ECHO, EJScreen), FEMA, NOAA, USGS, and local state health departments. Our system updates daily to ensure you have the most current information available."
   },
   {
-    q: "What if my address isn't found?",
-    a: "If we can't find data for your specific address, we'll search using the nearest available location data and indicate this in your report. If no meaningful data can be found, we offer a full refund."
+    question: "Can I use this report to negotiate with a seller?",
+    answer: "Yes. Many of our users use the specific findings (like high lead levels in local water or proximity to a Superfund site) to negotiate price reductions, request remediation credits, or justify walking away from a high-risk property."
   }
 ];
 
 export default function FAQ() {
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
+
   return (
-    <section id="faq" className="container" style={{ padding: '80px 24px', maxWidth: '800px' }}>
-      <h2 style={{ fontSize: '2.5rem', marginBottom: '48px', textAlign: 'center' }}>Frequently Asked Questions</h2>
-      
-      <div className="flex flex-col" style={{ gap: '16px' }}>
-        {faqs.map((faq, i) => (
-          <details key={i} className="glass-panel" style={{ padding: '24px', cursor: 'pointer' }}>
-            <summary style={{ fontSize: '1.2rem', fontWeight: 600, outline: 'none' }}>
-              {faq.q}
-            </summary>
-            <p style={{ marginTop: '16px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-              {faq.a}
-            </p>
-          </details>
-        ))}
+    <section id="faq" style={{ padding: '100px 24px' }}>
+      <div className="container" style={{ margin: '0 auto', maxWidth: '800px' }}>
+        
+        <div style={{ textAlign: 'center', marginBottom: '64px' }}>
+          <div className="inline-flex items-center glass-card" style={{ padding: '8px 16px', borderRadius: '999px', display: 'inline-flex', gap: '8px', marginBottom: '24px', fontSize: '0.9rem', fontWeight: 500 }}>
+            <HelpCircle size={16} color="var(--accent-primary)" />
+            Frequently Asked Questions
+          </div>
+          <h2 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '16px' }}>
+            Everything you need to <span className="text-gradient">know</span>
+          </h2>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {faqs.map((faq, index) => (
+            <div 
+              key={index} 
+              className="glass-card reveal-up" 
+              style={{ 
+                borderRadius: '20px', 
+                overflow: 'hidden',
+                borderColor: openIndex === index ? 'var(--accent-primary)' : 'var(--glass-border)'
+              }}
+            >
+              <button 
+                onClick={() => setOpenIndex(openIndex === index ? null : index)}
+                style={{ 
+                  width: '100%', 
+                  padding: '24px 32px', 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  background: 'transparent',
+                  border: 'none',
+                  textAlign: 'left',
+                  cursor: 'pointer'
+                }}
+              >
+                <span style={{ fontSize: '1.1rem', fontWeight: 700, color: openIndex === index ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
+                  {faq.question}
+                </span>
+                <div style={{ 
+                  width: '32px', 
+                  height: '32px', 
+                  borderRadius: '10px', 
+                  background: openIndex === index ? 'var(--accent-primary)' : 'var(--bg-secondary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'all 0.3s ease'
+                }}>
+                  {openIndex === index ? <Minus size={18} color="white" /> : <Plus size={18} color="var(--text-primary)" />}
+                </div>
+              </button>
+              
+              <div style={{ 
+                maxHeight: openIndex === index ? '500px' : '0',
+                overflow: 'hidden',
+                transition: 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
+                opacity: openIndex === index ? 1 : 0
+              }}>
+                <div style={{ padding: '0 32px 32px 32px', color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '1rem' }}>
+                  {faq.answer}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

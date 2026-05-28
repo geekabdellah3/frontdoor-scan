@@ -6,24 +6,27 @@ import { ShieldCheck, LogIn, ArrowRight } from 'lucide-react';
 export default function Navbar() {
   return (
     <nav style={{ 
-      position: 'sticky', 
+      position: 'fixed', 
       top: 0, 
+      left: 0,
+      right: 0,
       zIndex: 1000, 
-      background: 'rgba(255, 255, 255, 0.7)',
-      backdropFilter: 'blur(16px)',
-      WebkitBackdropFilter: 'blur(16px)',
+      background: 'rgba(255, 255, 255, 0.8)',
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
       borderBottom: '1px solid var(--border-color)',
-      width: '100%',
-      padding: '12px 0'
+      padding: '16px 0'
     }}>
-      <div className="container" style={{ margin: '0 auto', maxWidth: '1200px', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.25rem', fontWeight: 800, textDecoration: 'none', color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>
-          <ShieldCheck color="var(--accent-primary)" size={28} className="nav-logo-icon" />
-          <span className="nav-logo-text">Front Door Scan</span>
+      <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none', color: 'var(--text-primary)' }}>
+          <div style={{ background: 'var(--text-primary)', padding: '6px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <ShieldCheck color="white" size={24} />
+          </div>
+          <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.02em' }}>Front Door Scan</span>
         </Link>
         
-        <div className="nav-main-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-          <div className="nav-links-desktop" style={{ display: 'flex', gap: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }} className="nav-main-wrapper">
+          <div className="nav-links-desktop" style={{ display: 'flex', gap: '32px' }}>
             {["Features", "Pricing", "FAQ"].map((item) => (
               <Link 
                 key={item} 
@@ -44,11 +47,10 @@ export default function Navbar() {
           </div>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <Link href="/signin" className="btn-antigravity-outline" style={{ padding: '8px 16px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <LogIn size={18} />
-              <span className="nav-btn-text">Sign In</span>
+            <Link href="/signin" style={{ textDecoration: 'none', color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.95rem', padding: '0 12px' }} className="nav-signin-link">
+              Sign In
             </Link>
-            <Link href="/get-started" className="btn-antigravity" style={{ padding: '8px 20px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Link href="/get-started" className="btn-primary" style={{ padding: '10px 20px', fontSize: '0.9rem' }}>
               <span>Order Report</span>
               <ArrowRight size={16} className="nav-btn-icon" />
             </Link>
@@ -57,40 +59,25 @@ export default function Navbar() {
       </div>
 
       <style jsx>{`
-        /* Desktop Default is flex */
-        .nav-links-desktop {
-          display: flex;
-        }
-        .nav-logo-text, .nav-btn-text {
-          display: inline;
-        }
-
-        /* Tablet Breakpoint */
         @media (max-width: 992px) {
           .nav-links-desktop {
-            display: none;
+            display: none !important;
           }
         }
 
-        /* Mobile Breakpoint */
         @media (max-width: 640px) {
-          .nav-logo-text {
-            display: none;
-          }
-          .nav-btn-text {
-            display: none;
-          }
-          .nav-btn-icon {
-            display: none;
+          .nav-signin-link {
+            display: none !important;
           }
           .nav-main-wrapper {
             gap: 12px !important;
           }
-          .container {
-            padding: 0 16px !important;
+          .btn-primary {
+            padding: 8px 16px !important;
+            font-size: 0.85rem !important;
           }
-          nav {
-            padding: 8px 0 !important;
+          .nav-btn-icon {
+            display: none !important;
           }
         }
       `}</style>

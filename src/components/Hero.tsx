@@ -1,33 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, Check, ShieldCheck, Activity, Droplets, Wind, Waves, MapPin } from 'lucide-react';
+import { Search, ShieldCheck, MapPin, CheckCircle2, Activity } from 'lucide-react';
 
 export default function Hero() {
   const [address, setAddress] = useState('');
-  const [addressLine1, setAddressLine1] = useState('Search any US address');
+  const [addressPlaceholder, setAddressPlaceholder] = useState('Search any US address');
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [transitionProgress, setTransitionProgress] = useState(0);
   const [transitionStep, setTransitionStep] = useState(0);
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-
-  // Silent localization logic
-  useEffect(() => {
-    const fetchLocation = async () => {
-      try {
-        const response = await fetch('https://ipapi.co/json/');
-        const data = await response.json();
-        if (data.city && data.region_code) {
-          setAddressLine1(`${data.city}, ${data.region_code}`);
-        }
-      } catch (err) {
-        // Fallback to default
-      }
-    };
-    fetchLocation();
-  }, []);
 
   // Autocomplete search
   useEffect(() => {
@@ -63,33 +47,24 @@ export default function Hero() {
     setSuggestions([]);
     setShowSuggestions(false);
     setIsSearching(true);
-    // Briefly disable searching to prevent re-triggering autocomplete
     setTimeout(() => setIsSearching(false), 500);
   };
 
   useEffect(() => {
     if (!isTransitioning) return;
-
     const startTime = Date.now();
     const duration = 1800;
-
     const update = () => {
       const elapsed = Date.now() - startTime;
       const progress = Math.min(elapsed / duration, 1);
       setTransitionProgress(progress);
-
       if (progress < 0.3) setTransitionStep(0);
       else if (progress < 0.6) setTransitionStep(1);
       else if (progress < 0.9) setTransitionStep(2);
       else setTransitionStep(3);
-
-      if (progress < 1) {
-        requestAnimationFrame(update);
-      } else {
-        window.location.href = `/get-started?address=${encodeURIComponent(address)}`;
-      }
+      if (progress < 1) requestAnimationFrame(update);
+      else window.location.href = `/get-started?address=${encodeURIComponent(address)}`;
     };
-
     requestAnimationFrame(update);
   }, [isTransitioning, address]);
 
@@ -101,146 +76,136 @@ export default function Hero() {
   ];
 
   return (
-    <section className="relative overflow-hidden" style={{ padding: '100px 24px 140px' }}>
-      {/* Background Glows */}
-      <div className="bg-glow" style={{ top: '-10%', left: '-10%', opacity: 0.5 }}></div>
-      <div className="bg-glow" style={{ bottom: '-10%', right: '-10%', opacity: 0.3, background: 'radial-gradient(circle, var(--accent-secondary) 0%, transparent 70%)' }}></div>
-
-      <div className="container" style={{ position: 'relative', zIndex: 1, margin: '0 auto', maxWidth: '1200px' }}>
-        <div className="hero-grid" style={{ display: 'grid', alignItems: 'center' }}>
+    <section style={{ padding: '160px 0 100px', background: 'radial-gradient(circle at 50% -20%, var(--accent-primary-glow) 0%, transparent 50%)' }}>
+      <div className="container">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '80px', alignItems: 'center' }}>
           
           <div>
-            <div className="inline-flex items-center glass-card" style={{ padding: '8px 16px', borderRadius: '999px', display: 'inline-flex', gap: '8px', marginBottom: '24px', fontSize: '0.9rem', fontWeight: 500 }}>
-              <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-primary)', boxShadow: '0 0 10px var(--accent-primary)' }}></span>
-              Know Before You Sign
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '32px' }}>
+              <div className="badge-trust"><CheckCircle2 size={14} color="var(--accent-primary)" /> EPA Verified Data</div>
+              <div className="badge-trust"><CheckCircle2 size={14} color="var(--accent-primary)" /> Instant Results</div>
+              <div className="badge-trust"><CheckCircle2 size={14} color="var(--accent-primary)" /> Professional Grade</div>
             </div>
-            
-            <h1 style={{ fontSize: 'clamp(2.5rem, 5vw, 4rem)', fontWeight: 800, lineHeight: 1.1, marginBottom: '24px', letterSpacing: '-0.03em' }}>
-              The Hidden Health of Your <span className="text-gradient">Next Home.</span>
+
+            <h1 style={{ fontSize: 'clamp(3rem, 6vw, 4.5rem)', fontWeight: 800, lineHeight: 1, marginBottom: '24px', letterSpacing: '-0.04em' }}>
+              Know Before <br /><span style={{ color: 'var(--accent-secondary)' }}>You Sign.</span>
             </h1>
             
-            <p style={{ fontSize: '1.25rem', color: 'var(--text-secondary)', marginBottom: '40px', lineHeight: 1.6, maxWidth: '600px' }}>
-              We scan 90+ federal datasets to reveal air quality, water contaminants, and environmental hazards that standard inspections miss.
+            <p style={{ fontSize: '1.25rem', color: 'var(--text-secondary)', marginBottom: '40px', lineHeight: 1.5, fontWeight: 500 }}>
+              The hidden health of your next home. We reveal air quality, water contaminants, and hazards that standard inspections miss.
             </p>
 
-            <div className="glass-card" style={{ padding: '12px', borderRadius: '24px', maxWidth: '540px', position: 'relative' }}>
-              <form onSubmit={handleSearch} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }} className="sm:flex-row">
-                <div style={{ position: 'relative', flex: 1 }}>
-                  <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}>
-                    <Search size={20} />
-                  </div>
+            <div style={{ position: 'relative', maxWidth: '540px' }}>
+              <form onSubmit={handleSearch} style={{ display: 'flex', padding: '8px', background: 'white', border: '1px solid var(--border-color)', borderRadius: '16px', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.05)', gap: '8px' }} className="search-form">
+                <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center' }}>
+                  <Search size={20} style={{ marginLeft: '12px', color: 'var(--text-muted)' }} />
                   <input
                     type="text"
-                    placeholder={addressLine1}
+                    placeholder={addressPlaceholder}
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     onFocus={() => address.length >= 3 && setShowSuggestions(true)}
                     style={{
                       width: '100%',
-                      padding: '16px 16px 16px 48px',
-                      borderRadius: '16px',
-                      border: '1px solid var(--border-color)',
-                      background: 'rgba(255,255,255,0.5)',
+                      padding: '12px 12px',
+                      border: 'none',
                       fontSize: '1rem',
                       outline: 'none',
-                      transition: 'all 0.3s ease'
+                      fontWeight: 500
                     }}
                   />
-                  
-                  {/* Autocomplete Suggestions */}
-                  {showSuggestions && suggestions.length > 0 && (
-                    <div className="glass-card" style={{ 
-                      position: 'absolute', 
-                      top: 'calc(100% + 12px)', 
-                      left: 0, 
-                      right: 0, 
-                      zIndex: 100, 
-                      borderRadius: '16px', 
-                      overflow: 'hidden',
-                      boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
-                    }}>
-                      {suggestions.map((s, i) => (
-                        <div 
-                          key={i} 
-                          onClick={() => selectSuggestion(s.description)}
-                          style={{ 
-                            padding: '12px 16px', 
-                            cursor: 'pointer', 
-                            fontSize: '0.9rem', 
-                            borderBottom: i === suggestions.length - 1 ? 'none' : '1px solid var(--border-color)',
-                            background: 'transparent',
-                            transition: 'background 0.2s ease'
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-secondary)'}
-                          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <MapPin size={14} color="var(--accent-primary)" />
-                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.description}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
-                <button type="submit" className="btn-antigravity" disabled={isTransitioning}>
+                <button type="submit" className="btn-primary" disabled={isTransitioning} style={{ padding: '12px 24px' }}>
                   {isTransitioning ? 'Analyzing...' : 'Scan Address'}
                 </button>
               </form>
-            </div>
-            
-            <div style={{ display: 'flex', gap: '24px', marginTop: '32px', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Check size={16} color="var(--accent-primary)" /> EPA Verified Data</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Check size={16} color="var(--accent-primary)" /> Instant Results</div>
-            </div>
-          </div>
 
-          {/* Spatial 3D Report Preview */}
-          <div className="isometric-view" style={{ display: 'flex', justifyContent: 'center' }}>
-            <div className="isometric-card" style={{ position: 'relative' }}>
-              <div className="glass-card" style={{ padding: '32px', borderRadius: '32px', width: '100%', maxWidth: '420px', position: 'relative', zIndex: 2 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '32px' }}>
-                  <div>
-                    <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--accent-primary)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>
-                      Environmental Scan
-                    </div>
-                    <div style={{ fontSize: '1.25rem', fontWeight: 800 }}>{address || "412 Maple Avenue"}</div>
-                  </div>
-                  <ShieldCheck color="var(--accent-primary)" size={32} />
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                  {[
-                    { label: "Water Purity", value: 94, color: 'var(--accent-secondary)' },
-                    { label: "Air Quality Index", value: 88, color: 'var(--accent-primary)' },
-                    { label: "Flood Resilience", value: 92, color: 'var(--accent-tertiary)' }
-                  ].map((stat, i) => (
-                    <div key={i}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.875rem', marginBottom: '8px' }}>
-                        <span style={{ color: 'var(--text-secondary)' }}>{stat.label}</span>
-                        <span style={{ fontWeight: 700 }}>{stat.value}%</span>
-                      </div>
-                      <div style={{ height: '6px', width: '100%', background: 'var(--bg-secondary)', borderRadius: '3px', overflow: 'hidden' }}>
-                        <div style={{ height: '100%', width: `${stat.value}%`, background: stat.color, borderRadius: '3px' }}></div>
-                      </div>
+              {/* Autocomplete Suggestions */}
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="glass-card" style={{ 
+                  position: 'absolute', 
+                  top: 'calc(100% + 12px)', 
+                  left: 0, 
+                  right: 0, 
+                  zIndex: 100, 
+                  borderRadius: '16px', 
+                  overflow: 'hidden',
+                  background: 'white'
+                }}>
+                  {suggestions.map((s, i) => (
+                    <div 
+                      key={i} 
+                      onClick={() => selectSuggestion(s.description)}
+                      style={{ 
+                        padding: '12px 16px', 
+                        cursor: 'pointer', 
+                        fontSize: '0.9rem', 
+                        borderBottom: i === suggestions.length - 1 ? 'none' : '1px solid var(--border-color)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px'
+                      }}
+                      className="suggestion-item"
+                    >
+                      <MapPin size={16} color="var(--text-muted)" />
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 500 }}>{s.description}</span>
                     </div>
                   ))}
                 </div>
+              )}
+            </div>
+          </div>
 
-                <div style={{ marginTop: '32px', borderTop: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '12px', paddingTop: '24px' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Activity size={20} color="var(--accent-primary)" />
+          {/* Premium Report Preview Card */}
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <div className="premium-shadow" style={{ 
+              background: 'white', 
+              padding: '40px', 
+              borderRadius: '32px', 
+              width: '100%', 
+              maxWidth: '440px',
+              border: '1px solid var(--border-color)',
+              position: 'relative'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '32px' }}>
+                <div>
+                  <div style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--accent-primary)', textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '6px' }}>
+                    Environmental Scan
                   </div>
-                  <div>
-                    <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>Overall Safety Grade</div>
-                    <div style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--accent-primary)' }}>A - Exceptional</div>
-                  </div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>{address ? address.split(',')[0] : "412 Maple Avenue"}</div>
+                </div>
+                <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'var(--accent-primary-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <ShieldCheck color="var(--accent-primary)" size={28} />
                 </div>
               </div>
 
-              {/* Decorative elements for depth - Hidden on mobile to prevent overflow */}
-              <div className="glass-card decorative-element" style={{ position: 'absolute', width: '200px', height: '200px', bottom: '-40px', left: '-40px', zIndex: 1, borderRadius: '24px', background: 'rgba(255,255,255,0.3)' }}></div>
-              <div className="decorative-element" style={{ position: 'absolute', top: '-20px', right: '-20px', width: '120px', height: '120px', borderRadius: '50%', background: 'var(--accent-primary-glow)', filter: 'blur(30px)', zIndex: 0 }}></div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                {[
+                  { label: "Water Purity", value: 94, color: 'var(--accent-secondary)' },
+                  { label: "Air Quality Index", value: 88, color: 'var(--accent-primary)' },
+                  { label: "Flood Resilience", value: 92, color: '#6366f1' }
+                ].map((stat, i) => (
+                  <div key={i}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem', marginBottom: '10px', fontWeight: 600 }}>
+                      <span style={{ color: 'var(--text-secondary)' }}>{stat.label}</span>
+                      <span style={{ color: 'var(--text-primary)' }}>{stat.value}%</span>
+                    </div>
+                    <div style={{ height: '8px', width: '100%', background: '#f1f5f9', borderRadius: '10px', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${stat.value}%`, background: stat.color, borderRadius: '10px' }}></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ marginTop: '40px', paddingTop: '32px', borderTop: '1px solid var(--border-color)', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'var(--accent-primary-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Activity size={28} color="var(--accent-primary)" />
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Overall Safety Grade</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--accent-primary)' }}>A - Exceptional</div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -249,37 +214,15 @@ export default function Hero() {
 
       {/* Transition Loader */}
       {isTransitioning && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 1000,
-          background: 'rgba(252, 253, 254, 0.95)',
-          backdropFilter: 'blur(20px)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '24px',
-          textAlign: 'center'
-        }}>
-          <div className="glass-card" style={{ padding: '48px', borderRadius: '32px', maxWidth: '400px', width: '100%' }}>
-            <div className="relative mb-8" style={{ width: '80px', height: '80px', margin: '0 auto', position: 'relative' }}>
-              <div className="spin-border" style={{ 
-                position: 'absolute', 
-                inset: 0, 
-                borderRadius: '50%', 
-                border: '4px solid var(--bg-secondary)',
-                borderTopColor: 'var(--accent-primary)'
-              }}></div>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 2000, background: 'rgba(255, 255, 255, 0.98)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px', textAlign: 'center' }}>
+          <div className="premium-shadow" style={{ padding: '48px', borderRadius: '40px', maxWidth: '440px', width: '100%', background: 'white', border: '1px solid var(--border-color)' }}>
+            <div style={{ width: '80px', height: '80px', margin: '0 auto 32px', position: 'relative' }}>
+              <div className="spin-border" style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '4px solid #f1f5f9', borderTopColor: 'var(--accent-primary)' }}></div>
               <ShieldCheck size={40} color="var(--accent-primary)" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
             </div>
-            
-            <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '12px' }}>Analyzing Address</h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', height: '24px' }}>
-              {steps[transitionStep]}
-            </p>
-
-            <div style={{ marginTop: '32px', height: '4px', width: '100%', background: 'var(--bg-secondary)', borderRadius: '2px', overflow: 'hidden' }}>
+            <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '12px' }}>Analyzing Address</h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', height: '24px', fontWeight: 500 }}>{steps[transitionStep]}</p>
+            <div style={{ marginTop: '40px', height: '6px', width: '100%', background: '#f1f5f9', borderRadius: '10px', overflow: 'hidden' }}>
               <div style={{ height: '100%', width: `${transitionProgress * 100}%`, background: 'var(--accent-primary)', transition: 'width 0.2s ease' }}></div>
             </div>
           </div>
@@ -287,38 +230,12 @@ export default function Hero() {
       )}
 
       <style jsx>{`
-        .spin-border {
-          animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-        .hero-grid {
-          grid-template-columns: repeat(2, 1fr);
-          gap: 64px;
-        }
-        @media (max-width: 1024px) {
-          .hero-grid {
-            grid-template-columns: 1fr;
-            gap: 48px;
-            text-align: center;
-          }
-          .hero-grid > div {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-          }
-        }
+        .spin-border { animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .suggestion-item:hover { background: var(--bg-secondary) !important; }
         @media (max-width: 640px) {
-          .sm\\:flex-row {
-            flex-direction: column !important;
-          }
-          .hero-grid {
-            gap: 32px;
-          }
-          .decorative-element {
-            display: none !important;
-          }
+          .search-form { flex-direction: column !important; padding: 12px !important; }
+          .btn-primary { width: 100% !important; }
         }
       `}</style>
     </section>

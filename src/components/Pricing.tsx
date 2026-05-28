@@ -1,123 +1,100 @@
 'use client';
 
-import { CheckCircle2, ShieldCheck, Zap } from 'lucide-react';
-import Link from 'next/link';
-import Image from 'next/image';
+import { CheckCircle2, ArrowRight, Zap, Trophy, ShieldCheck } from 'lucide-react';
 
 export default function Pricing() {
   return (
-    <section id="pricing" style={{ padding: '100px 24px' }}>
-      <div className="container" style={{ margin: '0 auto', maxWidth: '1200px' }}>
-        
-        <div style={{ textAlign: 'center', marginBottom: '80px' }}>
-          <h2 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '16px' }}>
-            Simple, <span className="text-gradient">Transparent Pricing</span>
-          </h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem', maxWidth: '600px', margin: '0 auto' }}>
+    <section id="pricing" style={{ background: 'var(--bg-secondary)', position: 'relative', overflow: 'hidden' }}>
+      <div className="container">
+        <div style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto', marginBottom: '80px' }}>
+          <h2 style={{ fontSize: 'clamp(2.5rem, 5vw, 3.5rem)', fontWeight: 800, marginBottom: '24px', letterSpacing: '-0.02em' }}>Simple, transparent pricing.</h2>
+          <p style={{ fontSize: '1.25rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
             Get the data you need to make an informed decision about your future home.
           </p>
         </div>
 
-        <div className="responsive-grid lg:grid-cols-2" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', display: 'grid', gap: '64px', alignItems: 'center', marginBottom: '100px' }}>
-          <div style={{ order: 2 }}>
-            <div className="isometric-view">
-              <div className="isometric-card glass-card" style={{ borderRadius: '32px', overflow: 'hidden', aspectRatio: '4/3', position: 'relative' }}>
-                <Image 
-                  src="/couple-reviewing.jpg" 
-                  alt="Couple reviewing a report" 
-                  fill
-                  style={{ objectFit: 'cover' }}
-                />
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.4), transparent)' }}></div>
-                <div style={{ position: 'absolute', bottom: '24px', left: '24px', right: '24px', color: 'white' }}>
-                  <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-                    <ShieldCheck size={20} color="var(--accent-primary)" />
-                    <span style={{ fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Negotiation Ready</span>
-                  </div>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 700 }}>Leverage Professional Data</div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 440px))', gap: '32px', justifyContent: 'center' }}>
           
-          <div style={{ order: 1 }}>
-            <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '24px' }}>Why homebuyers and renters use Front Door Scan</h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', marginBottom: '32px', lineHeight: 1.6 }}>
-              Our users have used these reports to negotiate price reductions, request remediation, or walk away from properties with serious hidden risks.
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* Single Property */}
+          <div className="glass-card" style={{ padding: '48px', borderRadius: '32px', background: 'white', position: 'relative' }}>
+            <div style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '8px' }}>Single Property</div>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '32px' }}>One full environmental health report with instant PDF download. Valid forever.</p>
+            
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginBottom: '40px' }}>
+              <span style={{ fontSize: '3.5rem', fontWeight: 800 }}>$49</span>
+              <span style={{ fontSize: '1.25rem', color: 'var(--text-muted)', textDecoration: 'line-through' }}>$69</span>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '48px' }}>
               {[
-                { icon: <ShieldCheck size={20} color="var(--accent-primary)" />, text: "Identify unseen environmental risks instantly" },
-                { icon: <ShieldCheck size={20} color="var(--accent-secondary)" />, text: "Strengthen your negotiating position with sellers" },
-                { icon: <ShieldCheck size={20} color="var(--accent-tertiary)" />, text: "Ensure a safe environment for your entire family" }
+                "Water & Air Analysis",
+                "Flood & Soil Risks",
+                "Superfund Proximity",
+                "Negotiation Guide"
               ].map((item, i) => (
-                <div key={i} style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    {item.icon}
-                  </div>
-                  <span style={{ fontWeight: 600, color: 'var(--text-secondary)' }}>{item.text}</span>
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', fontWeight: 600 }}>
+                  <CheckCircle2 size={20} color="var(--accent-primary)" />
+                  <span>{item}</span>
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px', maxWidth: '1000px', margin: '0 auto' }}>
-          
-          {/* Single Report */}
-          <div className="glass-card" style={{ padding: '48px', borderRadius: '32px', display: 'flex', flexDirection: 'column' }}>
-            <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '8px' }}>Single Property</h3>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '24px' }}>
-              <span style={{ fontSize: '3.5rem', fontWeight: 900 }}>$49</span>
-              <span style={{ color: 'var(--text-muted)', textDecoration: 'line-through', fontSize: '1.25rem' }}>$69</span>
-            </div>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '40px', lineHeight: 1.6 }}>
-              One full environmental health report with instant PDF download. Valid forever.
-            </p>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '48px', flex: 1 }}>
-              {["Water & Air Analysis", "Flood & Soil Risks", "Superfund Proximity", "Negotiation Guide"].map((item, i) => (
-                <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  <CheckCircle2 size={18} color="var(--accent-primary)" />
-                  <span style={{ fontSize: '0.95rem', fontWeight: 500 }}>{item}</span>
-                </div>
-              ))}
-            </div>
-            
-            <Link href="/get-started" className="btn-antigravity-outline" style={{ textAlign: 'center' }}>
+
+            <button className="btn-outline" style={{ width: '100%', padding: '16px' }}>
               Order Single Report
-            </Link>
+            </button>
           </div>
-          
-          {/* Bundle */}
-          <div className="glass-card" style={{ padding: '48px', borderRadius: '32px', display: 'flex', flexDirection: 'column', borderColor: 'var(--accent-primary)', position: 'relative' }}>
-            <div style={{ position: 'absolute', top: '-16px', left: '50%', transform: 'translateX(-50%)', background: 'var(--accent-primary)', color: 'white', padding: '6px 20px', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.1em' }}>
-              BEST VALUE
+
+          {/* 5-Property Bundle */}
+          <div className="premium-shadow" style={{ 
+            padding: '48px', 
+            borderRadius: '32px', 
+            background: 'var(--text-primary)', 
+            color: 'white',
+            position: 'relative',
+            border: '1px solid rgba(255,255,255,0.1)'
+          }}>
+            <div style={{ position: 'absolute', top: '24px', right: '24px', background: 'var(--accent-primary)', color: 'var(--text-primary)', padding: '6px 12px', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Trophy size={14} /> BEST VALUE
             </div>
+
+            <div style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '8px' }}>5-Property Bundle</div>
+            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.95rem', marginBottom: '32px' }}>Compare up to 5 properties side-by-side. Credits valid for 6 months.</p>
             
-            <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '8px' }}>5-Property Bundle</h3>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '24px' }}>
-              <span style={{ fontSize: '3.5rem', fontWeight: 900 }}>$199</span>
-              <span style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', fontWeight: 600 }}>($39/ea)</span>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', marginBottom: '8px' }}>
+              <span style={{ fontSize: '3.5rem', fontWeight: 800 }}>$199</span>
             </div>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '40px', lineHeight: 1.6 }}>
-              Compare up to 5 properties side-by-side. Credits valid for 6 months.
-            </p>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '48px', flex: 1 }}>
-              {["Everything in Single", "5 Report Credits", "Side-by-side Comparison", "Priority Support"].map((item, i) => (
-                <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                  <Zap size={18} color="var(--accent-primary)" />
-                  <span style={{ fontSize: '0.95rem', fontWeight: 700 }}>{item}</span>
+            <div style={{ color: 'var(--accent-primary)', fontWeight: 700, fontSize: '1rem', marginBottom: '40px' }}>$39 per report</div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '48px' }}>
+              {[
+                "Everything in Single",
+                "5 Report Credits",
+                "Side-by-side Comparison",
+                "Priority Support"
+              ].map((item, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', fontWeight: 600 }}>
+                  <CheckCircle2 size={20} color="var(--accent-primary)" />
+                  <span>{item}</span>
                 </div>
               ))}
             </div>
-            
-            <Link href="/get-started" className="btn-antigravity" style={{ textAlign: 'center', background: 'var(--accent-primary)' }}>
-              Get 5-Property Bundle
-            </Link>
+
+            <button className="btn-primary" style={{ width: '100%', padding: '16px', background: 'var(--accent-primary)', color: 'var(--text-primary)' }}>
+              <span>Get 5-Property Bundle</span>
+              <ArrowRight size={18} />
+            </button>
           </div>
-          
+
+        </div>
+
+        {/* Trust Badges */}
+        <div style={{ marginTop: '80px', display: 'flex', justifyContent: 'center', gap: '48px', flexWrap: 'wrap', opacity: 0.6 }}>
+           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontWeight: 700, fontSize: '0.9rem' }}>
+              <Zap size={20} /> 30-Day Money Back
+           </div>
+           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontWeight: 700, fontSize: '0.9rem' }}>
+              <ShieldCheck size={20} /> Secure Checkout
+           </div>
         </div>
       </div>
     </section>

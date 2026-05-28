@@ -213,10 +213,10 @@ export default function Hero() {
   };
 
   return (
-    <section className="animate-fade-in" style={{ 
+    <section className="animate-fade-in hero-section" style={{ 
       background: 'linear-gradient(135deg, #f8fafc 0%, #eff6ff 50%, #f0fdf4 100%)', 
       minHeight: '100vh',
-      padding: '100px 24px 80px 24px',
+      padding: '80px 24px 80px 24px',
       position: 'relative',
       overflow: 'hidden',
       color: '#09090b',

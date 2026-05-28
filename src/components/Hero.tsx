@@ -19,7 +19,8 @@ import {
   Sparkles,
   Zap,
   ArrowRight,
-  Search
+  Search,
+  ShieldCheck
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
@@ -27,7 +28,7 @@ import gsap from 'gsap';
 
 interface Suggestion {
   place_id: number | string;
-  display_name: string;
+  description: string;
   properties?: any;
 }
 

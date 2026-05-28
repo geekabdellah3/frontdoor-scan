@@ -1,211 +1,231 @@
 'use client';
 
-import { Droplets, Wind, Waves, Mountain, Factory, Activity, CheckCircle2, ArrowRight } from 'lucide-react';
+import { 
+  Droplets, 
+  Wind, 
+  Waves, 
+  Mountain, 
+  Factory, 
+  Activity, 
+  CheckCircle2, 
+  ArrowRight,
+  ShieldCheck,
+  Zap,
+  TrendingUp,
+  Scale
+} from 'lucide-react';
 import Image from 'next/image';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/dist/ScrollTrigger';
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger);
+}
 
 const features = [
   {
-    icon: <Droplets size={28} color="#3b82f6" />,
+    icon: <Droplets size={24} />,
     title: "Water Quality",
     description: "Lead, PFAS, nitrates, disinfection byproducts, and 90+ contaminants benchmarked against EPA limits.",
-    accent: '#3b82f6',
-    glow: 'rgba(59,130,246,0.12)'
+    color: 'emerald'
   },
   {
-    icon: <Wind size={28} color="#10b981" />,
+    icon: <Wind size={24} />,
     title: "Air Quality",
     description: "Real-time AQI plus 5-year historical averages of EPA criteria pollutants — PM2.5, ozone, NO2.",
-    accent: '#10b981',
-    glow: 'rgba(16,185,129,0.12)'
+    color: 'emerald'
   },
   {
-    icon: <Waves size={28} color="#0ea5e9" />,
+    icon: <Waves size={24} />,
     title: "Flood Risk",
     description: "FEMA flood zone designation, recent disaster history, and proximity to NOAA stream gauges.",
-    accent: '#0ea5e9',
-    glow: 'rgba(14,165,233,0.12)'
+    color: 'emerald'
   },
   {
-    icon: <Mountain size={28} color="#d97706" />,
+    icon: <Mountain size={24} />,
     title: "Soil Contamination",
     description: "Brownfield and remediation site proximity within 2 miles using EPA ECHO and EJScreen data.",
-    accent: '#d97706',
-    glow: 'rgba(217,119,6,0.12)'
+    color: 'emerald'
   },
   {
-    icon: <Factory size={28} color="#ef4444" />,
+    icon: <Factory size={24} />,
     title: "Superfund & Hazards",
     description: "EPA National Priorities List sites, power plants, and industrial emitters within 50 miles.",
-    accent: '#ef4444',
-    glow: 'rgba(239,68,68,0.12)'
+    color: 'emerald'
   },
   {
-    icon: <Activity size={28} color="#8b5cf6" />,
+    icon: <Activity size={24} />,
     title: "Radon Risk",
     description: "EPA Radon Zone classification mapped to your county FIPS code.",
-    accent: '#8b5cf6',
-    glow: 'rgba(139,92,246,0.12)'
+    color: 'emerald'
   }
 ];
 
 export default function Features() {
+  const containerRef = useRef<HTMLElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const headerRef = useRef<HTMLDivElement>(null);
+  
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const el = entry.target as HTMLElement;
-            el.style.opacity = '1';
-            el.style.transform = 'translateY(0) scale(1)';
-            observer.unobserve(el);
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
-    );
-
-    cardRefs.current.forEach((ref) => {
-      if (ref) observer.observe(ref);
-    });
-
-    return () => observer.disconnect();
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
   }, []);
 
-  // 3D tilt on mousemove
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>, idx: number) => {
-    const card = cardRefs.current[idx];
-    if (!card) return;
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const cx = rect.width / 2;
-    const cy = rect.height / 2;
-    const rotateX = ((y - cy) / cy) * -6;
-    const rotateY = ((x - cx) / cx) * 6;
-    card.style.transform = `translateY(-8px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-  };
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Header Entrance
+      gsap.from(headerRef.current, {
+        scrollTrigger: {
+          trigger: headerRef.current,
+          start: 'top 85%',
+        },
+        y: 40,
+        opacity: 0,
+        duration: 1,
+        ease: 'power4.out'
+      });
 
-  const handleMouseLeave = (idx: number) => {
-    const card = cardRefs.current[idx];
-    if (!card) return;
-    card.style.transform = 'translateY(0) rotateX(0deg) rotateY(0deg)';
-  };
+      // Cards Entrance
+      gsap.from(cardRefs.current, {
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: 'top 70%',
+        },
+        y: 60,
+        opacity: 0,
+        stagger: 0.1,
+        duration: 1.2,
+        ease: 'power4.out'
+      });
+
+      // Split Section Entrance
+      gsap.from('.feature-split-content > *', {
+        scrollTrigger: {
+          trigger: '.feature-split-content',
+          start: 'top 80%',
+        },
+        x: -40,
+        opacity: 0,
+        stagger: 0.2,
+        duration: 1,
+        ease: 'power3.out'
+      });
+
+      gsap.from('.feature-split-visual', {
+        scrollTrigger: {
+          trigger: '.feature-split-content',
+          start: 'top 80%',
+        },
+        x: 40,
+        opacity: 0,
+        duration: 1.2,
+        ease: 'power3.out'
+      });
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, []);
 
   return (
-    <section id="features" style={{ padding: '100px 24px', position: 'relative', overflow: 'hidden' }}>
-      {/* Background ambient glow */}
-      <div style={{ position: 'absolute', top: '10%', right: '-5%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.05) 0%, transparent 70%)', filter: 'blur(60px)', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', bottom: '10%', left: '-5%', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.05) 0%, transparent 70%)', filter: 'blur(60px)', pointerEvents: 'none' }} />
-
-      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-
+    <section ref={containerRef} id="features" className="section-padding bg-white overflow-hidden">
+      <div className="container mx-auto px-6">
+        
         {/* Section Header */}
-        <div style={{ textAlign: 'center', marginBottom: '80px' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', padding: '6px 16px', borderRadius: '999px', fontSize: '0.8rem', fontWeight: 700, color: '#10b981', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '20px' }}>
-            <CheckCircle2 size={14} /> What&apos;s Inside
+        <div ref={headerRef} className="max-w-3xl mx-auto text-center mb-24">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs font-bold uppercase tracking-[0.2em] mb-6">
+            <Zap size={14} className="fill-emerald-500" />
+            The Intelligence Gap
           </div>
-          <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 800, letterSpacing: '-0.03em', lineHeight: 1.1, marginBottom: '16px' }}>
-            Standard inspections check the{' '}
-            <span className="text-gradient">building.</span>
+          <h2 className="text-4xl lg:text-5xl font-black text-zinc-900 tracking-tight leading-[1.1] mb-6">
+            Standard inspections check the <span className="text-emerald-600">building.</span>
           </h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '1.15rem', lineHeight: 1.7, maxWidth: '620px', margin: '0 auto' }}>
-            They don&apos;t cover water contamination, air pollution, Superfund proximity, radon, or flood risk. Front Door Scan fills that gap with the same federal data environmental consultants use.
+          <p className="text-lg text-zinc-500 font-medium">
+            They don&apos;t cover water contamination, air pollution, Superfund proximity, or flood risk. Front Door Scan fills that gap with the same federal data used by institutional investors.
           </p>
         </div>
 
-        {/* Image + Text split */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '56px', alignItems: 'center', marginBottom: '100px' }}>
-          <div>
-            <h3 style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.2, marginBottom: '20px' }}>
-              Know before you sign. <br /><span className="text-gradient">Negotiate with facts.</span>
+        {/* Split Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center mb-32">
+          <div className="feature-split-content space-y-8">
+            <h3 className="text-3xl lg:text-4xl font-black text-zinc-900 tracking-tight leading-[1.1]">
+              Know before you sign. <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-blue-600">Negotiate with facts.</span>
             </h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', marginBottom: '20px', lineHeight: 1.7 }}>
-              Each report includes a dedicated negotiation section with property-specific talking points you can use with sellers, landlords, or agents.
+            <p className="text-lg text-zinc-600 leading-relaxed">
+              Every report includes a dedicated negotiation section with property-specific talking points designed to help you lower the price or secure testing concessions.
             </p>
-            <ul style={{ display: 'flex', flexDirection: 'column', gap: '12px', listStyle: 'none', padding: 0, marginBottom: '28px' }}>
-              {['Identify hidden environmental risks', 'Strengthen your negotiating position', 'Ensure long-term safety for your family'].map((item, i) => (
-                <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-secondary)', fontSize: '1rem' }}>
-                  <CheckCircle2 size={18} color="#10b981" style={{ flexShrink: 0 }} />
-                  {item}
-                </li>
+            
+            <div className="space-y-4">
+              {[
+                { label: 'Identify hidden environmental risks', icon: <ShieldCheck size={20} /> },
+                { label: 'Strengthen your negotiating position', icon: <Scale size={20} /> },
+                { label: 'Track long-term environmental trends', icon: <TrendingUp size={20} /> },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-4 p-4 glass-panel bg-zinc-50 border-zinc-100 rounded-2xl group hover:bg-white hover:border-emerald-200 transition-all">
+                  <div className="text-emerald-500 group-hover:scale-110 transition-transform">
+                    {item.icon}
+                  </div>
+                  <span className="font-bold text-zinc-900">{item.label}</span>
+                </div>
               ))}
-            </ul>
-            <a href="/get-started" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: '#10b981', fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none' }}>
-              Run a free scan preview <ArrowRight size={16} />
+            </div>
+
+            <a href="/get-started" className="inline-flex items-center gap-2 text-emerald-600 font-black text-lg group">
+              Run a free scan preview 
+              <ArrowRight className="group-hover:translate-x-1 transition-transform" />
             </a>
           </div>
 
-          <div style={{ position: 'relative', borderRadius: '28px', overflow: 'hidden', boxShadow: '0 40px 80px -15px rgba(0,0,0,0.14), 0 0 1px rgba(0,0,0,0.08)', aspectRatio: '4/3', perspective: '1000px' }} className="float-card-interactive">
-            <Image
-              src="/family-moving.jpg"
-              alt="Family moving into a new home"
-              fill
-              style={{ objectFit: 'cover' }}
-            />
-            {/* Overlay badge */}
-            <div style={{ position: 'absolute', bottom: '16px', left: '16px', right: '16px', background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(12px)', borderRadius: '16px', padding: '14px 18px', display: 'flex', alignItems: 'center', gap: '12px', boxShadow: '0 8px 24px rgba(0,0,0,0.1)' }}>
-              <div style={{ width: '10px', height: '10px', background: '#10b981', borderRadius: '50%', boxShadow: '0 0 0 3px rgba(16,185,129,0.25)', flexShrink: 0 }} />
-              <div>
-                <div style={{ fontWeight: 700, fontSize: '0.9rem', color: '#09090b' }}>412 Maple Ave, Austin TX — Scanned</div>
-                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>15 federal databases · Report ready in 4 min</div>
+          <div className="feature-split-visual relative">
+            <div className="absolute inset-0 bg-emerald-500/10 blur-[100px] rounded-full pointer-events-none" />
+            <div className="relative glass-panel-spatial p-2 bg-white/50 border-white shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-700">
+              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
+                <Image
+                  src="/family-moving.jpg"
+                  alt="Family moving into home"
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                <div className="absolute bottom-6 left-6 right-6 p-4 glass-panel bg-white/90 border-white rounded-2xl flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-emerald-500 flex items-center justify-center text-white font-black">
+                    82%
+                  </div>
+                  <div>
+                    <div className="text-xs font-black text-zinc-900">Audit Status: Complete</div>
+                    <div className="text-[10px] font-bold text-zinc-500">412 Maple Ave · Austin, TX</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Features Grid heading */}
-        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-          <h2 style={{ fontSize: 'clamp(1.8rem, 3.5vw, 2.5rem)', fontWeight: 800, letterSpacing: '-0.02em' }}>
-            What&apos;s in a <span className="text-gradient">Report</span>
+        {/* Features Grid Header */}
+        <div className="text-center mb-16">
+          <h2 className="text-3xl font-black text-zinc-900 tracking-tight">
+            What&apos;s in a <span className="text-emerald-600">Scan</span>
           </h2>
         </div>
 
         {/* 3D Feature Cards Grid */}
-        <div style={{ perspective: '1200px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
-          {features.map((feature, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {features.map((feature, i) => (
             <div
-              key={index}
-              ref={(el) => { cardRefs.current[index] = el; }}
-              onMouseMove={(e) => handleMouseMove(e, index)}
-              onMouseLeave={() => handleMouseLeave(index)}
-              style={{
-                padding: '32px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '16px',
-                background: 'rgba(255,255,255,0.7)',
-                backdropFilter: 'blur(16px)',
-                WebkitBackdropFilter: 'blur(16px)',
-                border: '1px solid rgba(255,255,255,0.8)',
-                borderRadius: '24px',
-                boxShadow: `0 10px 30px -10px rgba(0,0,0,0.04), 0 0 1px rgba(0,0,0,0.08)`,
-                transition: 'transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease',
-                willChange: 'transform',
-                cursor: 'default',
-                opacity: 0,
-                transform: 'translateY(32px) scale(0.97)',
-                transitionDelay: `${index * 0.08}s`
-              }}
-              className="feature-card"
+              key={i}
+              ref={(el) => { cardRefs.current[i] = el; }}
+              className="glass-panel-spatial p-8 bg-white/70 border-white hover:border-emerald-200 transition-all group"
             >
-              <div style={{
-                width: '56px',
-                height: '56px',
-                background: feature.glow,
-                borderRadius: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: `1px solid ${feature.accent}22`
-              }}>
+              <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 mb-6 group-hover:scale-110 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-500">
                 {feature.icon}
               </div>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#09090b', letterSpacing: '-0.01em' }}>{feature.title}</h3>
-              <p style={{ color: 'var(--text-secondary)', lineHeight: 1.65, fontSize: '0.95rem' }}>{feature.description}</p>
-              <div style={{ height: '2px', width: '32px', background: `linear-gradient(90deg, ${feature.accent}, transparent)`, borderRadius: '999px', marginTop: 'auto' }} />
+              <h3 className="text-xl font-black text-zinc-900 mb-4 tracking-tight">{feature.title}</h3>
+              <p className="text-zinc-500 font-medium leading-relaxed">
+                {feature.description}
+              </p>
+              <div className="mt-8 h-1 w-12 bg-emerald-100 group-hover:w-full group-hover:bg-emerald-500 transition-all duration-700 rounded-full" />
             </div>
           ))}
         </div>

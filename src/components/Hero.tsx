@@ -1,7 +1,26 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { MapPin, Loader2, Home, AlertTriangle, Droplets, Wind, Mountain, Waves, Factory, Activity, Server, Sun, MessageSquare, Shield, CheckCircle2, Lock, Tag, FileText } from 'lucide-react';
+import { 
+  MapPin, 
+  Loader2, 
+  Home, 
+  AlertTriangle, 
+  Droplets, 
+  Wind, 
+  Mountain, 
+  Waves, 
+  Factory, 
+  Activity, 
+  Shield, 
+  CheckCircle2, 
+  Lock, 
+  FileText,
+  Sparkles,
+  Zap,
+  ArrowRight,
+  Search
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import gsap from 'gsap';
@@ -9,18 +28,8 @@ import gsap from 'gsap';
 interface Suggestion {
   place_id: number | string;
   display_name: string;
+  properties?: any;
 }
-
-const FALLBACK_ADDRESSES = [
-  '123 Main St, Austin, TX 78701',
-  '1600 Amphitheatre Pkwy, Mountain View, CA 94043',
-  '111 8th Ave, New York, NY 10011',
-  '1600 Pennsylvania Avenue NW, Washington, DC 20500',
-  '350 5th Ave, New York, NY 10118',
-  '1313 Disneyland Dr, Anaheim, CA 92802',
-  '233 S Wacker Dr, Chicago, IL 60606',
-  '100 Universal City Plaza, Universal City, CA 91608'
-];
 
 export default function Hero() {
   const [address, setAddress] = useState('');
@@ -39,12 +48,26 @@ export default function Hero() {
   const formCardRef = useRef<HTMLDivElement>(null);
   const mockupRef = useRef<HTMLDivElement>(null);
   const mockupInnerRef = useRef<HTMLDivElement>(null);
-  const badgesRef = useRef<HTMLDivElement>(null);
 
-  // Search transition animation & step loader state
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  const [userLocation, setUserLocation] = useState<{lat: number, lon: number} | null>(null);
 
-  // Handle clicking outside the dropdown to close it
+  // Detect touch device & get location for bias
+  useEffect(() => {
+    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
+    
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        setUserLocation({
+          lat: position.coords.latitude,
+          lon: position.coords.longitude
+        });
+      }, null, { enableHighAccuracy: false, timeout: 5000 });
+    }
+  }, []);
+
+  // Handle clicking outside the dropdown
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -53,91 +76,59 @@ export default function Hero() {
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [dropdownRef]);
+  }, []);
 
-  // Handle GSAP Entrance Animations
+  // GSAP Entrance
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Setup initial states
-      gsap.set([titleRef.current, subtitleRef.current, formCardRef.current, badgesRef.current], {
-        y: 40,
-        opacity: 0,
-        rotateX: -15,
-        transformPerspective: 1000,
-        transformOrigin: "center top"
-      });
-
-      gsap.set(mockupRef.current, {
-        y: 80,
-        opacity: 0,
-        scale: 0.95,
-        rotateX: 10,
-        rotateY: -10,
-        transformPerspective: 1500
-      });
-
-      // Animate left column elements sequentially
-      const tl = gsap.timeline({ defaults: { ease: 'power3.out', duration: 1.2 } });
+      const tl = gsap.timeline({ defaults: { ease: 'power4.out', duration: 1.2 } });
       
-      tl.to(titleRef.current, { y: 0, opacity: 1, rotateX: 0 }, 0.2)
-        .to(subtitleRef.current, { y: 0, opacity: 1, rotateX: 0 }, 0.3)
-        .to(formCardRef.current, { y: 0, opacity: 1, rotateX: 0 }, 0.4)
-        .to(badgesRef.current, { y: 0, opacity: 1, rotateX: 0 }, 0.5)
-        // Animate the mockup with a slightly different feel
-        .to(mockupRef.current, { y: 0, opacity: 1, scale: 1, rotateX: 0, rotateY: 0, duration: 1.5, ease: "expo.out" }, 0.3);
+      tl.from(titleRef.current, { y: 60, opacity: 0, skewY: 2 }, 0.2)
+        .from(subtitleRef.current, { y: 40, opacity: 0 }, 0.4)
+        .from(formCardRef.current, { y: 50, opacity: 0, rotateX: -15, transformPerspective: 1000 }, 0.5)
+        .from('.trust-badge', { y: 20, opacity: 0, stagger: 0.1 }, 0.7)
+        .from(mockupRef.current, { x: 100, opacity: 0, rotateY: -20, transformPerspective: 1500 }, 0.3);
         
     }, heroRef);
-
     return () => ctx.revert();
   }, []);
 
-  // GSAP 3D Hover Effect on Mockup Card
+  // 3D Tilt Effect
   useEffect(() => {
-    if (!mockupRef.current || !mockupInnerRef.current) return;
+    if (!mockupRef.current || !mockupInnerRef.current || isTouchDevice) return;
     
     const container = mockupRef.current;
     const inner = mockupInnerRef.current;
     
     const handleMouseMove = (e: MouseEvent) => {
       const rect = container.getBoundingClientRect();
-      const x = e.clientX - rect.left; // x position within the element.
-      const y = e.clientY - rect.top;  // y position within the element.
-      
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-      
-      // Calculate rotation (max 8 degrees)
-      const rotateX = ((y - centerY) / centerY) * -8;
-      const rotateY = ((x - centerX) / centerX) * 8;
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const rotateX = ((y - rect.height/2) / (rect.height/2)) * -10;
+      const rotateY = ((x - rect.width/2) / (rect.width/2)) * 10;
       
       gsap.to(inner, {
-        rotateX: rotateX,
-        rotateY: rotateY,
+        rotateX,
+        rotateY,
+        duration: 0.5,
         ease: "power2.out",
-        duration: 0.4,
         transformPerspective: 1000
       });
     };
     
-    const handleMouseLeave = () => {
-      gsap.to(inner, {
-        rotateX: 0,
-        rotateY: 0,
-        ease: "elastic.out(1, 0.3)",
-        duration: 1.2
-      });
+    const resetTilt = () => {
+      gsap.to(inner, { rotateX: 0, rotateY: 0, duration: 1, ease: "elastic.out(1, 0.3)" });
     };
     
     container.addEventListener('mousemove', handleMouseMove);
-    container.addEventListener('mouseleave', handleMouseLeave);
-    
+    container.addEventListener('mouseleave', resetTilt);
     return () => {
       container.removeEventListener('mousemove', handleMouseMove);
-      container.removeEventListener('mouseleave', handleMouseLeave);
+      container.removeEventListener('mouseleave', resetTilt);
     };
-  }, []);
+  }, [isTouchDevice]);
 
-  // Debounced search for address suggestions
+  // Address Suggestions (Photon API via our /api/places)
   useEffect(() => {
     const query = address.trim();
     if (isValidAddress || query.length < 3) {
@@ -146,394 +137,236 @@ export default function Hero() {
       return;
     }
 
-    const fallbackMatches = FALLBACK_ADDRESSES.filter(addr => 
-      addr.toLowerCase().includes(query.toLowerCase())
-    ).map((addr, index) => ({
-      place_id: 1000000 + index,
-      display_name: addr
-    }));
+    const fetchSuggestions = async () => {
+      setIsLoading(true);
+      try {
+        let url = `/api/places?input=${encodeURIComponent(query)}`;
+        if (userLocation) {
+          url += `&lat=${userLocation.lat}&lon=${userLocation.lon}`;
+        }
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.predictions) {
+          setSuggestions(data.predictions);
+          setShowSuggestions(data.predictions.length > 0);
+        }
+      } catch (err) {
+        console.error("Geocoding error:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-    const queryClean = query.replace(/,\s*$/, '');
-    const dynamicMatches = [
-      `${queryClean}, Austin, TX`,
-      `${queryClean}, New York, NY`,
-      `${queryClean}, Los Angeles, CA`
-    ].map((addr, index) => ({
-      place_id: 2000000 + index,
-      display_name: addr
-    }));
+    const debounce = setTimeout(fetchSuggestions, 300);
+    return () => clearTimeout(debounce);
+  }, [address, isValidAddress, userLocation]);
 
-    setSuggestions([...fallbackMatches, ...dynamicMatches].slice(0, 5));
-    setShowSuggestions(true);
-  }, [address, isValidAddress]);
-
-  const handleSearch = (e?: React.FormEvent | React.MouseEvent) => {
+  const handleSearch = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
-    const query = address.trim();
-    if (!query || query.length < 5) {
-      setError('Please enter a valid US address (at least 5 characters).');
+    if (address.length < 5) {
+      setError('Please enter a valid property address.');
       return;
     }
-    
     setIsTransitioning(true);
-    
-    // Antigravity transition effect before redirect
-    gsap.to(heroRef.current, {
-      scale: 1.05,
-      opacity: 0,
-      filter: 'blur(10px)',
-      duration: 0.8,
-      ease: 'power3.inOut',
-      onComplete: () => {
-        router.push(`/get-started?address=${encodeURIComponent(query)}`);
-      }
-    });
+    router.push(`/get-started?address=${encodeURIComponent(address)}`);
   };
 
   const handleSuggestionClick = (suggestion: Suggestion) => {
-    setAddress(suggestion.display_name);
+    setAddress(suggestion.description);
     setIsValidAddress(true);
     setShowSuggestions(false);
     setError('');
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setAddress(e.target.value);
-    setIsValidAddress(false);
-    setError('');
-  };
-
   return (
-    <section ref={heroRef} className="hero-section" style={{ 
-      background: '#f8fafc', 
-      minHeight: '100vh',
-      padding: '100px 24px 80px 24px',
-      position: 'relative',
-      overflow: 'hidden',
-      color: '#09090b',
-      display: 'flex',
-      alignItems: 'center'
-    }}>
-      {/* GSAP Parallax Ambient Background */}
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '50vw', height: '50vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 70%)', filter: 'blur(80px)' }} />
-        <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '60vw', height: '60vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%)', filter: 'blur(80px)' }} />
-        <div style={{ position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%, -50%)', width: '80vw', height: '80vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(139,92,246,0.04) 0%, transparent 70%)', filter: 'blur(100px)' }} />
+    <section ref={heroRef} className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-[#fafafa]">
+      {/* Background Elements */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-emerald-500/5 blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-blue-500/5 blur-[120px]" />
       </div>
 
-      <div className="container" style={{ position: 'relative', zIndex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '64px', alignItems: 'center' }}>
-        
-        {/* Left Column */}
-        <div className="hero-left-content" style={{ perspective: '1000px' }}>
-          <h1 ref={titleRef} className="hero-title" style={{ fontSize: 'clamp(2.8rem, 6vw, 4.2rem)', fontWeight: 800, lineHeight: 1.05, marginBottom: '24px', color: '#09090b', letterSpacing: '-0.03em', willChange: 'transform, opacity' }}>
-            Is Your Home Hiding <br/>
-            <span style={{ 
-              background: 'linear-gradient(135deg, #10b981 0%, #3b82f6 100%)', 
-              WebkitBackgroundClip: 'text', 
-              WebkitTextFillColor: 'transparent', 
-              backgroundClip: 'text',
-              display: 'inline-block',
-              paddingRight: '8px'
-            }}>Environmental Risks?</span>
-          </h1>
-          <p ref={subtitleRef} className="hero-paragraph" style={{ fontSize: '1.25rem', color: '#475569', marginBottom: '40px', lineHeight: 1.6, maxWidth: '580px', willChange: 'transform, opacity' }}>
-            Whether you&apos;re buying or renting — what you don&apos;t know <strong>can</strong> hurt you. Get all of the facts on your home&apos;s health instantly.
-          </p>
-
-          {/* Glassmorphic Form Card */}
-          <div ref={formCardRef} className="hero-form-card" style={{ 
-            background: 'rgba(255, 255, 255, 0.65)', 
-            border: '1px solid rgba(255, 255, 255, 0.8)', 
-            borderRadius: '28px', 
-            padding: '36px', 
-            marginBottom: '32px', 
-            backdropFilter: 'blur(24px)', 
-            WebkitBackdropFilter: 'blur(24px)',
-            boxShadow: '0 30px 60px -20px rgba(0,0,0,0.08), 0 0 1px 0 rgba(0,0,0,0.1) inset',
-            willChange: 'transform, opacity',
-            position: 'relative'
-          }}>
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '1px', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)' }} />
-            
-            <div style={{ color: '#10b981', fontSize: '0.8rem', letterSpacing: '2px', fontWeight: 800, textTransform: 'uppercase', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Shield size={16} /> INSTANT PARCEL INTELLIGENCE
-            </div>
-            <h2 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: '24px', color: '#09090b', letterSpacing: '-0.01em', lineHeight: 1.4 }}>
-              Enter any US address to scan EPA, FEMA, and USGS databases
-            </h2>
-
-            <form onSubmit={handleSearch} style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
-              <div style={{ position: 'relative', width: '100%', marginBottom: '16px' }} ref={dropdownRef}>
-                <div style={{ position: 'relative' }}>
-                  <MapPin color="#10b981" size={22} style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', zIndex: 10 }} />
-                  <input 
-                    type="text" 
-                    placeholder="Enter home or property address..." 
-                    value={address}
-                    onChange={handleInputChange}
-                    disabled={isTransitioning}
-                    style={{ 
-                      width: '100%', 
-                      background: 'rgba(255, 255, 255, 0.9)', 
-                      border: error ? '2px solid #ef4444' : '2px solid transparent', 
-                      padding: '20px 20px 20px 52px', 
-                      color: '#09090b',
-                      borderRadius: '16px',
-                      outline: 'none',
-                      fontSize: '1.1rem',
-                      boxShadow: '0 8px 20px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.05) inset',
-                      transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                      fontWeight: 500
-                    }}
-                    onFocus={(e) => {
-                      if (!error) {
-                        e.currentTarget.style.boxShadow = '0 12px 30px rgba(16, 185, 129, 0.15), 0 0 0 2px #10b981 inset';
-                        e.currentTarget.style.transform = 'translateY(-2px)';
-                      }
-                    }}
-                    onBlur={(e) => {
-                      if (!error) {
-                        e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.04), 0 0 0 1px rgba(0,0,0,0.05) inset';
-                        e.currentTarget.style.transform = 'translateY(0)';
-                      }
-                    }}
-                    required
-                  />
-                </div>
-
-                {error && (
-                  <div style={{ color: '#ef4444', fontSize: '0.85rem', marginTop: '10px', fontWeight: 600, paddingLeft: '4px' }}>
-                    ⚠️ {error}
-                  </div>
-                )}
-
-                {showSuggestions && suggestions.length > 0 && (
-                  <div style={{ 
-                    position: 'absolute', 
-                    top: 'calc(100% + 12px)', 
-                    left: 0, 
-                    width: '100%', 
-                    background: 'rgba(255, 255, 255, 0.95)', 
-                    backdropFilter: 'blur(16px)',
-                    zIndex: 50, 
-                    borderRadius: '16px', 
-                    overflow: 'hidden',
-                    boxShadow: '0 20px 40px rgba(0,0,0,0.12), 0 0 1px rgba(0,0,0,0.1)',
-                    padding: '8px'
-                  }}>
-                    <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-                      {suggestions.map((suggestion) => (
-                        <li 
-                          key={suggestion.place_id} 
-                          onClick={() => handleSuggestionClick(suggestion)}
-                          style={{ 
-                            padding: '14px 16px', 
-                            borderRadius: '10px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '12px',
-                            color: '#0f172a',
-                            transition: 'all 0.2s ease',
-                            fontWeight: 500
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)';
-                            e.currentTarget.style.transform = 'translateX(4px)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'transparent';
-                            e.currentTarget.style.transform = 'translateX(0)';
-                          }}
-                        >
-                          <MapPin size={16} color="#10b981" />
-                          <span>{suggestion.display_name}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-
-              <button 
-                type="submit"
-                disabled={isTransitioning}
-                style={{ 
-                  width: '100%', 
-                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
-                  color: 'white', 
-                  padding: '20px', 
-                  borderRadius: '16px', 
-                  fontWeight: 800, 
-                  fontSize: '1.1rem', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center', 
-                  gap: '10px', 
-                  border: 'none', 
-                  cursor: isTransitioning ? 'wait' : 'pointer', 
-                  transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-                  boxShadow: '0 12px 24px -8px rgba(16, 185, 129, 0.5), inset 0 1px 0 rgba(255,255,255,0.2)',
-                  position: 'relative',
-                  overflow: 'hidden'
-                }} 
-                onMouseEnter={e => {
-                  if (isTransitioning) return;
-                  e.currentTarget.style.transform = 'translateY(-4px)';
-                  e.currentTarget.style.boxShadow = '0 20px 30px -10px rgba(16, 185, 129, 0.6), inset 0 1px 0 rgba(255,255,255,0.3)';
-                }} 
-                onMouseLeave={e => {
-                  if (isTransitioning) return;
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 12px 24px -8px rgba(16, 185, 129, 0.5), inset 0 1px 0 rgba(255,255,255,0.2)';
-                }}
-              >
-                {isTransitioning ? (
-                  <Loader2 size={24} className="animate-spin" />
-                ) : (
-                  <>
-                    <FileText size={22} /> Run Environmental Scan
-                  </>
-                )}
-              </button>
-            </form>
-
-            <div style={{ display: 'flex', gap: '24px', fontSize: '0.85rem', color: '#64748b', justifyContent: 'center', marginTop: '24px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
-                 <CheckCircle2 size={16} color="#10b981" /> Emailed in minutes
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 600 }}>
-                 <Lock size={16} color="#10b981" /> 256-bit SSL
-              </div>
-            </div>
-          </div>
-
-          <div ref={badgesRef} style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', willChange: 'transform, opacity' }}>
-             {[
-               { icon: <Shield size={24} color="#3b82f6" />, title: 'Official Data', desc: 'Public records', bg: 'rgba(59, 130, 246, 0.08)' },
-               { icon: <Home size={24} color="#10b981" />, title: 'Any Home', desc: '48 US states', bg: 'rgba(16, 185, 129, 0.08)' },
-               { icon: <AlertTriangle size={24} color="#8b5cf6" />, title: 'Risk Facts', desc: 'Know before signing', bg: 'rgba(139, 92, 246, 0.08)' }
-             ].map((b, i) => (
-               <div key={i} style={{ 
-                 background: 'rgba(255, 255, 255, 0.5)', 
-                 backdropFilter: 'blur(12px)',
-                 borderRadius: '20px', 
-                 padding: '20px 16px', 
-                 textAlign: 'center', 
-                 border: '1px solid rgba(255, 255, 255, 0.6)',
-                 boxShadow: '0 10px 30px -10px rgba(0,0,0,0.05)',
-                 transition: 'transform 0.3s ease'
-               }}
-               onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
-               onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
-               >
-                  <div style={{ width: '52px', height: '52px', borderRadius: '50%', background: b.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px auto' }}>
-                    {b.icon}
-                  </div>
-                  <div style={{ fontWeight: 800, fontSize: '0.9rem', marginBottom: '6px', color: '#0f172a', lineHeight: 1.2 }}>{b.title}</div>
-                  <div style={{ fontSize: '0.8rem', color: '#64748b', fontWeight: 500 }}>{b.desc}</div>
-               </div>
-             ))}
-          </div>
-        </div>
-
-        {/* Right Column: Interactive 3D Mockup */}
-        <div ref={mockupRef} style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: '20px 0', willChange: 'transform, opacity' }}>
+      <div className="container mx-auto px-6 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
-          {/* Main Card Inner Container for 3D Tilt */}
-          <div ref={mockupInnerRef} style={{ 
-            width: '100%', 
-            maxWidth: '440px', 
-            background: 'rgba(255, 255, 255, 0.85)', 
-            backdropFilter: 'blur(20px)',
-            borderRadius: '32px', 
-            overflow: 'hidden', 
-            boxShadow: '0 40px 80px -20px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.6) inset', 
-            color: '#09090b',
-            transformStyle: 'preserve-3d',
-            willChange: 'transform'
-          }}>
-            
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 100%)', pointerEvents: 'none', zIndex: 10, borderRadius: '32px' }} />
-
-            <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', padding: '32px 28px', color: 'white', position: 'relative', overflow: 'hidden' }}>
-              {/* Subtle glass reflection in header */}
-              <div style={{ position: 'absolute', top: '-50%', left: '-50%', right: '-50%', bottom: '-50%', background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 40%)', transform: 'rotate(-15deg)', pointerEvents: 'none' }} />
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', position: 'relative', zIndex: 1 }}>
-                <div style={{ fontSize: '0.8rem', fontWeight: 800, letterSpacing: '1.5px', textTransform: 'uppercase', color: '#94a3b8' }}>Risk Report</div>
-                <div style={{ fontSize: '0.75rem', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '4px 12px', borderRadius: '999px', color: '#10b981', fontWeight: 700 }}>Verified</div>
+          {/* Left Content */}
+          <div className="lg:col-span-7 space-y-8">
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs font-bold uppercase tracking-widest animate-fade-in">
+                <Sparkles size={14} className="fill-emerald-500" />
+                2024 Spatial Intelligence Active
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '36px', fontSize: '1rem', color: '#f8fafc', fontWeight: 500, position: 'relative', zIndex: 1 }}>
-                <MapPin size={20} color="#10b981" />
-                412 Maple Avenue, Austin, TX
-              </div>
+              <h1 ref={titleRef} className="text-5xl lg:text-7xl font-black tracking-tight text-zinc-900 leading-[0.95] text-balance">
+                Is Your Home <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-blue-600">Hiding Risks?</span>
+              </h1>
+              <p ref={subtitleRef} className="text-xl text-zinc-600 max-w-xl leading-relaxed">
+                Standard inspections miss what we find. Scan 15+ federal databases for toxic hazards, air quality, and superfund proximity instantly.
+              </p>
+            </div>
+
+            {/* Form Card */}
+            <div ref={formCardRef} className="glass-panel-spatial p-8 bg-white/70 border-white relative group">
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.02] to-transparent pointer-events-none" />
               
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', position: 'relative', zIndex: 1 }}>
-                <div>
-                  <div style={{ fontSize: '0.8rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '8px', fontWeight: 700 }}>Overall Score</div>
-                  <div style={{ fontSize: '4rem', fontWeight: 800, lineHeight: 1, letterSpacing: '-0.03em' }}>82<span style={{ fontSize: '1.5rem', color: '#64748b' }}>/100</span></div>
+              <div className="space-y-6 relative">
+                <div className="flex items-center justify-between">
+                  <div className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600 flex items-center gap-2">
+                    <Zap size={14} className="fill-emerald-600" />
+                    Instant Parcel Intelligence
+                  </div>
+                  <div className="text-[10px] font-bold text-zinc-400">48 US STATES ACTIVE</div>
                 </div>
-                <div style={{ position: 'relative', width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'inset 0 4px 10px rgba(0,0,0,0.2)' }}>
-                  <svg style={{ position: 'absolute', top: 0, left: 0, width: '80px', height: '80px', transform: 'rotate(-90deg)' }}>
-                    <circle cx="40" cy="40" r="38" fill="none" stroke="#10b981" strokeWidth="4" strokeDasharray="238" strokeDashoffset="45" strokeLinecap="round" style={{ filter: 'drop-shadow(0 0 8px rgba(16,185,129,0.5))' }} />
-                  </svg>
-                  <div style={{ fontWeight: 800, fontSize: '1.5rem', color: '#ffffff' }}>B+</div>
+
+                <form onSubmit={handleSearch} className="space-y-4">
+                  <div className="relative autocomplete-container" ref={dropdownRef}>
+                    <div className="relative">
+                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" size={20} />
+                      <input 
+                        type="text" 
+                        placeholder="Enter property address..." 
+                        value={address}
+                        onChange={(e) => {
+                          setAddress(e.target.value);
+                          setIsValidAddress(false);
+                          setError('');
+                        }}
+                        className={`w-full bg-white border ${error ? 'border-rose-500' : 'border-zinc-200'} rounded-2xl py-5 pl-12 pr-4 text-lg font-medium shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all`}
+                      />
+                      {isLoading && (
+                        <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                          <Loader2 size={20} className="animate-spin text-emerald-500" />
+                        </div>
+                      )}
+                    </div>
+
+                    {showSuggestions && suggestions.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 mt-3 glass-panel-spatial bg-white border-zinc-200 shadow-2xl z-50 p-2 max-h-[300px] overflow-y-auto">
+                        {suggestions.map((s, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => handleSuggestionClick(s)}
+                            className="w-full flex items-center gap-4 px-4 py-4 text-left hover:bg-emerald-50 rounded-xl transition-colors group"
+                          >
+                            <MapPin size={18} className="text-zinc-400 group-hover:text-emerald-500 transition-colors" />
+                            <span className="text-sm font-semibold text-zinc-700">{s.description}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {error && <p className="text-xs font-bold text-rose-500 ml-2">{error}</p>}
+
+                  <button 
+                    type="submit"
+                    disabled={isTransitioning}
+                    className="w-full bg-zinc-900 hover:bg-black text-white py-5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-xl shadow-zinc-900/10 group overflow-hidden relative"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <FileText size={22} className="relative z-10" />
+                    <span className="relative z-10">RUN ENVIRONMENTAL SCAN</span>
+                    <ArrowRight size={22} className="relative z-10 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </form>
+
+                <div className="flex items-center justify-center gap-8 pt-2">
+                  <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                    <CheckCircle2 size={14} className="text-emerald-500" />
+                    Emailed in minutes
+                  </div>
+                  <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                    <Lock size={14} className="text-emerald-500" />
+                    Secure Data Vault
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div style={{ padding: '28px', position: 'relative', zIndex: 1 }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '28px' }}>
+            {/* Quick Stats */}
+            <div className="grid grid-cols-3 gap-4">
+              {[
+                { label: 'EPA Data Source', icon: <Shield size={18} /> },
+                { label: 'FEMA Flood Maps', icon: <Waves size={18} /> },
+                { label: 'Soil Toxicity', icon: <Mountain size={18} /> },
+              ].map((item, i) => (
+                <div key={i} className="trust-badge flex flex-col items-center gap-2 p-4 bg-white/50 border border-zinc-100 rounded-2xl text-center">
+                  <div className="text-emerald-600">{item.icon}</div>
+                  <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">{item.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right Mockup */}
+          <div ref={mockupRef} className="lg:col-span-5 hidden lg:block perspective-container">
+            <div ref={mockupInnerRef} className="glass-panel-spatial bg-white shadow-2xl relative overflow-hidden group">
+              <div className="bg-zinc-900 p-8 text-white relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/20 blur-3xl rounded-full" />
+                <div className="flex justify-between items-center mb-6 relative">
+                  <div className="text-[10px] font-black tracking-widest text-zinc-500 uppercase">RISK REPORT #FDS-829</div>
+                  <div className="px-2 py-0.5 rounded bg-emerald-500 text-[9px] font-black text-zinc-900">VERIFIED</div>
+                </div>
+                <div className="flex items-center gap-3 mb-8 relative">
+                  <MapPin className="text-emerald-500" size={20} />
+                  <span className="font-bold text-lg">412 Maple Avenue, Austin, TX</span>
+                </div>
+                <div className="flex justify-between items-end relative">
+                  <div>
+                    <div className="text-[10px] font-bold text-zinc-500 uppercase mb-1">Safety Score</div>
+                    <div className="text-5xl font-black">82<span className="text-xl text-zinc-600">/100</span></div>
+                  </div>
+                  <div className="w-16 h-16 rounded-full border-4 border-emerald-500 flex items-center justify-center text-2xl font-black shadow-[0_0_20px_rgba(16,185,129,0.3)]">
+                    B+
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-8 space-y-4">
                 {[
-                  { icon: <Droplets size={18} color="#3b82f6" />, label: 'Water Quality', grade: 'A-', color: '#10b981' },
-                  { icon: <Wind size={18} color="#06b6d4" />, label: 'Air Quality', grade: 'B+', color: '#10b981' },
-                  { icon: <Mountain size={18} color="#8b5cf6" />, label: 'Soil Contamination', grade: 'C', color: '#f59e0b' },
-                  { icon: <Waves size={18} color="#3b82f6" />, label: 'Flood Risk', grade: 'B', color: '#10b981' },
-                  { icon: <Factory size={18} color="#ef4444" />, label: 'Superfund & Hazards', grade: 'A', color: '#10b981' }
+                  { label: 'Water Quality', score: 'A-', color: 'text-emerald-500', icon: <Droplets size={16} /> },
+                  { label: 'Air Toxicity', score: 'B+', color: 'text-emerald-500', icon: <Wind size={16} /> },
+                  { label: 'Soil Hazards', score: 'C', color: 'text-amber-500', icon: <Mountain size={16} /> },
+                  { label: 'Superfund Sites', score: 'A', color: 'text-emerald-500', icon: <Factory size={16} /> },
                 ].map((item, i) => (
-                  <div key={i} style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center', 
-                    fontSize: '0.95rem',
-                    background: 'rgba(255, 255, 255, 0.6)',
-                    padding: '12px 16px',
-                    borderRadius: '12px',
-                    border: '1px solid rgba(255, 255, 255, 0.8)',
-                    boxShadow: '0 4px 10px rgba(0,0,0,0.02)'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#334155', fontWeight: 600 }}>
-                      {item.icon} {item.label}
+                  <div key={i} className="flex items-center justify-between p-3 bg-zinc-50 rounded-xl border border-zinc-100">
+                    <div className="flex items-center gap-3 text-sm font-bold text-zinc-700">
+                      <span className="text-emerald-600">{item.icon}</span>
+                      {item.label}
                     </div>
-                    <div style={{ fontWeight: 800, color: item.color }}>{item.grade}</div>
+                    <span className={`text-sm font-black ${item.color}`}>{item.score}</span>
                   </div>
                 ))}
-              </div>
 
-              <div style={{ borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: '20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', fontWeight: 800, letterSpacing: '1.5px', color: '#64748b', marginBottom: '16px' }}>
-                  <MessageSquare size={16} color="#10b981" /> NEGOTIATION POINTS
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '0.85rem', color: '#475569', fontWeight: 500 }}>
-                  <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', background: 'rgba(255,255,255,0.5)', padding: '10px 12px', borderRadius: '8px' }}>
-                    <span style={{ color: '#10b981', fontWeight: 'bold' }}>•</span>
-                    <span>Request water filtration credit ($300 value)</span>
-                  </div>
-                  <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', background: 'rgba(255,255,255,0.5)', padding: '10px 12px', borderRadius: '8px' }}>
-                    <span style={{ color: '#10b981', fontWeight: 'bold' }}>•</span>
-                    <span>Verify lead paint testing prior to moving in</span>
+                <div className="pt-4 border-t border-zinc-100">
+                  <div className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-3">Key Negotiation Points</div>
+                  <div className="space-y-2">
+                    <div className="text-xs font-semibold text-zinc-500 flex items-start gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1" />
+                      Request lead paint testing credit ($450)
+                    </div>
+                    <div className="text-xs font-semibold text-zinc-500 flex items-start gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1" />
+                      Industrial site proximity disclosure required
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+
+            {/* Floating Badge */}
+            <div className="absolute -bottom-6 -right-6 glass-panel-spatial bg-white p-4 shadow-xl flex items-center gap-3 border-emerald-100 animate-bounce duration-[3000ms]">
+              <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                <ShieldCheck className="text-emerald-600" size={20} />
+              </div>
+              <div>
+                <div className="text-[10px] font-black text-zinc-900 uppercase">FIPS Validated</div>
+                <div className="text-[9px] text-zinc-500">Official County Records</div>
+              </div>
+            </div>
           </div>
-          
-          {/* Floating Decorators */}
-          <div style={{ position: 'absolute', top: '-10px', right: '-20px', background: 'white', padding: '12px 16px', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 20px 40px -10px rgba(0,0,0,0.15)', border: '1px solid rgba(0,0,0,0.05)', zIndex: 20, transform: 'translateZ(50px)' }}>
-            <div style={{ width: '10px', height: '10px', background: '#10b981', borderRadius: '50%', boxShadow: '0 0 10px #10b981' }} />
-            <span style={{ fontWeight: 700, fontSize: '0.85rem' }}>15+ Federal Databases</span>
-          </div>
+
         </div>
       </div>
     </section>

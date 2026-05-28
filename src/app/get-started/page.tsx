@@ -75,49 +75,13 @@ function GetStartedContent() {
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [address, setAddress] = useState(addressLine1);
-  const [unit, setUnit] = useState('');
-  const [city, setCity] = useState('');
-  const [state, setState] = useState('');
-  const [zip, setZip] = useState('');
-  const [country, setCountry] = useState('United States');
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardExpiry, setCardExpiry] = useState('');
+  const [cardCvc, setCardCvc] = useState('');
 
   // Terminal Animation State
   const [terminalLogs, setTerminalLogs] = useState<string[]>([]);
   const terminalLogsEndRef = useRef<HTMLDivElement>(null);
-
-  // ROI Module State
-  const [roiState, setRoiState] = useState<'calculating' | 'ready'>('calculating');
-  const [riskData, setRiskData] = useState({
-    score: 'Elevated',
-    leverage: '$1,500–$5,000',
-    roi: '31×–102×'
-  });
-
-  useEffect(() => {
-    if (!rawAddress) {
-      setRoiState('ready');
-      return;
-    }
-
-    // Simulate property-specific analysis
-    const timer = setTimeout(() => {
-      // Deterministic risk score based on address length/chars for demo consistency
-      const hash = rawAddress.length % 4;
-      const data = [
-        { score: 'Moderate', leverage: '$500–$1,500', roi: '10×–31×' },
-        { score: 'Elevated', leverage: '$1,500–$5,000', roi: '31×–102×' },
-        { score: 'High', leverage: '$5,000–$15,000+', roi: '102×–306×+' },
-        { score: 'Low', leverage: '$0–$500', roi: '0×–10×' }
-      ][hash];
-      
-      setRiskData(data);
-      setRoiState('ready');
-    }, 2800);
-
-    return () => clearTimeout(timer);
-  }, [rawAddress]);
 
   useEffect(() => {
     if (timeLeft <= 0) return;
@@ -136,9 +100,10 @@ function GetStartedContent() {
     bundle: 199
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault();
-    handleFinalSubmit();
+    if (checkoutStep < 2) setCheckoutStep(2);
+    else handleFinalSubmit();
   };
 
   const handleFinalSubmit = () => {
@@ -200,8 +165,7 @@ function GetStartedContent() {
             {/* ── LEFT COLUMN ── */}
             <div className="content-left">
               
-
-              {/* ── 4. MAIN CHECKOUT HERO ── */}
+              {/* ── 3. MAIN CHECKOUT HERO ── */}
               <section className="hero-section">
                 <h1 className="hero-title">Don&apos;t sign blind.</h1>
                 <p className="hero-subtitle">
@@ -319,54 +283,14 @@ function GetStartedContent() {
             <aside className="checkout-sidebar">
               <div className="sticky-sidebar">
                 
-                {/* 3. ROI PREVIEW MODULE (Relocated to Sidebar) */}
-                <section className="roi-module sidebar-mode">
-                  {roiState === 'calculating' ? (
-                    <div className="roi-loading-card">
-                      <div className="pulse-ring"></div>
-                      <div className="roi-loading-text">
-                        <span className="spinner-sm"></span>
-                        Analyzing address...
-                      </div>
-                      <div className="roi-loading-addr">{addressLine1 || 'Detecting...'}</div>
-                    </div>
-                  ) : (
-                    <div className="roi-ready-card">
-                      <div className="roi-hdr">
-                        <span className="roi-tag">Property Analysis</span>
-                        <h3 className="roi-title-sm">{addressLine1 || 'Selected Property'}</h3>
-                      </div>
-
-                      <div className="roi-stats-grid vertical">
-                        <div className="roi-stat-box">
-                          <span className="roi-stat-label">Risk Signal Score</span>
-                          <div className={`roi-badge ${riskData.score.toLowerCase()}`}>
-                            {riskData.score}
-                          </div>
-                        </div>
-                        <div className="roi-stat-box">
-                          <span className="roi-stat-label">Est. Negotiation Leverage</span>
-                          <div className="roi-stat-val-sm">{riskData.leverage}</div>
-                        </div>
-                        <div className="roi-stat-box highlight">
-                          <span className="roi-stat-label">Potential ROI</span>
-                          <div className="roi-stat-val-sm accent">{riskData.roi}</div>
-                        </div>
-                      </div>
-
-                      {/* ROI Social Proof (Address-Based) */}
-                      <div className="roi-social-proof">
-                        <div className="social-proof-icon">
-                          <Zap size={14} fill="#fbbf24" stroke="#fbbf24" />
-                        </div>
-                        <p className="social-proof-text">
-                          People at <strong>{addressLine1 || 'this address'}</strong> typically identify a <strong>{riskData.roi} ROI</strong> in potential negotiation leverage using this report. 
-                          <span className="social-proof-sub">12+ clients in this area have already secured their property data this month.</span>
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </section>
+                {/* Product Summary Card */}
+                <div className="prod-summary-card">
+                  <div className="prod-hdr">
+                    <span className="prod-badge">Report Processing</span>
+                    <h3 className="prod-name">Environmental Risk Report</h3>
+                    {addressLine1 && <p className="prod-addr">📍 {addressLine1}</p>}
+                  </div>
+                </div>
 
                 {/* ── 8. SELECT YOUR COVERAGE ── */}
                 <div className="plan-selector">
@@ -397,59 +321,76 @@ function GetStartedContent() {
                   </div>
                 </div>
 
-                {/* ── 9. CHECKOUT FORM (Matched to Screenshot) ── */}
+                {/* ── 9. CHECKOUT FORM ── */}
                 <div className="checkout-form-card">
-                  <form onSubmit={handleSubmit}>
-                    <div className="input-row">
-                      <div className="input-group">
-                        <input type="text" placeholder="First Name" required value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                  <h3 className="sidebar-title">{checkoutStep === 1 ? '2. Contact Information' : '2. Secure Payment'}</h3>
+                  <form onSubmit={handleNextStep}>
+                    {checkoutStep === 1 ? (
+                      <div className="form-step">
+                        <div className="input-group">
+                          <label>Email Address</label>
+                          <div className="input-wrap">
+                            <Mail size={16} className="input-icon" />
+                            <input 
+                              type="email" 
+                              placeholder="you@example.com" 
+                              required 
+                              value={email}
+                              onChange={(e) => setEmail(e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        <div className="input-row">
+                          <div className="input-group">
+                            <label>First Name</label>
+                            <input type="text" placeholder="Jane" required value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+                          </div>
+                          <div className="input-group">
+                            <label>Last Name</label>
+                            <input type="text" placeholder="Doe" required value={lastName} onChange={(e) => setLastName(e.target.value)} />
+                          </div>
+                        </div>
+                        <button type="submit" className="cta-button">
+                          Continue to Payment
+                          <ArrowRight size={18} />
+                        </button>
                       </div>
-                      <div className="input-group">
-                        <input type="text" placeholder="Last Name" required value={lastName} onChange={(e) => setLastName(e.target.value)} />
+                    ) : (
+                      <div className="form-step">
+                        <div className="input-group">
+                          <label>Card Number</label>
+                          <div className="input-wrap">
+                            <CreditCard size={16} className="input-icon" />
+                            <input type="text" placeholder="0000 0000 0000 0000" required value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} />
+                          </div>
+                        </div>
+                        <div className="input-row">
+                          <div className="input-group">
+                            <label>Expiry (MM/YY)</label>
+                            <input type="text" placeholder="MM/YY" required value={cardExpiry} onChange={(e) => setCardExpiry(e.target.value)} />
+                          </div>
+                          <div className="input-group">
+                            <label>CVC</label>
+                            <input type="text" placeholder="123" required value={cardCvc} onChange={(e) => setCardCvc(e.target.value)} />
+                          </div>
+                        </div>
+                        <div className="summary-row">
+                          <span>Total to Pay:</span>
+                          <span className="total-amount">${prices[selectedPlan].toFixed(2)}</span>
+                        </div>
+                        <button type="submit" className="cta-button">
+                          Get My Report — ${prices[selectedPlan]}
+                          <Lock size={16} />
+                        </button>
+                        <button type="button" className="back-link" onClick={() => setCheckoutStep(1)}>← Change contact info</button>
                       </div>
-                    </div>
-
-                    <div className="input-group">
-                      <input type="email" placeholder="Email Address" required value={email} onChange={(e) => setEmail(e.target.value)} />
-                    </div>
-
-                    <div className="input-group">
-                      <input type="text" placeholder="Phone (optional)" value={phone} onChange={(e) => setPhone(e.target.value)} />
-                    </div>
-
-                    <div className="input-group">
-                      <input type="text" placeholder="Street Address" required value={address} onChange={(e) => setAddress(e.target.value)} />
-                    </div>
-
-                    <div className="input-group">
-                      <input type="text" placeholder="Unit / Apt (optional)" value={unit} onChange={(e) => setUnit(e.target.value)} />
-                    </div>
-
-                    <div className="input-group">
-                      <input type="text" placeholder="City" required value={city} onChange={(e) => setCity(e.target.value)} />
-                    </div>
-
-                    <div className="input-row">
-                      <div className="input-group">
-                        <input type="text" placeholder="United States" value={country} disabled />
-                      </div>
-                      <div className="input-group">
-                        <input type="text" placeholder="State / Province" required value={state} onChange={(e) => setState(e.target.value)} />
-                      </div>
-                    </div>
-
-                    <div className="input-group">
-                      <input type="text" placeholder="ZIP Code" required value={zip} onChange={(e) => setZip(e.target.value)} />
-                    </div>
-
-                    <button type="submit" className="cta-button final-cta">
-                      Get My Environmental Report — ${prices[selectedPlan].toFixed(2)}
-                    </button>
+                    )}
                   </form>
                   
-                  <div className="security-badges-row">
-                    <Lock size={10} style={{ color: '#94a3b8' }} />
-                    <span>256-bit encrypted · 30-day guarantee · Instant delivery</span>
+                  <div className="security-badges">
+                    <div className="sec-item"><Lock size={12} /> SSL Secure</div>
+                    <div className="sec-item"><Zap size={12} /> Instant Delivery</div>
+                    <div className="sec-item"><Clock size={12} /> Expires: {formatTime(timeLeft)}</div>
                   </div>
                 </div>
 
@@ -522,67 +463,8 @@ function GetStartedContent() {
         .ann-badge { background: var(--accent-primary); color: var(--text-primary); padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
 
         /* ── LAYOUT ── */
-        .main-content { padding: 40px 0 100px; }
+        .main-content { padding: 60px 0 100px; }
         .grid-layout { display: grid; grid-template-columns: 1fr 400px; gap: 60px; }
-
-        /* ── ROI MODULE ── */
-        .roi-module { margin-bottom: 60px; perspective: 1000px; }
-        
-        .roi-loading-card { background: #fff; padding: 60px 40px; border-radius: 24px; border: 1px solid #e2e8f0; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; }
-        .roi-loading-text { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 10px; }
-        .roi-loading-addr { font-size: 0.9rem; color: var(--accent-primary); font-weight: 600; opacity: 0.7; }
-        .spinner-sm { width: 18px; height: 18px; border: 2px solid var(--accent-primary); border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; }
-        
-        .roi-ready-card { background: #fff; border-radius: 24px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
-        .roi-hdr { padding: 32px 32px 24px; border-bottom: 1px solid #f1f5f9; }
-        .roi-tag { background: #f0fdf4; color: var(--accent-primary); padding: 4px 10px; border-radius: 6px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; margin-bottom: 12px; display: inline-block; }
-        .roi-title { font-size: 1.75rem; font-weight: 900; letter-spacing: -0.03em; margin-bottom: 8px; }
-        .roi-subtitle { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.5; margin: 0; }
-
-        .roi-addr-display { margin: 24px 32px; padding: 16px 24px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; }
-        .roi-addr-label { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 4px; }
-        .roi-addr-val { font-size: 1.1rem; font-weight: 800; color: var(--text-primary); }
-
-        .roi-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #e2e8f0; margin: 0 32px 24px; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; }
-        .roi-stat-box { background: #fff; padding: 24px 16px; text-align: center; }
-        .roi-stat-box.highlight { background: #f0fdf4; }
-        .roi-stat-label { display: block; font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 12px; }
-        .roi-stat-val { font-size: 1.4rem; font-weight: 900; letter-spacing: -0.02em; }
-        .roi-stat-val.accent { color: var(--accent-primary); }
-        .roi-stat-desc { font-size: 0.65rem; color: var(--text-muted); margin: 6px 0 0; font-weight: 600; }
-        
-        .roi-badge { display: inline-block; padding: 4px 12px; border-radius: 99px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
-        .roi-badge.low { background: #f1f5f9; color: #64748b; }
-        .roi-badge.moderate { background: #fef9c3; color: #a16207; }
-        .roi-badge.elevated { background: #ffedd5; color: #9a3412; }
-        .roi-badge.high { background: #fee2e2; color: #991b1b; }
-
-        .roi-support-copy { margin: 0 32px 32px; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; font-style: italic; }
-
-        .locked-findings { margin: 0 32px 32px; background: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0; padding: 24px; position: relative; }
-        .locked-hdr { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 16px; }
-        .locked-rows { display: flex; flex-direction: column; gap: 10px; }
-        .locked-row { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); }
-        .locked-row.blur { filter: blur(4px); opacity: 0.5; pointer-events: none; user-select: none; }
-        
-        .locked-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(255,255,255,1) 40%, rgba(255,255,255,0.7)); display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding: 32px; text-align: center; }
-        .locked-overlay p { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); margin-bottom: 16px; }
-        .unlock-btn { background: var(--text-primary); color: #fff; border: none; padding: 14px 24px; border-radius: 10px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .unlock-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
-        .micro-row { display: flex; gap: 12px; font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-top: 12px; }
-
-        /* Sidebar ROI Specifics */
-        .roi-module.sidebar-mode { margin-bottom: 20px; }
-        .roi-title-sm { font-size: 1.1rem; font-weight: 800; margin: 0; }
-        .roi-stat-val-sm { font-size: 1.1rem; font-weight: 900; }
-        .roi-stats-grid.vertical { display: flex; flex-direction: column; margin: 0; border-radius: 0; border: none; border-top: 1px solid #f1f5f9; }
-        .roi-stats-grid.vertical .roi-stat-box { padding: 16px 24px; text-align: left; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; }
-        .roi-stats-grid.vertical .roi-stat-label { margin-bottom: 0; }
-        
-        .roi-social-proof { padding: 20px 24px; background: #f8fafc; display: flex; gap: 12px; }
-        .social-proof-icon { flex-shrink: 0; margin-top: 2px; }
-        .social-proof-text { font-size: 0.8rem; color: var(--text-primary); line-height: 1.5; margin: 0; font-weight: 500; }
-        .social-proof-sub { display: block; margin-top: 6px; font-size: 0.7rem; color: var(--accent-primary); font-weight: 700; }
 
         /* ── HERO ── */
         .hero-section { margin-bottom: 60px; }
@@ -658,46 +540,22 @@ function GetStartedContent() {
         .badge-best { position: absolute; top: -8px; right: 12px; background: var(--text-primary); color: #fff; font-size: 0.6rem; font-weight: 800; padding: 2px 8px; border-radius: 4px; }
 
         /* Form Card */
-        .checkout-form-card { background: #fff; padding: 24px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-        .input-group { margin-bottom: 12px; }
+        .checkout-form-card { background: #fff; padding: 24px; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
+        .input-group { margin-bottom: 16px; }
+        .input-group label { display: block; font-size: 0.75rem; font-weight: 800; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
         .input-wrap { position: relative; display: flex; align-items: center; }
-        .input-icon { position: absolute; left: 12px; color: #94a3b8; }
-        .input-group input { width: 100%; padding: 14px 16px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.95rem; font-family: inherit; outline: none; transition: all 0.2s; color: #1e293b; }
-        .input-group input::placeholder { color: #94a3b8; font-weight: 400; }
-        .input-group input:focus { border-color: var(--accent-primary); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1); }
-        .input-wrap input { padding-left: 36px; }
-        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-        .input-row .input-group { margin-bottom: 0; }
-        
-        .cta-button.final-cta {
-          background: #5bb18a;
-          color: #000;
-          padding: 20px 24px;
-          border-radius: 12px;
-          margin-top: 16px;
-          font-size: 1.1rem;
-          font-weight: 900;
-          letter-spacing: -0.01em;
-          box-shadow: 0 6px 0px #346951;
-          border: 1px solid #1e293b;
-          position: relative;
-          overflow: hidden;
-          transition: all 0.2s;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 10px;
-        }
-        .cta-button.final-cta:hover { 
-          transform: translateY(2px);
-          box-shadow: 0 4px 0px #346951;
-        }
-        .cta-button.final-cta:active {
-          transform: translateY(6px);
-          box-shadow: 0 0px 0px #346951;
-        }
-
-        .security-badges-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 16px; font-size: 0.75rem; color: #94a3b8; font-weight: 500; }
+        .input-icon { position: absolute; left: 12px; color: var(--text-muted); }
+        .input-wrap input { width: 100%; padding: 12px 12px 12px 36px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.9rem; font-family: inherit; outline: none; transition: border-color 0.2s; }
+        .input-wrap input:focus { border-color: var(--accent-primary); }
+        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .input-row input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 0.9rem; outline: none; }
+        .summary-row { display: flex; justify-content: space-between; align-items: center; margin: 20px 0; border-top: 1px solid #f1f5f9; padding-top: 16px; }
+        .total-amount { font-size: 1.5rem; font-weight: 900; }
+        .cta-button { width: 100%; background: var(--accent-primary); color: #fff; border: none; padding: 16px; border-radius: 12px; font-size: 1rem; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; transition: all 0.2s; box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.2); }
+        .cta-button:hover { background: var(--accent-primary-hover); transform: translateY(-1px); }
+        .back-link { display: block; width: 100%; text-align: center; background: none; border: none; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; margin-top: 12px; cursor: pointer; }
+        .security-badges { display: flex; justify-content: center; gap: 12px; margin-top: 20px; }
+        .sec-item { display: flex; align-items: center; gap: 4px; font-size: 0.6rem; font-weight: 700; color: var(--text-muted); }
 
         /* ── TERMINAL OVERLAY ── */
         .term-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(8px); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }

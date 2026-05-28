@@ -92,7 +92,7 @@ export default function FAQ() {
                   padding: '24px 32px',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: spaceBetween,
+                  justifyContent: 'space-between',
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',

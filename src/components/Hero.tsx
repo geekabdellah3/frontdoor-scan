@@ -180,7 +180,7 @@ export default function Hero() {
   };
 
   return (
-    <section ref={heroRef} className="relative min-h-screen flex items-center pt-20 overflow-hidden bg-[#fafafa]">
+    <section ref={heroRef} className="hero-section relative min-h-screen flex items-center pt-32 lg:pt-20 overflow-hidden bg-[#fafafa]">
       {/* Background Elements */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-emerald-500/5 blur-[120px]" />
@@ -192,22 +192,22 @@ export default function Hero() {
           
           {/* Left Content */}
           <div className="lg:col-span-7 space-y-8">
-            <div className="space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs font-bold uppercase tracking-widest animate-fade-in">
-                <Sparkles size={14} className="fill-emerald-500" />
-                2024 Spatial Intelligence Active
+              <div className="space-y-6">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs font-bold uppercase tracking-widest animate-fade-in">
+                  <Sparkles size={14} className="fill-emerald-500" />
+                  2024 Spatial Intelligence Active
+                </div>
+                <h1 ref={titleRef} className="text-4xl md:text-5xl lg:text-7xl font-black tracking-tight text-zinc-900 leading-[1.1] lg:leading-[1.05] text-balance">
+                  Is Your Home <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-blue-600">Hiding Risks?</span>
+                </h1>
+                <p ref={subtitleRef} className="hero-paragraph text-lg lg:text-xl text-zinc-600 max-w-xl leading-relaxed">
+                  Standard inspections miss what we find. Scan 15+ federal databases for toxic hazards, air quality, and superfund proximity instantly.
+                </p>
               </div>
-              <h1 ref={titleRef} className="text-5xl lg:text-7xl font-black tracking-tight text-zinc-900 leading-[0.95] text-balance">
-                Is Your Home <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-blue-600">Hiding Risks?</span>
-              </h1>
-              <p ref={subtitleRef} className="text-xl text-zinc-600 max-w-xl leading-relaxed">
-                Standard inspections miss what we find. Scan 15+ federal databases for toxic hazards, air quality, and superfund proximity instantly.
-              </p>
-            </div>
 
             {/* Form Card */}
-            <div ref={formCardRef} className="glass-panel-spatial p-8 bg-white/70 border-white relative group">
+            <div ref={formCardRef} className="hero-form-card glass-panel-spatial p-8 bg-white/70 border-white relative group">
               <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.02] to-transparent pointer-events-none" />
               
               <div className="space-y-6 relative">
@@ -286,15 +286,15 @@ export default function Hero() {
             </div>
 
             {/* Quick Stats */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {[
                 { label: 'EPA Data Source', icon: <Shield size={18} /> },
                 { label: 'FEMA Flood Maps', icon: <Waves size={18} /> },
                 { label: 'Soil Toxicity', icon: <Mountain size={18} /> },
               ].map((item, i) => (
-                <div key={i} className="trust-badge flex flex-col items-center gap-2 p-4 bg-white/50 border border-zinc-100 rounded-2xl text-center">
+                <div key={i} className="trust-badge flex flex-col items-center justify-center gap-2 p-4 bg-white border border-zinc-100 rounded-2xl text-center shadow-sm">
                   <div className="text-emerald-600">{item.icon}</div>
-                  <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">{item.label}</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">{item.label}</span>
                 </div>
               ))}
             </div>

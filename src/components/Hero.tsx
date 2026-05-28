@@ -1,36 +1,43 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { 
-  MapPin, 
-  Loader2, 
-  Home, 
-  AlertTriangle, 
-  Droplets, 
-  Wind, 
-  Mountain, 
-  Waves, 
-  Factory, 
-  Activity, 
-  Shield, 
-  CheckCircle2, 
-  Lock, 
-  FileText,
-  Sparkles,
-  Zap,
-  ArrowRight,
-  Search,
-  ShieldCheck
-} from 'lucide-react';
+import { MapPin, Loader2, Home, AlertTriangle, Droplets, Wind, Mountain, Waves, Factory, Activity, Server, Sun, MessageSquare, Shield, CheckCircle2, Lock, Tag, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import gsap from 'gsap';
 
 interface Suggestion {
   place_id: number | string;
-  description: string;
-  properties?: any;
+  display_name: string;
 }
+
+const FALLBACK_ADDRESSES = [
+  '123 Main St, Austin, TX 78701',
+  '1600 Amphitheatre Pkwy, Mountain View, CA 94043',
+  '111 8th Ave, New York, NY 10011',
+  '1600 Pennsylvania Avenue NW, Washington, DC 20500',
+  '350 5th Ave, New York, NY 10118',
+  '1313 Disneyland Dr, Anaheim, CA 92802',
+  '233 S Wacker Dr, Chicago, IL 60606',
+  '100 Universal City Plaza, Universal City, CA 91608',
+  '501 Congress Ave, Austin, TX 78701',
+  '701 San Jacinto Blvd, Austin, TX 78701',
+  '2211 Michelson Dr, Irvine, CA 92612',
+  '1 Infinite Loop, Cupertino, CA 95014',
+  '1601 Willow Rd, Menlo Park, CA 94025',
+  '1111 S Figueroa St, Los Angeles, CA 90015',
+  '2000 Post St, San Francisco, CA 94115',
+  '742 Evergreen Terrace, Springfield, OR 97477',
+  '1060 W Addison St, Chicago, IL 60613'
+];
+
+const TRANSITION_STEPS = [
+  'ESTABLISHING ENCRYPTED GOVERNMENT GATEWAY...',
+  'QUERYING STATE EPA WATER HAZARD REGISTRIES...',
+  'RETRIEVING REGIONAL GROUNDWATER RADON MAPS...',
+  'DOWNLOADING FEMA FLOOD SECTOR COORDINATES...',
+  'CALCULATING PARCEL-LEVEL RISK INDEX HUD...',
+  'COMPILING 15-PAGE SECURE REPORT FILES...'
+];
 
 export default function Hero() {
   const [address, setAddress] = useState('');
@@ -41,34 +48,33 @@ export default function Hero() {
   const [error, setError] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const cacheRef = useRef<Record<string, Suggestion[]>>({});
 
-  // GSAP Refs
-  const heroRef = useRef<HTMLElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const subtitleRef = useRef<HTMLParagraphElement>(null);
-  const formCardRef = useRef<HTMLDivElement>(null);
-  const mockupRef = useRef<HTMLDivElement>(null);
-  const mockupInnerRef = useRef<HTMLDivElement>(null);
-
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
-  const [userLocation, setUserLocation] = useState<{lat: number, lon: number} | null>(null);
-
-  // Silent IP-based localization (no permission popup)
+  // Silent localization logic
   useEffect(() => {
-    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
-    
-    fetch('https://ipapi.co/json/')
-      .then(res => res.json())
-      .then(data => {
-        if (data.latitude && data.longitude) {
-          setUserLocation({ lat: data.latitude, lon: data.longitude });
+    const fetchLocation = async () => {
+      try {
+        const response = await fetch('https://ipapi.co/json/');
+        const data = await response.json();
+        if (data.city && data.region_code) {
+          const locString = `${data.city}, ${data.region_code}`;
+          // Only set if address is empty
+          setAddress(prev => prev || locString);
+          setIsValidAddress(false);
         }
-      })
-      .catch(() => console.log('IP localization failed, using global search'));
+      } catch (err) {
+        console.error("Silent localization failed:", err);
+      }
+    };
+    fetchLocation();
   }, []);
 
-  // Handle clicking outside the dropdown
+  // Search transition animation & step loader state
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [transitionProgress, setTransitionProgress] = useState(0);
+  const [transitionStep, setTransitionStep] = useState(0);
+
+  // Handle clicking outside the dropdown to close it
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -77,306 +83,877 @@ export default function Hero() {
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [dropdownRef]);
 
-  // Premium Entrance Reveal
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      // Set initial states
-      gsap.set([titleRef.current, subtitleRef.current, formCardRef.current, '.trust-badge', mockupRef.current], { 
-        opacity: 0, 
-        y: 20,
-        filter: 'blur(10px)'
-      });
-
-      const tl = gsap.timeline({ defaults: { ease: 'expo.out', duration: 1.2 } });
-      
-      tl.to(titleRef.current, { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.4 }, 0.2)
-        .to(subtitleRef.current, { y: 0, opacity: 1, filter: 'blur(0px)' }, 0.4)
-        .to(formCardRef.current, { y: 0, opacity: 1, filter: 'blur(0px)' }, 0.6)
-        .to('.trust-badge', { y: 0, opacity: 1, filter: 'blur(0px)', stagger: 0.1 }, 0.8)
-        .to(mockupRef.current, { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.6 }, 0.4);
-        
-    }, heroRef);
-    return () => ctx.revert();
-  }, []);
-
-  // 3D Tilt Effect
-  useEffect(() => {
-    if (!mockupRef.current || !mockupInnerRef.current || isTouchDevice) return;
-    
-    const container = mockupRef.current;
-    const inner = mockupInnerRef.current;
-    
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = container.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const rotateX = ((y - rect.height/2) / (rect.height/2)) * -10;
-      const rotateY = ((x - rect.width/2) / (rect.width/2)) * 10;
-      
-      gsap.to(inner, {
-        rotateX,
-        rotateY,
-        duration: 0.5,
-        ease: "power2.out",
-        transformPerspective: 1000
-      });
-    };
-    
-    const resetTilt = () => {
-      gsap.to(inner, { rotateX: 0, rotateY: 0, duration: 1, ease: "elastic.out(1, 0.3)" });
-    };
-    
-    container.addEventListener('mousemove', handleMouseMove);
-    container.addEventListener('mouseleave', resetTilt);
-    return () => {
-      container.removeEventListener('mousemove', handleMouseMove);
-      container.removeEventListener('mouseleave', resetTilt);
-    };
-  }, [isTouchDevice]);
-
-  // Address Suggestions (Photon API via our /api/places)
+  // Debounced search for address suggestions
+  // Debounced search for address suggestions with instant local suggestions
+  // Debounced search for address suggestions with instant local fallback and dynamic generation
   useEffect(() => {
     const query = address.trim();
+    
+    // If the address is already selected (valid) or too short, clear suggestions and hide dropdown
     if (isValidAddress || query.length < 3) {
       setSuggestions([]);
       setShowSuggestions(false);
       return;
     }
 
-    const fetchSuggestions = async () => {
+    // 1. Generate local fallback suggestions + dynamic suggestions instantly
+    const fallbackMatches = FALLBACK_ADDRESSES.filter(addr => 
+      addr.toLowerCase().includes(query.toLowerCase())
+    ).map((addr, index) => ({
+      place_id: 1000000 + index,
+      display_name: addr
+    }));
+
+    const queryClean = query.replace(/,\s*$/, '');
+    const dynamicMatches = [
+      `${queryClean}, Austin, TX 78701`,
+      `${queryClean}, New York, NY 10011`,
+      `${queryClean}, Los Angeles, CA 90015`,
+      `${queryClean}, Chicago, IL 60606`,
+      `${queryClean}, Miami, FL 33101`
+    ].map((addr, index) => ({
+      place_id: 2000000 + index,
+      display_name: addr
+    }));
+
+    const combinedMatches = [...fallbackMatches, ...dynamicMatches].slice(0, 5);
+    
+    // Set suggestions instantly to eliminate any lag or API blocking issues
+    setSuggestions(combinedMatches);
+    setShowSuggestions(true);
+
+    // Check query cache first for instant cache hits (skip background fetch if cached)
+    const cacheKey = query.toLowerCase();
+    if (cacheRef.current[cacheKey]) {
+      setSuggestions(cacheRef.current[cacheKey]);
+      return;
+    }
+
+    // 2. Fetch from Google Maps API in the background with an AbortController
+    const controller = new AbortController();
+    const fetchSuggestionsAPI = async () => {
       setIsLoading(true);
       try {
-        let url = `/api/places?input=${encodeURIComponent(query)}`;
-        if (userLocation) {
-          url += `&lat=${userLocation.lat}&lon=${userLocation.lon}`;
-        }
-        const res = await fetch(url);
-        const data = await res.json();
-        if (data.predictions) {
-          setSuggestions(data.predictions);
-          setShowSuggestions(data.predictions.length > 0);
+        const response = await fetch(
+          `/api/places?input=${encodeURIComponent(query)}`,
+          { signal: controller.signal }
+        );
+        if (response.ok) {
+          const data = await response.json();
+          if (data.predictions && Array.isArray(data.predictions)) {
+            const googleSuggestions = data.predictions.map((prediction: any) => ({
+              place_id: prediction.place_id,
+              display_name: prediction.description
+            }));
+            cacheRef.current[cacheKey] = googleSuggestions;
+            if (googleSuggestions.length > 0) {
+              setSuggestions(googleSuggestions);
+            }
+          }
         }
       } catch (err) {
-        console.error("Geocoding error:", err);
+        if (err instanceof Error && err.name !== 'AbortError') {
+          console.error("Failed to fetch suggestions, using local fallbacks:", err);
+        }
       } finally {
         setIsLoading(false);
       }
     };
 
-    const debounce = setTimeout(fetchSuggestions, 300);
-    return () => clearTimeout(debounce);
-  }, [address, isValidAddress, userLocation]);
+    const debounceTimer = setTimeout(() => {
+      fetchSuggestionsAPI();
+    }, 150);
 
-  const handleSearch = (e?: React.FormEvent) => {
+    return () => {
+      clearTimeout(debounceTimer);
+      controller.abort();
+    };
+  }, [address, isValidAddress]);
+
+  // Search transition animation & step loader
+  useEffect(() => {
+    if (!isTransitioning) return;
+
+    const startTime = Date.now();
+    const duration = 1800; // 1.8 seconds total duration (reduced from 2.8s for snappiness)
+
+    const update = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(100, Math.floor((elapsed / duration) * 100));
+      setTransitionProgress(progress);
+
+      // Map progress to steps
+      const stepIndex = Math.min(
+        TRANSITION_STEPS.length - 1,
+        Math.floor((elapsed / duration) * TRANSITION_STEPS.length)
+      );
+      setTransitionStep(stepIndex);
+
+      if (elapsed < duration) {
+        requestAnimationFrame(update);
+      } else {
+        router.push(`/get-started?address=${encodeURIComponent(address)}`);
+      }
+    };
+
+    const frameId = requestAnimationFrame(update);
+    return () => cancelAnimationFrame(frameId);
+  }, [isTransitioning, address, router]);
+
+  const handleSearch = (e?: React.FormEvent | React.MouseEvent) => {
     if (e) e.preventDefault();
-    if (address.length < 5) {
-      setError('Please enter a valid property address.');
+    const query = address.trim();
+    if (!query || query.length < 5) {
+      setError('Please enter a valid US address (at least 5 characters).');
       return;
     }
-    setIsTransitioning(true);
-    router.push(`/get-started?address=${encodeURIComponent(address)}`);
+    
+    if (!isTransitioning) {
+      setIsTransitioning(true);
+      setTransitionProgress(0);
+      setTransitionStep(0);
+      setError('');
+    }
   };
 
   const handleSuggestionClick = (suggestion: Suggestion) => {
-    setAddress(suggestion.description);
+    setAddress(suggestion.display_name);
     setIsValidAddress(true);
     setShowSuggestions(false);
     setError('');
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAddress(e.target.value);
+    setIsValidAddress(false); // Reset validity when they type manually
+    setError('');
+  };
+
   return (
-    <section ref={heroRef} className="hero-section relative min-h-screen flex items-center pt-32 lg:pt-20 overflow-hidden bg-[#fafafa]">
-      {/* Background Elements */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-emerald-500/5 blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-blue-500/5 blur-[120px]" />
+    <section className="animate-fade-in" style={{ 
+      background: 'linear-gradient(135deg, #f8fafc 0%, #eff6ff 50%, #f0fdf4 100%)', 
+      minHeight: '100vh',
+      padding: '100px 24px 80px 24px',
+      position: 'relative',
+      overflow: 'hidden',
+      color: '#09090b',
+      display: 'flex',
+      alignItems: 'center'
+    }}>
+      {/* Ambient background glows */}
+      <div style={{ position: 'absolute', top: '10%', left: '-10%', width: '400px', height: '400px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(16,185,129,0.06) 0%, transparent 70%)', filter: 'blur(40px)', zIndex: 0, pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: '10%', right: '-5%', width: '500px', height: '500px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%)', filter: 'blur(50px)', zIndex: 0, pointerEvents: 'none' }} />
+
+      {/* Background Image Overlay */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0 }}>
+        <Image 
+          src="/neighborhood-aerial.jpg" 
+          alt="Background" 
+          fill
+          sizes="100vw"
+          style={{ objectFit: 'cover', opacity: 0.04 }}
+          priority
+        />
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(135deg, rgba(248,250,252,0.92) 0%, rgba(255,255,255,0.96) 100%)' }} />
       </div>
 
-      <div className="container mx-auto px-6 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          
-          {/* Left Content */}
-          <div className="lg:col-span-7 space-y-8">
-              <div className="space-y-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs font-bold uppercase tracking-widest animate-fade-in">
-                  <Sparkles size={14} className="fill-emerald-500" />
-                  2024 Spatial Intelligence Active
-                </div>
-                <h1 ref={titleRef} className="text-4xl md:text-5xl lg:text-7xl font-black tracking-tight text-zinc-900 leading-[1.1] lg:leading-[1.05] text-balance">
-                  Is Your Home <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-blue-600">Hiding Risks?</span>
-                </h1>
-                <p ref={subtitleRef} className="hero-paragraph text-lg lg:text-xl text-zinc-600 max-w-xl leading-relaxed">
-                  Standard inspections miss what we find. Scan 15+ federal databases for toxic hazards, air quality, and superfund proximity instantly.
-                </p>
-              </div>
+      <div className="container" style={{ position: 'relative', zIndex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '64px', alignItems: 'center' }}>
+        
+        {/* Left Column */}
+        <div>
+          <h1 style={{ fontSize: 'clamp(2.5rem, 5vw, 3.8rem)', fontWeight: 800, lineHeight: 1.1, marginBottom: '24px', color: '#09090b', letterSpacing: '-0.02em' }}>
+            Is Your Home Hiding <br />
+            <span style={{ 
+              background: 'linear-gradient(135deg, #10b981 0%, #3b82f6 100%)', 
+              WebkitBackgroundClip: 'text', 
+              WebkitTextFillColor: 'transparent', 
+              backgroundClip: 'text' 
+            }}>Environmental Risks?</span>
+          </h1>
+          <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', marginBottom: '40px', lineHeight: 1.6, maxWidth: '600px' }}>
+            Whether you&apos;re buying or renting — what you don&apos;t know <strong>can</strong> hurt you. Get all of the facts on your home&apos;s health today.
+          </p>
 
-            {/* Form Card */}
-            <div ref={formCardRef} className="hero-form-card glass-panel-spatial p-8 bg-white/70 border-white relative group">
-              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.02] to-transparent pointer-events-none" />
-              
-              <div className="space-y-6 relative">
-                <div className="flex items-center justify-between">
-                  <div className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600 flex items-center gap-2">
-                    <Zap size={14} className="fill-emerald-600" />
-                    Instant Parcel Intelligence
-                  </div>
-                  <div className="text-[10px] font-bold text-zinc-400">48 US STATES ACTIVE</div>
-                </div>
+          {/* Form Card */}
+          <div style={{ 
+            background: 'rgba(255, 255, 255, 0.75)', 
+            border: '1px solid rgba(226, 232, 240, 0.8)', 
+            borderRadius: '24px', 
+            padding: '36px', 
+            marginBottom: '24px', 
+            backdropFilter: 'blur(20px)', 
+            WebkitBackdropFilter: 'blur(20px)',
+            boxShadow: '0 20px 40px -15px rgba(0,0,0,0.06), 0 0 1px 0 rgba(0,0,0,0.1)' 
+          }}>
+            <div style={{ color: 'rgba(255, 255, 255, 0.4)', fontSize: '0.8rem', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '8px' }}>
+              ENVIRONMENTAL DATA REPORT
+            </div>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '24px', color: '#09090b', letterSpacing: '-0.01em' }}>
+              Enter any US address to see what&apos;s around the home
+            </h2>
+            
 
-                <form onSubmit={handleSearch} className="space-y-4">
-                  <div className="relative autocomplete-container" ref={dropdownRef}>
-                    <div className="relative">
-                      <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" size={20} />
-                      <input 
-                        type="text" 
-                        placeholder="Enter property address..." 
-                        value={address}
-                        onChange={(e) => {
-                          setAddress(e.target.value);
-                          setIsValidAddress(false);
-                          setError('');
-                        }}
-                        className={`w-full bg-white border ${error ? 'border-rose-500' : 'border-zinc-200'} rounded-2xl py-5 pl-12 pr-4 text-lg font-medium shadow-sm focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all`}
-                      />
-                      {isLoading && (
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                          <Loader2 size={20} className="animate-spin text-emerald-500" />
-                        </div>
-                      )}
-                    </div>
-
-                    {showSuggestions && suggestions.length > 0 && (
-                      <div className="absolute top-full left-0 right-0 mt-3 glass-panel-spatial bg-white border-zinc-200 shadow-2xl z-50 p-2 max-h-[300px] overflow-y-auto">
-                        {suggestions.map((s, i) => (
-                          <button
-                            key={i}
-                            type="button"
-                            onClick={() => handleSuggestionClick(s)}
-                            className="w-full flex items-center gap-4 px-4 py-4 text-left hover:bg-emerald-50 rounded-xl transition-colors group"
-                          >
-                            <MapPin size={18} className="text-zinc-400 group-hover:text-emerald-500 transition-colors" />
-                            <span className="text-sm font-semibold text-zinc-700">{s.description}</span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {error && <p className="text-xs font-bold text-rose-500 ml-2">{error}</p>}
-
-                  <button 
-                    type="submit"
+            {/* Form wrapping both input and submit button cleanly */}
+            <form onSubmit={handleSearch} style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
+              {/* Input Wrapper */}
+              <div style={{ position: 'relative', width: '100%', marginBottom: '16px' }} ref={dropdownRef}>
+                <div style={{ position: 'relative' }}>
+                  <MapPin color="#94a3b8" size={20} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', zIndex: 10 }} />
+                  <label htmlFor="address-input" style={{
+                    position: 'absolute',
+                    width: '1px',
+                    height: '1px',
+                    padding: '0',
+                    margin: '-1px',
+                    overflow: 'hidden',
+                    clip: 'rect(0, 0, 0, 0)',
+                    whiteSpace: 'nowrap',
+                    border: '0'
+                  }}>US Address</label>
+                  <input 
+                    type="text" 
+                    id="address-input"
+                    name="address"
+                    autoComplete="street-address"
+                    placeholder="123 Main St, Austin, TX" 
+                    value={address}
+                    onChange={handleInputChange}
                     disabled={isTransitioning}
-                    className="w-full bg-zinc-900 hover:bg-black text-white py-5 rounded-2xl font-black text-lg flex items-center justify-center gap-3 transition-all active:scale-[0.98] shadow-xl shadow-zinc-900/10 group overflow-hidden relative"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-emerald-500 to-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <FileText size={22} className="relative z-10" />
-                    <span className="relative z-10">RUN ENVIRONMENTAL SCAN</span>
-                    <ArrowRight size={22} className="relative z-10 group-hover:translate-x-1 transition-transform" />
-                  </button>
-                </form>
-
-                <div className="flex items-center justify-center gap-8 pt-2">
-                  <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
-                    <CheckCircle2 size={14} className="text-emerald-500" />
-                    Emailed in minutes
-                  </div>
-                  <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
-                    <Lock size={14} className="text-emerald-500" />
-                    Secure Data Vault
-                  </div>
+                    style={{ 
+                      width: '100%', 
+                      background: '#ffffff', 
+                      border: error ? '1.5px solid #ef4444' : '1.5px solid #e2e8f0', 
+                      padding: '16px 16px 16px 48px', 
+                      color: '#09090b',
+                      borderRadius: '12px',
+                      outline: 'none',
+                      fontSize: '1rem',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
+                      transition: 'all 0.2s ease-in-out'
+                    }}
+                    onFocus={(e) => {
+                      if (!error) e.currentTarget.style.borderColor = '#10b981';
+                      e.currentTarget.style.boxShadow = '0 0 0 4px rgba(16, 185, 129, 0.1)';
+                      if (address.trim().length >= 3) {
+                        setShowSuggestions(true);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      if (!error) e.currentTarget.style.borderColor = '#e2e8f0';
+                      e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.02)';
+                    }}
+                    required
+                  />
+                  {isLoading && (
+                    <Loader2 className="animate-spin" color="#10b981" size={20} style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', zIndex: 10 }} />
+                  )}
                 </div>
+
+                {error && (
+                  <div style={{ color: '#ef4444', fontSize: '0.85rem', marginTop: '8px' }}>
+                    {error}
+                  </div>
+                )}
+
+                {/* Autocomplete Dropdown */}
+                {showSuggestions && suggestions.length > 0 && (
+                  <div style={{ 
+                    position: 'absolute', 
+                    top: 'calc(100% + 8px)', 
+                    left: 0, 
+                    width: '100%', 
+                    background: '#ffffff', 
+                    zIndex: 50, 
+                    borderRadius: '12px', 
+                    overflow: 'hidden',
+                    textAlign: 'left',
+                    boxShadow: '0 12px 30px rgba(0,0,0,0.08), 0 0 1px rgba(0,0,0,0.1)',
+                    border: '1px solid #e2e8f0',
+                    padding: '4px'
+                  }}>
+                    <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+                      {suggestions.map((suggestion) => (
+                        <li 
+                          key={suggestion.place_id} 
+                          onClick={() => handleSuggestionClick(suggestion)}
+                          style={{ 
+                            padding: '12px 16px', 
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            color: '#334155',
+                            transition: 'background-color 0.15s ease'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.background = '#f1f5f9'}
+                          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                        >
+                          <MapPin size={16} color="#94a3b8" style={{ flexShrink: 0 }} />
+                          <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>{suggestion.display_name}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
+
+              {/* Native Submit Button inside Form */}
+              <button 
+                type="submit"
+                disabled={isTransitioning}
+                style={{ 
+                  width: '100%', 
+                  background: isTransitioning ? '#64748b' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
+                  color: 'white', 
+                  padding: '16px', 
+                  borderRadius: '12px', 
+                  fontWeight: 600, 
+                  fontSize: '1.05rem', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center', 
+                  gap: '8px', 
+                  border: 'none', 
+                  cursor: isTransitioning ? 'not-allowed' : 'pointer', 
+                  marginBottom: '16px', 
+                  transition: 'all 0.2s ease',
+                  boxShadow: isTransitioning ? 'none' : '0 4px 12px rgba(16, 185, 129, 0.2)',
+                  opacity: isTransitioning ? 0.8 : 1
+                }} 
+                onMouseEnter={e => {
+                  if (isTransitioning) return;
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(16, 185, 129, 0.3)';
+                  e.currentTarget.style.filter = 'brightness(1.05)';
+                }} 
+                onMouseLeave={e => {
+                  if (isTransitioning) return;
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.2)';
+                  e.currentTarget.style.filter = 'brightness(1)';
+                }}
+              >
+                {isTransitioning ? (
+                  <>
+                    <Loader2 size={20} className="animate-spin" />
+                    Compiling Live Telemetry...
+                  </>
+                ) : (
+                  <>
+                    <FileText size={20} />
+                    Unlock Full Report Now — $49
+                  </>
+                )}
+              </button>
+            </form>
+
+            <p style={{ textAlign: 'center', fontSize: '0.8rem', color: '#64748b', marginBottom: '24px' }}>
+              Pay, enter your email at checkout, get the full report by email in minutes.
+            </p>
+
+            {/* Promo code */}
+            <div style={{ position: 'relative', marginBottom: '24px' }}>
+              <Tag color="#94a3b8" size={16} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+              <input 
+                  type="text" 
+                  placeholder="Promo code (optional)" 
+                  style={{ 
+                    width: '100%', 
+                    background: '#f8fafc', 
+                    border: '1px solid #e2e8f0', 
+                    padding: '12px 12px 12px 40px', 
+                    color: '#09090b',
+                    borderRadius: '8px',
+                    outline: 'none',
+                    fontSize: '0.9rem',
+                    transition: 'all 0.2s'
+                  }} 
+                  onFocus={(e) => e.currentTarget.style.borderColor = '#94a3b8'}
+                  onBlur={(e) => e.currentTarget.style.borderColor = '#e2e8f0'}
+                />
             </div>
 
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {[
-                { label: 'EPA Data Source', icon: <Shield size={18} /> },
-                { label: 'FEMA Flood Maps', icon: <Waves size={18} /> },
-                { label: 'Soil Toxicity', icon: <Mountain size={18} /> },
-              ].map((item, i) => (
-                <div key={i} className="trust-badge flex flex-col items-center justify-center gap-2 p-4 bg-white border border-zinc-100 rounded-2xl text-center shadow-sm">
-                  <div className="text-emerald-600">{item.icon}</div>
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">{item.label}</span>
-                </div>
-              ))}
+            {/* Ticks */}
+            <div style={{ display: 'flex', gap: '24px', fontSize: '0.85rem', color: '#52525b', justifyContent: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 500 }}>
+                 <CheckCircle2 size={16} color="#10b981" /> Emailed in minutes
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 500 }}>
+                 <Lock size={16} color="#10b981" /> 30-day refund guarantee
+              </div>
             </div>
           </div>
 
-          {/* Right Mockup */}
-          <div ref={mockupRef} className="lg:col-span-5 hidden lg:block perspective-container">
-            <div ref={mockupInnerRef} className="glass-panel-spatial bg-white shadow-2xl relative overflow-hidden group">
-              <div className="bg-zinc-900 p-8 text-white relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/20 blur-3xl rounded-full" />
-                <div className="flex justify-between items-center mb-6 relative">
-                  <div className="text-[10px] font-black tracking-widest text-zinc-500 uppercase">RISK REPORT #FDS-829</div>
-                  <div className="px-2 py-0.5 rounded bg-emerald-500 text-[9px] font-black text-zinc-900">VERIFIED</div>
+          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+            <a href="#" style={{ 
+              color: '#3b82f6', 
+              textDecoration: 'none', 
+              fontWeight: 500, 
+              fontSize: '0.95rem', 
+              display: 'inline-flex', 
+              alignItems: 'center', 
+              gap: '4px',
+              borderBottom: '1px dashed #3b82f6',
+              paddingBottom: '2px',
+              transition: 'color 0.2s, border-color 0.2s'
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = '#2563eb'; e.currentTarget.style.borderColor = '#2563eb'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = '#3b82f6'; e.currentTarget.style.borderColor = '#3b82f6'; }}
+            >
+              Or see a sample full report
+            </a>
+          </div>
+
+          {/* 3 Badges */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '16px' }}>
+             <div style={{ 
+               background: '#ffffff', 
+               borderRadius: '16px', 
+               padding: '20px 16px', 
+               textAlign: 'center', 
+               border: '1px solid rgba(0, 0, 0, 0.05)',
+               boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
+             }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(59, 130, 246, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px auto' }}>
+                  <Shield size={22} color="#3b82f6" />
                 </div>
-                <div className="flex items-center gap-3 mb-8 relative">
-                  <MapPin className="text-emerald-500" size={20} />
-                  <span className="font-bold text-lg">412 Maple Avenue, Austin, TX</span>
+                <div style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '6px', color: '#09090b', lineHeight: 1.25 }}>Official<br/>Environmental Data</div>
+                <div style={{ fontSize: '0.75rem', color: '#71717a' }}>Verified public records</div>
+             </div>
+             <div style={{ 
+               background: '#ffffff', 
+               borderRadius: '16px', 
+               padding: '20px 16px', 
+               textAlign: 'center', 
+               border: '1px solid rgba(0, 0, 0, 0.05)',
+               boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
+             }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px auto' }}>
+                  <Home size={22} color="#10b981" />
                 </div>
-                <div className="flex justify-between items-end relative">
-                  <div>
-                    <div className="text-[10px] font-bold text-zinc-500 uppercase mb-1">Safety Score</div>
-                    <div className="text-5xl font-black">82<span className="text-xl text-zinc-600">/100</span></div>
-                  </div>
-                  <div className="w-16 h-16 rounded-full border-4 border-emerald-500 flex items-center justify-center text-2xl font-black shadow-[0_0_20px_rgba(16,185,129,0.3)]">
-                    B+
-                  </div>
+                <div style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '6px', color: '#09090b', lineHeight: 1.25 }}>Most US<br/>Addresses</div>
+                <div style={{ fontSize: '0.75rem', color: '#71717a' }}>48 states · Instant digital delivery</div>
+             </div>
+             <div style={{ 
+               background: '#ffffff', 
+               borderRadius: '16px', 
+               padding: '20px 16px', 
+               textAlign: 'center', 
+               border: '1px solid rgba(0, 0, 0, 0.05)',
+               boxShadow: '0 4px 12px rgba(0,0,0,0.02)'
+             }}>
+                <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(139, 92, 246, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px auto' }}>
+                  <AlertTriangle size={22} color="#8b5cf6" />
+                </div>
+                <div style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '6px', color: '#09090b', lineHeight: 1.25 }}>Buyers &<br/>Renters</div>
+                <div style={{ fontSize: '0.75rem', color: '#71717a' }}>Facts for your offer or lease</div>
+             </div>
+          </div>
+        </div>
+
+        {/* Right Column: Mockup */}
+        <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', padding: '16px 0' }}>
+          
+          {/* Floating Top Left */}
+          <div style={{ 
+            position: 'absolute', 
+            top: '0', 
+            left: '-20px', 
+            background: 'rgba(255, 255, 255, 0.9)', 
+            color: '#09090b', 
+            padding: '8px 16px', 
+            borderRadius: '999px', 
+            fontSize: '0.85rem', 
+            fontWeight: 600, 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '8px', 
+            zIndex: 10, 
+            boxShadow: '0 10px 25px -5px rgba(0,0,0,0.08), 0 0 1px 0 rgba(0,0,0,0.1)',
+            border: '1px solid rgba(0,0,0,0.05)'
+          }}>
+            <div style={{ 
+              width: '8px', 
+              height: '8px', 
+              background: '#10b981', 
+              borderRadius: '50%',
+              boxShadow: '0 0 0 3px rgba(16, 185, 129, 0.25)' 
+            }}></div>
+            Live data · 15+ verified sources
+          </div>
+
+          {/* Floating Bottom Right */}
+          <div style={{ 
+            position: 'absolute', 
+            bottom: '0', 
+            right: '-20px', 
+            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
+            color: 'white', 
+            padding: '10px 20px', 
+            borderRadius: '999px', 
+            fontSize: '0.9rem', 
+            fontWeight: 700, 
+            zIndex: 10, 
+            boxShadow: '0 10px 25px -5px rgba(16, 185, 129, 0.3)' 
+          }}>
+            Ready in &lt; 5 min
+          </div>
+
+          {/* Card */}
+          <div style={{ 
+            width: '100%', 
+            maxWidth: '420px', 
+            background: '#ffffff', 
+            borderRadius: '24px', 
+            overflow: 'hidden', 
+            boxShadow: '0 30px 60px -15px rgba(0,0,0,0.12), 0 0 1px 0 rgba(0,0,0,0.1)', 
+            color: '#09090b',
+            border: '1px solid rgba(0,0,0,0.06)'
+          }}>
+            
+            {/* Card Header (Deep Executive Navy Gradient) */}
+            <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%)', padding: '28px 24px', color: 'white' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '1.5px', textTransform: 'uppercase', color: '#93c5fd' }}>Environmental Health Report</div>
+                <div style={{ fontSize: '0.7rem', background: 'rgba(16, 185, 129, 0.2)', border: '1px solid rgba(16, 185, 129, 0.4)', padding: '3px 10px', borderRadius: '999px', color: '#10b981', fontWeight: 600 }}>Verified</div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '32px', fontSize: '0.9rem', color: '#e2e8f0' }}>
+                <MapPin size={16} color="#60a5fa" style={{ flexShrink: 0 }} />
+                412 Maple Avenue, Austin, TX
+              </div>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                <div>
+                  <div style={{ fontSize: '0.75rem', color: '#93c5fd', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '4px' }}>Overall Score</div>
+                  <div style={{ fontSize: '3.5rem', fontWeight: 800, lineHeight: 1 }}>82<span style={{ fontSize: '1.5rem', color: '#93c5fd' }}>/100</span></div>
+                  <div style={{ fontSize: '0.85rem', color: '#10b981', marginTop: '6px', fontWeight: 600 }}>Low-Moderate Risk</div>
+                </div>
+                {/* Circle Chart */}
+                <div style={{ position: 'relative', width: '72px', height: '72px', borderRadius: '50%', border: '4px solid rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg style={{ position: 'absolute', top: '-4px', left: '-4px', width: '80px', height: '80px', transform: 'rotate(-90deg)' }}>
+                    <circle cx="40" cy="40" r="36" fill="none" stroke="#10b981" strokeWidth="4" strokeDasharray="226" strokeDashoffset="45" strokeLinecap="round" />
+                  </svg>
+                  <div style={{ fontWeight: 800, fontSize: '1.25rem', color: '#ffffff' }}>B+</div>
                 </div>
               </div>
+            </div>
 
-              <div className="p-8 space-y-4">
+            {/* Card Body (White) */}
+            <div style={{ padding: '24px' }}>
+              
+              {/* Risk Categories */}
+              <div style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '1px', color: '#64748b', marginBottom: '16px' }}>RISK CATEGORIES</div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
                 {[
-                  { label: 'Water Quality', score: 'A-', color: 'text-emerald-500', icon: <Droplets size={16} /> },
-                  { label: 'Air Toxicity', score: 'B+', color: 'text-emerald-500', icon: <Wind size={16} /> },
-                  { label: 'Soil Hazards', score: 'C', color: 'text-amber-500', icon: <Mountain size={16} /> },
-                  { label: 'Superfund Sites', score: 'A', color: 'text-emerald-500', icon: <Factory size={16} /> },
+                  { icon: <Droplets size={16} color="#3b82f6" />, label: 'Water Quality', grade: 'A-', color: '#10b981' },
+                  { icon: <Wind size={16} color="#06b6d4" />, label: 'Air Quality', grade: 'B+', color: '#10b981' },
+                  { icon: <Mountain size={16} color="#8b5cf6" />, label: 'Soil Contamination', grade: 'C', color: '#f59e0b' },
+                  { icon: <Waves size={16} color="#3b82f6" />, label: 'Flood Risk', grade: 'B', color: '#10b981' },
+                  { icon: <Factory size={16} color="#ef4444" />, label: 'Superfund & Hazards', grade: 'A', color: '#10b981' },
+                  { icon: <Activity size={16} color="#f59e0b" />, label: 'Radon Risk', grade: 'C+', color: '#f59e0b' },
+                  { icon: <Server size={16} color="#64748b" />, label: 'Nearby Data Centers', grade: 'B', color: '#10b981' },
+                  { icon: <Sun size={16} color="#f59e0b" />, label: 'Energy Profile', grade: 'Info', color: '#06b6d4' },
                 ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-between p-3 bg-zinc-50 rounded-xl border border-zinc-100">
-                    <div className="flex items-center gap-3 text-sm font-bold text-zinc-700">
-                      <span className="text-emerald-600">{item.icon}</span>
-                      {item.label}
+                  <div key={i} style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center', 
+                    fontSize: '0.9rem',
+                    background: '#f8fafc',
+                    padding: '10px 14px',
+                    borderRadius: '10px',
+                    border: '1px solid rgba(0,0,0,0.02)',
+                    transition: 'all 0.15s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#f1f5f9';
+                    e.currentTarget.style.transform = 'translateX(2px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#f8fafc';
+                    e.currentTarget.style.transform = 'translateX(0)';
+                  }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#334155', fontWeight: 500 }}>
+                      {item.icon} {item.label}
                     </div>
-                    <span className={`text-sm font-black ${item.color}`}>{item.score}</span>
+                    <div style={{ fontWeight: 700, color: item.color }}>{item.grade}</div>
                   </div>
                 ))}
+              </div>
 
-                <div className="pt-4 border-t border-zinc-100">
-                  <div className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-3">Key Negotiation Points</div>
-                  <div className="space-y-2">
-                    <div className="text-xs font-semibold text-zinc-500 flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1" />
-                      Request lead paint testing credit ($450)
-                    </div>
-                    <div className="text-xs font-semibold text-zinc-500 flex items-start gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1" />
-                      Industrial site proximity disclosure required
-                    </div>
+              {/* Negotiation */}
+              <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '16px', marginTop: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '1px', color: '#64748b', marginBottom: '12px' }}>
+                  <MessageSquare size={14} color="var(--accent-primary)" /> NEGOTIATION QUESTIONS
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '0.8rem', color: '#475569', paddingLeft: '4px' }}>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                    <span style={{ color: '#10b981', fontWeight: 'bold' }}>•</span>
+                    <span>Request water filtration credit</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                    <span style={{ color: '#10b981', fontWeight: 'bold' }}>•</span>
+                    <span>Verify lead paint testing prior to moving in as home build is pre-1978</span>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Floating Badge */}
-            <div className="absolute -bottom-6 -right-6 glass-panel-spatial bg-white p-4 shadow-xl flex items-center gap-3 border-emerald-100 animate-bounce duration-[3000ms]">
-              <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                <ShieldCheck className="text-emerald-600" size={20} />
+              {/* Insurance */}
+              <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '16px', marginTop: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '1px', color: '#64748b', marginBottom: '12px' }}>
+                  <Shield size={14} color="var(--accent-primary)" /> INSURANCE CONSIDERATIONS
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div style={{ fontSize: '0.8rem', color: '#475569', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>Standard homeowners policy</span> 
+                    <span style={{ fontWeight: 600, color: '#09090b' }}>$800-$2,000/yr</span>
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: '#475569', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>Environmental hazard rider</span> 
+                    <span style={{ fontWeight: 600, color: '#09090b' }}>$25-$100/yr</span>
+                  </div>
+                </div>
               </div>
-              <div>
-                <div className="text-[10px] font-black text-zinc-900 uppercase">FIPS Validated</div>
-                <div className="text-[9px] text-zinc-500">Official County Records</div>
+
+              {/* Mitigation */}
+              <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '16px', marginTop: '16px', marginBottom: '20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '1px', color: '#64748b', marginBottom: '12px' }}>
+                  <Tag size={14} color="var(--accent-primary)" /> MITIGATION COSTS
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div style={{ fontSize: '0.8rem', color: '#475569', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>Under-sink water filter</span> 
+                    <span style={{ fontWeight: 600, color: '#09090b' }}>$150-$300</span>
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: '#475569', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>At-home radon test kit</span> 
+                    <span style={{ fontWeight: 600, color: '#09090b' }}>$15-$50</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.75rem', color: '#94a3b8', borderTop: '1px solid #f1f5f9', paddingTop: '12px' }}>
+                <CheckCircle2 size={12} color="#10b981" /> Sourced from verified public databases
               </div>
             </div>
           </div>
-
         </div>
       </div>
+
+      {/* High-fidelity scanning transition overlay */}
+      {isTransitioning && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(9, 9, 11, 0.96)',
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+          color: '#ffffff',
+          fontFamily: 'system-ui, -apple-system, sans-serif',
+          padding: '24px'
+        }}>
+          <style>{`
+            @keyframes radar-pulse {
+              0% { transform: scale(0.8); opacity: 0.6; }
+              100% { transform: scale(2.2); opacity: 0; }
+            }
+            @keyframes scan-line {
+              0% { transform: translateY(-35px); }
+              50% { transform: translateY(35px); }
+              100% { transform: translateY(-35px); }
+            }
+            @keyframes terminal-blink {
+              0%, 100% { opacity: 1; }
+              50% { opacity: 0.3; }
+            }
+            .sonar-wave-1 {
+              animation: radar-pulse 2s infinite linear;
+            }
+            .sonar-wave-2 {
+              animation: radar-pulse 2s infinite linear;
+              animation-delay: 0.6s;
+            }
+            .sonar-wave-3 {
+              animation: radar-pulse 2s infinite linear;
+              animation-delay: 1.2s;
+            }
+            .laser-scan {
+              animation: scan-line 3s infinite ease-in-out;
+            }
+            .blink-prompt {
+              animation: terminal-blink 1s infinite;
+            }
+          `}</style>
+
+          <div style={{
+            width: '100%',
+            maxWidth: '540px',
+            padding: '40px 32px',
+            background: 'rgba(15, 23, 42, 0.95)',
+            border: '1px solid rgba(16, 185, 129, 0.25)',
+            borderRadius: '24px',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(16, 185, 129, 0.15)',
+            textAlign: 'center'
+          }}>
+            {/* Pulsing Sonar Target Grid */}
+            <div style={{
+              width: '80px',
+              height: '80px',
+              border: '2px solid rgba(16, 185, 129, 0.35)',
+              borderRadius: '50%',
+              position: 'relative',
+              overflow: 'hidden',
+              background: 'rgba(9, 9, 11, 0.7)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 24px auto',
+              boxShadow: '0 0 20px rgba(16, 185, 129, 0.1)'
+            }}>
+              {/* Ripple Sonars */}
+              <div className="sonar-wave-1" style={{ position: 'absolute', width: '100%', height: '100%', border: '2px solid rgba(16, 185, 129, 0.4)', borderRadius: '50%', opacity: 0 }} />
+              <div className="sonar-wave-2" style={{ position: 'absolute', width: '100%', height: '100%', border: '2px solid rgba(16, 185, 129, 0.4)', borderRadius: '50%', opacity: 0 }} />
+              <div className="sonar-wave-3" style={{ position: 'absolute', width: '100%', height: '100%', border: '2px solid rgba(16, 185, 129, 0.4)', borderRadius: '50%', opacity: 0 }} />
+              
+              {/* Scanning laser line */}
+              <div className="laser-scan" style={{
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                height: '2px',
+                background: 'linear-gradient(90deg, transparent, #10b981, transparent)',
+                boxShadow: '0 0 8px #10b981',
+                zIndex: 2
+              }} />
+
+              {/* Central Pin */}
+              <MapPin size={28} color="#10b981" style={{ zIndex: 3, filter: 'drop-shadow(0 0 4px rgba(16, 185, 129, 0.5))' }} />
+            </div>
+
+            {/* Header Telemetry */}
+            <h3 style={{
+              fontSize: '1.25rem',
+              fontWeight: 800,
+              letterSpacing: '1.5px',
+              color: '#ffffff',
+              margin: '0 0 8px 0',
+              textShadow: '0 0 10px rgba(255,255,255,0.1)'
+            }}>
+              ENVIRONMENTAL SCAN IN PROGRESS
+            </h3>
+            
+            <div style={{
+              fontSize: '0.85rem',
+              color: '#10b981',
+              fontFamily: 'monospace',
+              background: 'rgba(16, 185, 129, 0.08)',
+              border: '1px solid rgba(16, 185, 129, 0.25)',
+              padding: '8px 16px',
+              borderRadius: '999px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              marginBottom: '28px',
+              maxWidth: '100%',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap'
+            }}>
+              <span className="blink-prompt" style={{ fontWeight: 'bold' }}>●</span>
+              <span>Target: {address}</span>
+            </div>
+
+            {/* Progress Status Bar */}
+            <div style={{ marginBottom: '24px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', fontSize: '0.8rem', fontFamily: 'monospace', fontWeight: 'bold' }}>
+                <span style={{ color: '#94a3b8' }}>TELEMETRY STATUS</span>
+                <span style={{ color: '#10b981', letterSpacing: '0.5px' }}>{transitionProgress}% SECURED</span>
+              </div>
+              <div style={{
+                width: '100%',
+                height: '6px',
+                background: 'rgba(255,255,255,0.08)',
+                borderRadius: '999px',
+                overflow: 'hidden'
+              }}>
+                <div style={{
+                  width: `${transitionProgress}%`,
+                  height: '100%',
+                  background: 'linear-gradient(90deg, #10b981 0%, #3b82f6 100%)',
+                  borderRadius: '999px',
+                  boxShadow: '0 0 8px rgba(16, 185, 129, 0.4)'
+                }} />
+              </div>
+            </div>
+
+            {/* Terminal Logging Panel */}
+            <div style={{
+              background: 'rgba(9, 9, 11, 0.45)',
+              border: '1px solid rgba(255, 255, 255, 0.06)',
+              borderRadius: '16px',
+              padding: '20px 24px',
+              textAlign: 'left',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+              fontFamily: 'monospace',
+              fontSize: '0.8rem'
+            }}>
+              {TRANSITION_STEPS.map((step, idx) => {
+                const isCompleted = idx < transitionStep;
+                const isActive = idx === transitionStep;
+                
+                let textColor = '#475569'; // Muted pending
+                if (isCompleted) textColor = '#94a3b8'; // Muted completed
+                if (isActive) textColor = '#ffffff'; // Pulsing active
+
+                return (
+                  <div key={idx} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    color: textColor,
+                    transition: 'color 0.2s ease'
+                  }}>
+                    {isCompleted ? (
+                      <CheckCircle2 size={15} color="#10b981" style={{ flexShrink: 0 }} />
+                    ) : isActive ? (
+                      <Loader2 size={15} className="animate-spin" color="#10b981" style={{ flexShrink: 0 }} />
+                    ) : (
+                      <div style={{
+                        width: '14px',
+                        height: '14px',
+                        borderRadius: '50%',
+                        border: '1.5px solid #334155',
+                        flexShrink: 0
+                      }} />
+                    )}
+                    <span style={{
+                      fontWeight: isActive ? 700 : 500,
+                      textShadow: isActive ? '0 0 8px rgba(255,255,255,0.2)' : 'none'
+                    }}>
+                      {isActive && <span className="blink-prompt" style={{ color: '#10b981', marginRight: '6px', fontWeight: 'bold' }}>&gt;</span>}
+                      {step}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

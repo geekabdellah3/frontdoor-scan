@@ -1,232 +1,84 @@
-'use client';
-
-import { CheckCircle2, ArrowRight } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
-import gsap from 'gsap';
 
 export default function Pricing() {
-  const containerRef = useRef<HTMLElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
-  const splitRef = useRef<HTMLDivElement>(null);
-  const cardsRef = useRef<HTMLDivElement>(null);
-  
-  const [isTouchDevice, setIsTouchDevice] = useState(false);
-
-  useEffect(() => {
-    setIsTouchDevice('ontouchstart' in window || navigator.maxTouchPoints > 0);
-  }, []);
-
-  useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.from(headerRef.current, {
-        scrollTrigger: {
-          trigger: headerRef.current,
-          start: 'top 90%',
-          once: true
-        },
-        y: 20,
-        opacity: 0,
-        filter: 'blur(10px)',
-        duration: 1.2,
-        ease: 'expo.out'
-      });
-
-      gsap.from(headerRef.current, {
-        scrollTrigger: {
-          trigger: headerRef.current,
-          start: 'top 90%',
-          once: true
-        },
-        y: 20,
-        opacity: 0,
-        filter: 'blur(10px)',
-        duration: 1.2,
-        ease: 'expo.out'
-      });
-
-      gsap.from(splitRef.current?.children || [], {
-        scrollTrigger: {
-          trigger: splitRef.current,
-          start: 'top 90%',
-          once: true
-        },
-        y: 20,
-        opacity: 0,
-        filter: 'blur(10px)',
-        stagger: 0.1,
-        duration: 1.2,
-        ease: 'expo.out'
-      });
-
-      gsap.from(cardsRef.current?.children || [], {
-        scrollTrigger: {
-          trigger: cardsRef.current,
-          start: 'top 85%',
-          once: true
-        },
-        y: 30,
-        opacity: 0,
-        filter: 'blur(10px)',
-        stagger: 0.15,
-        duration: 1.4,
-        ease: 'expo.out',
-        clearProps: 'all'
-      });
-    }, containerRef);
-
-    return () => ctx.revert();
-  }, []);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (isTouchDevice) return;
-    const card = e.currentTarget;
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const cx = rect.width / 2;
-    const cy = rect.height / 2;
-    const rotateX = ((y - cy) / cy) * -4;
-    const rotateY = ((x - cx) / cx) * 4;
-    gsap.to(card, {
-      rotateX: rotateX,
-      rotateY: rotateY,
-      y: -10,
-      scale: 1.02,
-      duration: 0.4,
-      ease: 'power2.out'
-    });
-  };
-
-  const handleMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (isTouchDevice) return;
-    gsap.to(e.currentTarget, {
-      rotateX: 0,
-      rotateY: 0,
-      y: 0,
-      scale: 1,
-      duration: 0.8,
-      ease: 'elastic.out(1, 0.3)'
-    });
-  };
-
   return (
-    <section ref={containerRef} id="pricing" className="section-padding bg-zinc-50 relative overflow-hidden">
-      {/* Background Decor */}
-      <div className="bg-glow -top-24 -left-24 w-[600px] h-[600px] opacity-40" />
-      <div className="bg-glow -bottom-24 -right-24 w-[600px] h-[600px] opacity-30" />
+    <section id="pricing" className="container flex flex-col items-center" style={{ padding: '80px 24px' }}>
+      <h2 style={{ fontSize: '2.5rem', marginBottom: '16px' }}>Simple, <span className="text-gradient">Transparent Pricing</span></h2>
+      <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem', marginBottom: '64px', textAlign: 'center' }}>
+        Get the data you need to make an informed decision.
+      </p>
 
-      <div className="container mx-auto px-6 relative z-10">
-        <div ref={headerRef} className="pricing-header text-center mb-16 lg:mb-24">
-          <h2 className="text-3xl md:text-5xl lg:text-6xl font-black text-zinc-900 tracking-tight leading-[1.1] mb-6">
-            Simple, <span className="text-emerald-600">Transparent Pricing</span>
-          </h2>
-          <p className="text-lg md:text-xl text-zinc-500 font-medium max-w-2xl mx-auto leading-relaxed">
-            Get the data you need to make an informed decision without the hidden fees.
-          </p>
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '48px', alignItems: 'center', marginBottom: '80px', width: '100%' }}>
+        <div style={{ position: 'relative', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.1)', aspectRatio: '4/3', order: 2 }}>
+          <Image 
+            src="/couple-reviewing.jpg" 
+            alt="Couple reviewing a report" 
+            fill
+            style={{ objectFit: 'cover' }}
+          />
         </div>
-
-        <div ref={splitRef} className="pricing-split grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24 items-center mb-24 lg:mb-32">
-          <div className="lg:col-span-7 relative group">
-            <div className="relative rounded-[32px] overflow-hidden shadow-2xl aspect-[16/10]">
-              <Image 
-                src="/couple-reviewing.jpg" 
-                alt="Couple reviewing a report" 
-                fill
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-            </div>
-            {/* Decorative element */}
-            <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl -z-10" />
+        <div style={{ order: 1 }}>
+          <h2 style={{ fontSize: '2rem', marginBottom: '16px' }}>Why homebuyers and renters use Front Door Scan</h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', marginBottom: '24px', lineHeight: 1.6 }}>
+            Buyers have used these reports to negotiate price reductions, request remediation, or walk away from properties with serious hidden risks.
+          </p>
+          <ul style={{ display: 'flex', flexDirection: 'column', gap: '16px', listStyle: 'none', padding: 0 }}>
+            <li className="flex items-center" style={{ gap: '12px', color: 'var(--text-secondary)' }}><CheckCircle2 color="var(--accent-primary)" size={20} /><span>Identify unseen risks</span></li>
+            <li className="flex items-center" style={{ gap: '12px', color: 'var(--text-secondary)' }}><CheckCircle2 color="var(--accent-primary)" size={20} /><span>Strengthen your negotiating position</span></li>
+            <li className="flex items-center" style={{ gap: '12px', color: 'var(--text-secondary)' }}><CheckCircle2 color="var(--accent-primary)" size={20} /><span>Ensure safety for your family</span></li>
+          </ul>
+        </div>
+      </div>
+      
+      <div className="grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px', width: '100%', maxWidth: '900px' }}>
+        
+        {/* Single Report */}
+        <div className="glass-panel" style={{ padding: '40px', position: 'relative' }}>
+          <h3 style={{ fontSize: '1.5rem', marginBottom: '8px' }}>Single Property Report</h3>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px', marginBottom: '24px' }}>
+            <span style={{ fontSize: '3rem', fontWeight: 700 }}>$49</span>
+            <span style={{ color: 'var(--text-secondary)', textDecoration: 'line-through', marginBottom: '8px' }}>$69</span>
           </div>
-          <div className="lg:col-span-5 space-y-8">
-            <h2 className="text-3xl lg:text-4xl font-black text-zinc-900 tracking-tight leading-tight">
-              Why homebuyers and renters use Front Door Scan
-            </h2>
-            <p className="text-lg text-zinc-500 font-medium leading-relaxed">
-              Buyers have used these reports to negotiate price reductions, request remediation, or walk away from properties with serious hidden risks.
-            </p>
-            <ul className="space-y-4">
-              {[
-                { text: 'Identify unseen environmental risks', color: 'emerald' },
-                { text: 'Strengthen your negotiating position', color: 'blue' },
-                { text: 'Ensure long-term safety for your family', color: 'purple' }
-              ].map((item, i) => (
-                <li key={i} className="flex items-center gap-4 text-zinc-700 font-bold text-lg">
-                  <div className={`p-1.5 rounded-full bg-${item.color}-500/10 text-${item.color}-500`}>
-                    <CheckCircle2 size={20} />
-                  </div>
-                  {item.text}
-                </li>
-              ))}
-            </ul>
-          </div>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '32px' }}>
+            One full environmental health report with PDF download, valid forever.
+          </p>
+          
+          <ul style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '40px', listStyle: 'none', padding: 0 }}>
+            <li className="flex items-center" style={{ gap: '12px' }}><CheckCircle2 color="var(--accent-primary)" size={20} /><span>Water & Air Quality</span></li>
+            <li className="flex items-center" style={{ gap: '12px' }}><CheckCircle2 color="var(--accent-primary)" size={20} /><span>Flood & Soil Risk</span></li>
+            <li className="flex items-center" style={{ gap: '12px' }}><CheckCircle2 color="var(--accent-primary)" size={20} /><span>Superfund & Radon</span></li>
+            <li className="flex items-center" style={{ gap: '12px' }}><CheckCircle2 color="var(--accent-primary)" size={20} /><span>Negotiation Points</span></li>
+          </ul>
+          
+          <Link href="/get-started" className="btn btn-primary" style={{ width: '100%', padding: '16px' }}>Get Single Report</Link>
         </div>
         
-        <div ref={cardsRef} className="pricing-grid grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto perspective-container">
-          
-          {/* Single Report */}
-          <div 
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-            className="glass-panel-spatial p-10 md:p-12 flex flex-col items-start bg-white/70 hover:bg-white transition-all duration-500"
-          >
-            <h3 className="text-xl font-black text-zinc-900 uppercase tracking-widest mb-4">Single Property</h3>
-            <div className="flex items-baseline gap-2 mb-6">
-              <span className="text-6xl font-black text-zinc-900 tracking-tighter">$49</span>
-              <span className="text-xl text-zinc-400 font-bold line-through">$69</span>
-            </div>
-            <p className="text-zinc-500 font-medium mb-10 leading-relaxed">
-              One full environmental health report with PDF download, valid forever.
-            </p>
-            
-            <ul className="space-y-4 mb-12 w-full">
-              {['Water & Air Quality', 'Flood & Soil Risk', 'Superfund & Radon', 'Negotiation Points'].map((feat, i) => (
-                <li key={i} className="flex items-center gap-3 text-zinc-700 font-bold text-sm">
-                  <CheckCircle2 className="text-emerald-500" size={18} /> {feat}
-                </li>
-              ))}
-            </ul>
-            
-            <Link href="/signup" className="btn btn-accent px-6 py-2.5 text-xs tracking-widest uppercase">
-              Get Started
-            </Link>
+        {/* Bundle */}
+        <div className="glass-panel" style={{ padding: '40px', position: 'relative', borderColor: 'var(--accent-primary)', boxShadow: '0 0 30px rgba(16, 185, 129, 0.1)' }}>
+          <div style={{ position: 'absolute', top: '-12px', left: '50%', transform: 'translateX(-50%)', background: 'var(--accent-primary)', color: 'white', padding: '4px 16px', borderRadius: '999px', fontSize: '0.85rem', fontWeight: 600 }}>
+            MOST POPULAR
           </div>
-          
-          {/* Bundle */}
-          <div 
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-            className="glass-panel-spatial p-10 md:p-12 flex flex-col items-start bg-white border-emerald-500/50 relative"
-          >
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-6 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-500/20">
-              MOST POPULAR
-            </div>
-            <h3 className="text-xl font-black text-emerald-600 uppercase tracking-widest mb-4">5-Property Bundle</h3>
-            <div className="flex items-baseline gap-2 mb-6">
-              <span className="text-6xl font-black text-zinc-900 tracking-tighter">$199</span>
-              <span className="text-sm text-zinc-400 font-bold">($39.80 / report)</span>
-            </div>
-            <p className="text-zinc-500 font-medium mb-10 leading-relaxed">
-              Compare up to 5 homes side-by-side. Credits valid for 6 months.
-            </p>
-            
-            <ul className="space-y-4 mb-12 w-full">
-              {['Everything in Single', '5 Report Credits', 'Side-by-side Comparison', 'Priority Email Support'].map((feat, i) => (
-                <li key={i} className="flex items-center gap-3 text-zinc-700 font-bold text-sm">
-                  <CheckCircle2 className="text-emerald-500" size={18} /> {feat}
-                </li>
-              ))}
-            </ul>
-            
-            <Link href="/get-started" className="w-full btn btn-accent py-5 text-lg">
-              Get Bundle Now
-            </Link>
+          <h3 style={{ fontSize: '1.5rem', marginBottom: '8px' }}>5-Property Bundle</h3>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '8px', marginBottom: '24px' }}>
+            <span style={{ fontSize: '3rem', fontWeight: 700 }}>$199</span>
+            <span style={{ color: 'var(--text-secondary)', marginBottom: '8px' }}>($39.80 each)</span>
           </div>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '32px' }}>
+            Compare up to 5 homes side-by-side. Credits valid 6 months.
+          </p>
           
+          <ul style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '40px', listStyle: 'none', padding: 0 }}>
+            <li className="flex items-center" style={{ gap: '12px' }}><CheckCircle2 color="var(--accent-primary)" size={20} /><span>Everything in Single</span></li>
+            <li className="flex items-center" style={{ gap: '12px' }}><CheckCircle2 color="var(--accent-primary)" size={20} /><span>5 Report Credits</span></li>
+            <li className="flex items-center" style={{ gap: '12px' }}><CheckCircle2 color="var(--accent-primary)" size={20} /><span>Side-by-side Comparison</span></li>
+            <li className="flex items-center" style={{ gap: '12px' }}><CheckCircle2 color="var(--accent-primary)" size={20} /><span>30-day money-back guarantee</span></li>
+          </ul>
+          
+          <Link href="/get-started" className="btn btn-accent" style={{ width: '100%', padding: '16px' }}>Get Bundle</Link>
         </div>
+        
       </div>
     </section>
   );

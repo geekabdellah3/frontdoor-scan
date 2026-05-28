@@ -204,88 +204,6 @@ function GetStartedContent() {
             {/* ── LEFT COLUMN ── */}
             <div className="content-left">
               
-              {/* ── 3. ROI PREVIEW MODULE (Address-Based) ── */}
-              <section className="roi-module">
-                {roiState === 'calculating' ? (
-                  <div className="roi-loading-card">
-                    <div className="pulse-ring"></div>
-                    <div className="roi-loading-text">
-                      <span className="spinner-sm"></span>
-                      Calculating address-based ROI estimate for property...
-                    </div>
-                    <div className="roi-loading-addr">{addressLine1 || 'Detecting address...'}</div>
-                  </div>
-                ) : (
-                  <div className="roi-ready-card">
-                    <div className="roi-hdr">
-                      <span className="roi-tag">Property Insight</span>
-                      <h2 className="roi-title">Estimated ROI for this address</h2>
-                      <p className="roi-subtitle">Your report cost is fixed. Your negotiation leverage depends on the risk signals found near this property.</p>
-                    </div>
-
-                    <div className="roi-addr-display">
-                      <span className="roi-addr-label">Address Analyzed:</span>
-                      <div className="roi-addr-val">{addressLine1 || 'Selected Property'}</div>
-                    </div>
-
-                    <div className="roi-stats-grid">
-                      <div className="roi-stat-box">
-                        <span className="roi-stat-label">Risk Signal Score</span>
-                        <div className={`roi-badge ${riskData.score.toLowerCase()}`}>
-                          {riskData.score}
-                        </div>
-                        <p className="roi-stat-desc">Based on public hazard density nearby.</p>
-                      </div>
-                      <div className="roi-stat-box">
-                        <span className="roi-stat-label">Est. Negotiation Leverage</span>
-                        <div className="roi-stat-val">{riskData.leverage}</div>
-                        <p className="roi-stat-desc">Potential due diligence credit range.</p>
-                      </div>
-                      <div className="roi-stat-box highlight">
-                        <span className="roi-stat-label">Potential ROI</span>
-                        <div className="roi-stat-val accent">{riskData.roi}</div>
-                        <p className="roi-stat-desc">Return on your $49 report cost.</p>
-                      </div>
-                    </div>
-
-                    <div className="roi-support-copy">
-                      This estimate is based on the idea that stronger environmental risk signals may create stronger due diligence questions, requests for additional testing, remediation discussions, or seller credit negotiations.
-                    </div>
-
-                    {/* Locked Findings Preview */}
-                    <div className="locked-findings">
-                      <div className="locked-hdr">
-                        <Lock size={14} />
-                        <span>Locked Environmental Signals</span>
-                      </div>
-                      <div className="locked-rows">
-                        <div className="locked-row blur">
-                          <AlertTriangle size={14} />
-                          <span>Nearby EPA Enforcement Record (1.2 miles)</span>
-                        </div>
-                        <div className="locked-row blur">
-                          <Droplets size={14} />
-                          <span>Flood Exposure Indicator (FEMA Zone A/V)</span>
-                        </div>
-                        <div className="locked-row">
-                          <Lock size={12} style={{ opacity: 0.5 }} />
-                          <span style={{ opacity: 0.5 }}>3 additional hazard records identified...</span>
-                        </div>
-                      </div>
-                      <div className="locked-overlay">
-                        <p>Unlock the full report to see exact locations, risk types, and negotiation talking points.</p>
-                        <button type="button" className="unlock-btn" onClick={() => document.querySelector('.checkout-sidebar')?.scrollIntoView({ behavior: 'smooth' })}>
-                          Unlock Full Report — $49
-                        </button>
-                        <div className="micro-row">
-                          <span>Instant PDF</span> • <span>30-Day Guarantee</span> • <span>Secure</span>
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
-                )}
-              </section>
 
               {/* ── 4. MAIN CHECKOUT HERO ── */}
               <section className="hero-section">
@@ -405,14 +323,56 @@ function GetStartedContent() {
             <aside className="checkout-sidebar">
               <div className="sticky-sidebar">
                 
-                {/* Product Summary Card */}
-                <div className="prod-summary-card">
-                  <div className="prod-hdr">
-                    <span className="prod-badge">Report Processing</span>
-                    <h3 className="prod-name">Environmental Risk Report</h3>
-                    {addressLine1 && <p className="prod-addr">📍 {addressLine1}</p>}
-                  </div>
-                </div>
+                {/* 3. ROI PREVIEW MODULE (Relocated to Sidebar) */}
+                <section className="roi-module sidebar-mode">
+                  {roiState === 'calculating' ? (
+                    <div className="roi-loading-card">
+                      <div className="pulse-ring"></div>
+                      <div className="roi-loading-text">
+                        <span className="spinner-sm"></span>
+                        Analyzing address...
+                      </div>
+                      <div className="roi-loading-addr">{addressLine1 || 'Detecting...'}</div>
+                    </div>
+                  ) : (
+                    <div className="roi-ready-card">
+                      <div className="roi-hdr">
+                        <span className="roi-tag">Property Analysis</span>
+                        <h3 className="roi-title-sm">{addressLine1 || 'Selected Property'}</h3>
+                      </div>
+
+                      <div className="roi-stats-grid vertical">
+                        <div className="roi-stat-box">
+                          <span className="roi-stat-label">Risk Signal Score</span>
+                          <div className={`roi-badge ${riskData.score.toLowerCase()}`}>
+                            {riskData.score}
+                          </div>
+                        </div>
+                        <div className="roi-stat-box">
+                          <span className="roi-stat-label">Est. Negotiation Leverage</span>
+                          <div className="roi-stat-val-sm">{riskData.leverage}</div>
+                        </div>
+                        <div className="roi-stat-box highlight">
+                          <span className="roi-stat-label">Potential ROI</span>
+                          <div className="roi-stat-val-sm accent">{riskData.roi}</div>
+                        </div>
+                      </div>
+
+                      {/* Locked Findings Preview (Compact) */}
+                      <div className="locked-findings-sm">
+                        <div className="locked-hdr">
+                          <Lock size={12} />
+                          <span>Locked Records Near Address</span>
+                        </div>
+                        <div className="locked-rows">
+                          <div className="locked-row blur"><Check size={12} /> EPA Hazard Scan</div>
+                          <div className="locked-row blur"><Check size={12} /> Flood Risk Analysis</div>
+                          <div className="locked-row blur"><Check size={12} /> Proximity Map</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </section>
 
                 {/* ── 8. SELECT YOUR COVERAGE ── */}
                 <div className="plan-selector">
@@ -625,6 +585,17 @@ function GetStartedContent() {
         .unlock-btn { background: var(--text-primary); color: #fff; border: none; padding: 14px 24px; border-radius: 10px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .unlock-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
         .micro-row { display: flex; gap: 12px; font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-top: 12px; }
+
+        /* Sidebar ROI Specifics */
+        .roi-module.sidebar-mode { margin-bottom: 20px; }
+        .roi-title-sm { font-size: 1.1rem; font-weight: 800; margin: 0; }
+        .roi-stat-val-sm { font-size: 1.1rem; font-weight: 900; }
+        .roi-stats-grid.vertical { display: flex; flex-direction: column; margin: 0; border-radius: 0; border: none; border-top: 1px solid #f1f5f9; }
+        .roi-stats-grid.vertical .roi-stat-box { padding: 16px 24px; text-align: left; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; }
+        .roi-stats-grid.vertical .roi-stat-label { margin-bottom: 0; }
+        .locked-findings-sm { padding: 16px 24px; background: #f8fafc; }
+        .locked-findings-sm .locked-hdr { margin-bottom: 10px; opacity: 0.7; }
+        .locked-findings-sm .locked-row { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; }
 
         /* ── HERO ── */
         .hero-section { margin-bottom: 60px; }

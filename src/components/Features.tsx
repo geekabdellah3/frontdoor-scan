@@ -44,7 +44,7 @@ export default function Features() {
         {/* Visual Content Section */}
         <div style={{ marginBottom: '120px' }}>
           <div className="responsive-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', display: 'grid', gap: '64px', alignItems: 'center' }}>
-            <div className="reveal-up">
+            <div>
               <div className="inline-flex items-center glass-card" style={{ padding: '8px 16px', borderRadius: '999px', display: 'inline-flex', gap: '8px', marginBottom: '24px', fontSize: '0.9rem', fontWeight: 500 }}>
                 <CheckCircle2 size={16} color="var(--accent-primary)" />
                 Professional Grade Data
@@ -71,7 +71,7 @@ export default function Features() {
               </div>
             </div>
             
-            <div className="reveal-up" style={{ position: 'relative' }}>
+            <div style={{ position: 'relative' }}>
               <div className="isometric-view">
                 <div className="isometric-card glass-card" style={{ borderRadius: '32px', overflow: 'hidden', aspectRatio: '4/3', position: 'relative' }}>
                   <Image 
@@ -104,7 +104,7 @@ export default function Features() {
         
         <div className="responsive-grid">
           {features.map((feature, index) => (
-            <div key={index} className="glass-card reveal-up" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '20px', borderRadius: '24px' }}>
+            <div key={index} className="glass-card" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '20px', borderRadius: '24px' }}>
               <div style={{ padding: '16px', background: 'rgba(255,255,255,0.5)', borderRadius: '20px', width: 'fit-content', boxShadow: 'inset 0 0 0 1px var(--border-color)' }}>
                 {feature.icon}
               </div>

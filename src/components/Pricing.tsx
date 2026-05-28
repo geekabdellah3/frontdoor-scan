@@ -19,7 +19,7 @@ export default function Pricing() {
         </div>
 
         <div className="responsive-grid lg:grid-cols-2" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', display: 'grid', gap: '64px', alignItems: 'center', marginBottom: '100px' }}>
-          <div className="reveal-up" style={{ order: 2 }}>
+          <div style={{ order: 2 }}>
             <div className="isometric-view">
               <div className="isometric-card glass-card" style={{ borderRadius: '32px', overflow: 'hidden', aspectRatio: '4/3', position: 'relative' }}>
                 <Image 
@@ -40,7 +40,7 @@ export default function Pricing() {
             </div>
           </div>
           
-          <div className="reveal-up" style={{ order: 1 }}>
+          <div style={{ order: 1 }}>
             <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '24px' }}>Why homebuyers and renters use Front Door Scan</h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', marginBottom: '32px', lineHeight: 1.6 }}>
               Our users have used these reports to negotiate price reductions, request remediation, or walk away from properties with serious hidden risks.
@@ -65,7 +65,7 @@ export default function Pricing() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '32px', maxWidth: '1000px', margin: '0 auto' }}>
           
           {/* Single Report */}
-          <div className="glass-card reveal-up" style={{ padding: '48px', borderRadius: '32px', display: 'flex', flexDirection: 'column' }}>
+          <div className="glass-card" style={{ padding: '48px', borderRadius: '32px', display: 'flex', flexDirection: 'column' }}>
             <h3 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '8px' }}>Single Property</h3>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginBottom: '24px' }}>
               <span style={{ fontSize: '3.5rem', fontWeight: 900 }}>$49</span>
@@ -90,7 +90,7 @@ export default function Pricing() {
           </div>
           
           {/* Bundle */}
-          <div className="glass-card reveal-up floating" style={{ padding: '48px', borderRadius: '32px', display: 'flex', flexDirection: 'column', borderColor: 'var(--accent-primary)', position: 'relative' }}>
+          <div className="glass-card" style={{ padding: '48px', borderRadius: '32px', display: 'flex', flexDirection: 'column', borderColor: 'var(--accent-primary)', position: 'relative' }}>
             <div style={{ position: 'absolute', top: '-16px', left: '50%', transform: 'translateX(-50%)', background: 'var(--accent-primary)', color: 'white', padding: '6px 20px', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.1em' }}>
               BEST VALUE
             </div>

@@ -47,7 +47,7 @@ export default function FAQ() {
           {faqs.map((faq, index) => (
             <div 
               key={index} 
-              className="glass-card reveal-up" 
+              className="glass-card" 
               style={{ 
                 borderRadius: '20px', 
                 overflow: 'hidden',

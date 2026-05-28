@@ -76,7 +76,7 @@ export default function Hero() {
       <div className="container" style={{ position: 'relative', zIndex: 1, margin: '0 auto', maxWidth: '1200px' }}>
         <div className="responsive-grid lg:grid-cols-2 items-center" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', display: 'grid', gap: '64px' }}>
           
-          <div className="reveal-up">
+          <div>
             <div className="inline-flex items-center glass-card" style={{ padding: '8px 16px', borderRadius: '999px', display: 'inline-flex', gap: '8px', marginBottom: '24px', fontSize: '0.9rem', fontWeight: 500 }}>
               <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: 'var(--accent-primary)', boxShadow: '0 0 10px var(--accent-primary)' }}></span>
               Know Before You Sign
@@ -126,9 +126,9 @@ export default function Hero() {
           </div>
 
           {/* Spatial 3D Report Preview */}
-          <div className="isometric-view reveal-up" style={{ display: 'flex', justifyContent: 'center' }}>
+          <div className="isometric-view" style={{ display: 'flex', justifyContent: 'center' }}>
             <div className="isometric-card" style={{ position: 'relative' }}>
-              <div className="glass-card floating" style={{ padding: '32px', borderRadius: '32px', width: '100%', maxWidth: '420px', position: 'relative', zIndex: 2 }}>
+              <div className="glass-card" style={{ padding: '32px', borderRadius: '32px', width: '100%', maxWidth: '420px', position: 'relative', zIndex: 2 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '32px' }}>
                   <div>
                     <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--accent-primary)', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '4px' }}>

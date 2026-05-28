@@ -17,13 +17,13 @@ export default function Navbar() {
       padding: '12px 0'
     }}>
       <div className="container" style={{ margin: '0 auto', maxWidth: '1200px', padding: '0 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.25rem', fontWeight: 800, textDecoration: 'none', color: 'var(--text-primary)' }}>
-          <ShieldCheck color="var(--accent-primary)" size={32} />
-          <span className="hidden sm:inline">Front Door Scan</span>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.25rem', fontWeight: 800, textDecoration: 'none', color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>
+          <ShieldCheck color="var(--accent-primary)" size={28} className="nav-logo-icon" />
+          <span className="nav-logo-text">Front Door Scan</span>
         </Link>
         
         <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-          <div style={{ display: 'flex', gap: '24px' }} className="hidden md:flex">
+          <div className="nav-links-desktop" style={{ display: 'flex', gap: '24px' }}>
             {["Features", "Pricing", "FAQ"].map((item) => (
               <Link 
                 key={item} 
@@ -44,27 +44,50 @@ export default function Navbar() {
           </div>
           
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <Link href="/signin" className="btn-antigravity-outline" style={{ padding: '10px 20px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Link href="/signin" className="btn-antigravity-outline" style={{ padding: '8px 16px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <LogIn size={18} />
-              <span className="hidden sm:inline">Sign In</span>
+              <span className="nav-btn-text">Sign In</span>
             </Link>
-            <Link href="/get-started" className="btn-antigravity" style={{ padding: '10px 24px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Link href="/get-started" className="btn-antigravity" style={{ padding: '8px 20px', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <span>Order Report</span>
-              <ArrowRight size={16} />
+              <ArrowRight size={16} className="nav-btn-icon" />
             </Link>
           </div>
         </div>
       </div>
 
       <style jsx>{`
-        @media (max-width: 768px) {
-          .hidden.md\\:flex {
-            display: none !important;
+        /* Desktop Default is flex */
+        .nav-links-desktop {
+          display: flex;
+        }
+        .nav-logo-text, .nav-btn-text {
+          display: inline;
+        }
+
+        /* Tablet Breakpoint */
+        @media (max-width: 992px) {
+          .nav-links-desktop {
+            display: none;
           }
         }
+
+        /* Mobile Breakpoint */
         @media (max-width: 640px) {
-          .hidden.sm\\:inline {
-            display: none !important;
+          .nav-logo-text {
+            display: none;
+          }
+          .nav-btn-text {
+            display: none;
+          }
+          .nav-btn-icon {
+            display: none;
+          }
+          .container {
+            padding: 0 16px !important;
+          }
+          nav {
+            padding: 8px 0 !important;
           }
         }
       `}</style>

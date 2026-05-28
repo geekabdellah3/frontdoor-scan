@@ -191,12 +191,8 @@ export default function Hero() {
       return;
     }
     
-    if (!isTransitioning) {
-      setIsTransitioning(true);
-      setTransitionProgress(0);
-      setTransitionStep(0);
-      setError('');
-    }
+    // Redirect instantly to checkout flow, bypassing transition overlay
+    router.push(`/get-started?address=${encodeURIComponent(query)}`);
   };
 
   const handleSuggestionClick = (suggestion: Suggestion) => {

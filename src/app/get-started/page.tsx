@@ -82,10 +82,6 @@ function GetStartedContent() {
   const [state, setState] = useState('');
   const [zip, setZip] = useState('');
   const [country, setCountry] = useState('United States');
-  
-  const [cardNumber, setCardNumber] = useState('');
-  const [cardExpiry, setCardExpiry] = useState('');
-  const [cardCvc, setCardCvc] = useState('');
 
   // Terminal Animation State
   const [terminalLogs, setTerminalLogs] = useState<string[]>([]);
@@ -358,17 +354,15 @@ function GetStartedContent() {
                         </div>
                       </div>
 
-                      {/* Locked Findings Preview (Compact) */}
-                      <div className="locked-findings-sm">
-                        <div className="locked-hdr">
-                          <Lock size={12} />
-                          <span>Locked Records Near Address</span>
+                      {/* ROI Social Proof (Address-Based) */}
+                      <div className="roi-social-proof">
+                        <div className="social-proof-icon">
+                          <Zap size={14} fill="#fbbf24" stroke="#fbbf24" />
                         </div>
-                        <div className="locked-rows">
-                          <div className="locked-row blur"><Check size={12} /> EPA Hazard Scan</div>
-                          <div className="locked-row blur"><Check size={12} /> Flood Risk Analysis</div>
-                          <div className="locked-row blur"><Check size={12} /> Proximity Map</div>
-                        </div>
+                        <p className="social-proof-text">
+                          People at <strong>{addressLine1 || 'this address'}</strong> typically identify a <strong>{riskData.roi} ROI</strong> in potential negotiation leverage using this report. 
+                          <span className="social-proof-sub">12+ clients in this area have already secured their property data this month.</span>
+                        </p>
                       </div>
                     </div>
                   )}
@@ -448,16 +442,7 @@ function GetStartedContent() {
                       <input type="text" placeholder="ZIP Code" required value={zip} onChange={(e) => setZip(e.target.value)} />
                     </div>
 
-                    {/* Simple Card Row for Demo */}
-                    <div className="input-group">
-                      <div className="input-wrap">
-                        <CreditCard size={14} className="input-icon" />
-                        <input type="text" placeholder="Card Number (Demo Only)" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} />
-                      </div>
-                    </div>
-
                     <button type="submit" className="cta-button final-cta">
-                      <Lock size={18} fill="currentColor" />
                       Get My Environmental Report — ${prices[selectedPlan].toFixed(2)}
                     </button>
                   </form>
@@ -593,9 +578,11 @@ function GetStartedContent() {
         .roi-stats-grid.vertical { display: flex; flex-direction: column; margin: 0; border-radius: 0; border: none; border-top: 1px solid #f1f5f9; }
         .roi-stats-grid.vertical .roi-stat-box { padding: 16px 24px; text-align: left; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; }
         .roi-stats-grid.vertical .roi-stat-label { margin-bottom: 0; }
-        .locked-findings-sm { padding: 16px 24px; background: #f8fafc; }
-        .locked-findings-sm .locked-hdr { margin-bottom: 10px; opacity: 0.7; }
-        .locked-findings-sm .locked-row { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 4px; }
+        
+        .roi-social-proof { padding: 20px 24px; background: #f8fafc; display: flex; gap: 12px; }
+        .social-proof-icon { flex-shrink: 0; margin-top: 2px; }
+        .social-proof-text { font-size: 0.8rem; color: var(--text-primary); line-height: 1.5; margin: 0; font-weight: 500; }
+        .social-proof-sub { display: block; margin-top: 6px; font-size: 0.7rem; color: var(--accent-primary); font-weight: 700; }
 
         /* ── HERO ── */
         .hero-section { margin-bottom: 60px; }
@@ -683,41 +670,31 @@ function GetStartedContent() {
         .input-row .input-group { margin-bottom: 0; }
         
         .cta-button.final-cta {
-          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          background: #5bb18a;
+          color: #000;
           padding: 20px 24px;
           border-radius: 12px;
           margin-top: 16px;
-          font-size: 1.05rem;
-          font-weight: 800;
+          font-size: 1.1rem;
+          font-weight: 900;
           letter-spacing: -0.01em;
-          box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25), 0 2px 4px rgba(0, 0, 0, 0.05);
+          box-shadow: 0 6px 0px #346951;
+          border: 1px solid #1e293b;
           position: relative;
           overflow: hidden;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .cta-button.final-cta::after {
-          content: '';
-          position: absolute;
-          top: -50%;
-          left: -60%;
-          width: 20%;
-          height: 200%;
-          background: rgba(255, 255, 255, 0.2);
-          transform: rotate(30deg);
-          animation: shimmer 4s infinite;
-        }
-        @keyframes shimmer {
-          0% { left: -60%; }
-          20% { left: 150%; }
-          100% { left: 150%; }
+          transition: all 0.2s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
         }
         .cta-button.final-cta:hover { 
-          transform: translateY(-2px) scale(1.02);
-          box-shadow: 0 8px 25px rgba(16, 185, 129, 0.35), 0 4px 6px rgba(0, 0, 0, 0.08);
-          background: linear-gradient(135deg, #059669 0%, #047857 100%);
+          transform: translateY(2px);
+          box-shadow: 0 4px 0px #346951;
         }
         .cta-button.final-cta:active {
-          transform: translateY(0) scale(0.98);
+          transform: translateY(6px);
+          box-shadow: 0 0px 0px #346951;
         }
 
         .security-badges-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 16px; font-size: 0.75rem; color: #94a3b8; font-weight: 500; }

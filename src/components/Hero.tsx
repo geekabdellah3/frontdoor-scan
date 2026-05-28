@@ -243,17 +243,17 @@ export default function Hero() {
       <div className="container" style={{ position: 'relative', zIndex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '64px', alignItems: 'center' }}>
         
         {/* Left Column */}
-        <div>
-          <h1 style={{ fontSize: 'clamp(2.5rem, 5vw, 3.8rem)', fontWeight: 800, lineHeight: 1.1, marginBottom: '24px', color: '#09090b', letterSpacing: '-0.02em' }}>
-            Is Your Home Hiding <br />
-            <span style={{ 
+        <div className="hero-left-content">
+          <h1 className="hero-title" style={{ fontSize: 'clamp(2.5rem, 5vw, 3.8rem)', fontWeight: 800, lineHeight: 1.1, marginBottom: '24px', color: '#09090b', letterSpacing: '-0.02em' }}>
+            Is Your Home Hiding <span className="hero-title-accent" style={{ 
               background: 'linear-gradient(135deg, #10b981 0%, #3b82f6 100%)', 
               WebkitBackgroundClip: 'text', 
               WebkitTextFillColor: 'transparent', 
-              backgroundClip: 'text' 
+              backgroundClip: 'text',
+              display: 'inline-block'
             }}>Environmental Risks?</span>
           </h1>
-          <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', marginBottom: '40px', lineHeight: 1.6, maxWidth: '600px' }}>
+          <p className="hero-paragraph" style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', marginBottom: '40px', lineHeight: 1.6, maxWidth: '600px' }}>
             Whether you&apos;re buying or renting — what you don&apos;t know <strong>can</strong> hurt you. Get all of the facts on your home&apos;s health today.
           </p>
 

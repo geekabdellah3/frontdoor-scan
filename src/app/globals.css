@@ -243,15 +243,23 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .hero-section h1 {
-    font-size: 2.2rem !important;
-    line-height: 1.2 !important;
+    font-size: 2.1rem !important;
+    line-height: 1.25 !important;
     margin-bottom: 16px !important;
     text-align: left;
   }
 
-  .hero-section p {
+  .hero-title-accent {
+    display: inline !important;
+  }
+
+  .hero-section p.hero-paragraph {
     font-size: 1.05rem !important;
+    line-height: 1.5 !important;
     margin-bottom: 24px !important;
+    color: var(--text-secondary) !important;
+    word-break: keep-all;
+    overflow-wrap: break-word;
   }
 
   .hero-form-card {

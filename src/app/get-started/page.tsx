@@ -312,7 +312,8 @@ function GetStartedContent() {
         *, *::before, *::after { box-sizing: border-box; }
         body { background: var(--bg-primary) !important; font-family: var(--font-sans) !important; color: var(--text-primary) !important; -webkit-font-smoothing: antialiased; }
 
-        .ann-bar { background: var(--green); color: #fff; text-align: center; padding: 9px 16px; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.3px; }
+        .ann-bar { background: var(--text-primary); color: #fff; text-align: center; padding: 12px 24px; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.02em; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; gap: 12px; }
+        .ann-badge { background: var(--accent-primary); color: var(--text-primary); padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
 
         .co-header { background: var(--white); border-bottom: 1px solid var(--border); padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: var(--shadow-sm); }
         .co-logo-link { display: flex; align-items: center; text-decoration: none; }
@@ -555,7 +556,8 @@ function GetStartedContent() {
       `}</style>
 
       <div className="ann-bar">
-        ⚡ 574 buyers are checking properties right now — Complete your report and lock in our 30-day money-back guarantee
+        <span className="ann-badge">Demand Alert</span>
+        <span>⚡ 574 buyers are checking properties right now — Complete your report to lock in our 30-day money-back guarantee</span>
       </div>
 
       <header className="co-header">

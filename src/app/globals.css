@@ -39,6 +39,8 @@ html, body {
   color: var(--text-primary);
   font-family: var(--font-sans);
   overflow-x: hidden;
+  position: relative;
+  width: 100%;
   scroll-behavior: smooth;
 }
 
@@ -66,6 +68,16 @@ html, body {
 
 .isometric-card {
   transform: rotateX(15deg) rotateY(-15deg);
+  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@media (max-width: 768px) {
+  .isometric-card {
+    transform: none !important;
+  }
+  .isometric-view {
+    perspective: none !important;
+  }
 }
 
 /* Responsive Grid Overrides */

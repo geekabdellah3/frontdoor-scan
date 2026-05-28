@@ -22,7 +22,7 @@ export default function Navbar() {
           <span className="nav-logo-text">Front Door Scan</span>
         </Link>
         
-        <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+        <div className="nav-main-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
           <div className="nav-links-desktop" style={{ display: 'flex', gap: '24px' }}>
             {["Features", "Pricing", "FAQ"].map((item) => (
               <Link 
@@ -82,6 +82,9 @@ export default function Navbar() {
           }
           .nav-btn-icon {
             display: none;
+          }
+          .nav-main-wrapper {
+            gap: 12px !important;
           }
           .container {
             padding: 0 16px !important;

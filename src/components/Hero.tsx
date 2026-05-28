@@ -74,7 +74,7 @@ export default function Hero() {
       <div className="bg-glow" style={{ bottom: '-10%', right: '-10%', opacity: 0.3, background: 'radial-gradient(circle, var(--accent-secondary) 0%, transparent 70%)' }}></div>
 
       <div className="container" style={{ position: 'relative', zIndex: 1, margin: '0 auto', maxWidth: '1200px' }}>
-        <div className="responsive-grid lg:grid-cols-2 items-center" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', display: 'grid', gap: '64px' }}>
+        <div className="hero-grid" style={{ display: 'grid', alignItems: 'center' }}>
           
           <div>
             <div className="inline-flex items-center glass-card" style={{ padding: '8px 16px', borderRadius: '999px', display: 'inline-flex', gap: '8px', marginBottom: '24px', fontSize: '0.9rem', fontWeight: 500 }}>
@@ -168,9 +168,9 @@ export default function Hero() {
                 </div>
               </div>
 
-              {/* Decorative elements for depth */}
-              <div className="glass-card" style={{ position: 'absolute', width: '200px', height: '200px', bottom: '-40px', left: '-40px', zIndex: 1, borderRadius: '24px', background: 'rgba(255,255,255,0.3)' }}></div>
-              <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '120px', height: '120px', borderRadius: '50%', background: 'var(--accent-primary-glow)', filter: 'blur(30px)', zIndex: 0 }}></div>
+              {/* Decorative elements for depth - Hidden on mobile to prevent overflow */}
+              <div className="glass-card decorative-element" style={{ position: 'absolute', width: '200px', height: '200px', bottom: '-40px', left: '-40px', zIndex: 1, borderRadius: '24px', background: 'rgba(255,255,255,0.3)' }}></div>
+              <div className="decorative-element" style={{ position: 'absolute', top: '-20px', right: '-20px', width: '120px', height: '120px', borderRadius: '50%', background: 'var(--accent-primary-glow)', filter: 'blur(30px)', zIndex: 0 }}></div>
             </div>
           </div>
 
@@ -223,9 +223,31 @@ export default function Hero() {
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
+        .hero-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 64px;
+        }
+        @media (max-width: 1024px) {
+          .hero-grid {
+            grid-template-columns: 1fr;
+            gap: 48px;
+            text-align: center;
+          }
+          .hero-grid > div {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+          }
+        }
         @media (max-width: 640px) {
           .sm\\:flex-row {
             flex-direction: column !important;
+          }
+          .hero-grid {
+            gap: 32px;
+          }
+          .decorative-element {
+            display: none !important;
           }
         }
       `}</style>

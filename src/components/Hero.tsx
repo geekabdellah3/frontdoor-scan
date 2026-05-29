@@ -5,19 +5,21 @@ import { Search, ShieldCheck, MapPin, CheckCircle2, Activity } from 'lucide-reac
 
 export default function Hero() {
   const [address, setAddress] = useState('');
-  const [addressPlaceholder, setAddressPlaceholder] = useState('Search any US address');
+  const [addressPlaceholder] = useState('Search any US address');
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [transitionProgress, setTransitionProgress] = useState(0);
   const [transitionStep, setTransitionStep] = useState(0);
-  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [suggestions, setSuggestions] = useState<{ description: string }[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
 
   // Autocomplete search
   useEffect(() => {
     if (address.length < 3 || isSearching) {
-      setSuggestions([]);
-      return;
+      const timeout = setTimeout(() => {
+        setSuggestions(prev => prev.length > 0 ? [] : prev);
+      }, 0);
+      return () => clearTimeout(timeout);
     }
 
     const timer = setTimeout(async () => {

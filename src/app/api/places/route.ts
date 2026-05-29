@@ -27,8 +27,22 @@ export async function GET(request: Request) {
 
     const data = await response.json();
     
+    interface PhotonFeature {
+      properties: {
+        osm_id: string | number;
+        name?: string;
+        street?: string;
+        city?: string;
+        town?: string;
+        village?: string;
+        state?: string;
+        postcode?: string;
+        country?: string;
+      };
+    }
+
     // Format response for the frontend
-    const predictions = data.features.map((feature: any) => {
+    const predictions = data.features.map((feature: PhotonFeature) => {
       const p = feature.properties;
       const parts = [
         p.name || p.street,

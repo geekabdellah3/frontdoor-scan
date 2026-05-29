@@ -1,6 +1,7 @@
 'use client';
 
 import { Users, Home, TrendingUp, ShieldCheck } from 'lucide-react';
+import Image from 'next/image';
 
 export default function UseCases() {
   return (
@@ -17,11 +18,14 @@ export default function UseCases() {
                position: 'relative',
                zIndex: 1
              }}>
-               <img 
-                 src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=1000" 
-                 alt="Family reviewing report" 
-                 style={{ width: '100%', height: '400px', objectFit: 'cover' }}
-               />
+                <div style={{ position: 'relative', width: '100%', height: '400px' }}>
+                 <Image 
+                   src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=1000" 
+                   alt="Family reviewing report" 
+                   fill
+                   style={{ objectFit: 'cover' }}
+                 />
+                </div>
                <div style={{ padding: '32px', background: 'white' }}>
                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
                    <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--accent-primary-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -30,8 +34,8 @@ export default function UseCases() {
                    <span style={{ fontWeight: 800, fontSize: '1.1rem' }}>Peace of Mind Guaranteed</span>
                  </div>
                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.6 }}>
-                   \"We wouldn't have known about the lead in the water pipes without this report. It saved us thousands in future health costs.\"
-                 </p>
+                    &ldquo;We wouldn&apos;t have known about the lead in the water pipes without this report. It saved us thousands in future health costs.&rdquo;
+                  </p>
                </div>
              </div>
              <div style={{ position: 'absolute', top: '40px', right: '-40px', width: '200px', height: '200px', background: 'var(--accent-secondary)', opacity: 0.1, filter: 'blur(80px)', zIndex: 0 }}></div>

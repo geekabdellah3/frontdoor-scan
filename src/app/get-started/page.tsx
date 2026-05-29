@@ -15,11 +15,8 @@ import {
   Droplets, 
   Wind, 
   AlertTriangle, 
-  Sparkles,
-  ChevronRight,
   CreditCard,
-  Mail,
-  User
+  Mail
 } from 'lucide-react';
 
 // --- DATA: Trusted Sources ---

@@ -5,13 +5,11 @@ import {
   Search, 
   MapPin, 
   Download, 
-  AlertTriangle, 
   Loader2, 
   CreditCard, 
   Plus, 
   Clock, 
   ShieldCheck, 
-  ArrowRight,
   ExternalLink,
   ChevronRight,
   Zap
@@ -41,24 +39,24 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [searchAddress, setSearchAddress] = useState('');
   const [generatingReport, setGeneratingReport] = useState(false);
-  const [user, setUser] = useState<{ email: string; name: string; role: string } | null>(null);
-
-  const containerRef = useRef<HTMLDivElement>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    // Load current user details from localStorage
-    const stored = localStorage.getItem('frontdoor_user');
-    if (stored) {
-      try {
-        setUser(JSON.parse(stored));
-      } catch (e) {
-        console.error('Failed to parse user from localStorage:', e);
+  const [user] = useState<{ email: string; name: string; role: string } | null>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('frontdoor_user');
+      if (stored) {
+        try {
+          return JSON.parse(stored);
+        } catch (e) {
+          console.error('Failed to parse user from localStorage:', e);
+        }
       }
     }
+    return null;
+  });
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
     async function loadReports() {
-      setLoading(true);
       if (isSupabaseConfigured()) {
         try {
           const { data, error } = await supabase

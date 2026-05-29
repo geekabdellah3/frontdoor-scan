@@ -1,6 +1,6 @@
 'use client';
 
-import { Droplets, Wind, Waves, Mountain, Factory, Activity, CheckCircle2, ShieldCheck, MapPin, Search } from 'lucide-react';
+import { Droplets, Wind, Waves, Mountain, Factory, Activity, CheckCircle2, ShieldCheck } from 'lucide-react';
 
 const reportFeatures = [
   {

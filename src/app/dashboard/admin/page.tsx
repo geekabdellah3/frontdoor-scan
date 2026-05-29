@@ -61,8 +61,27 @@ export default function AdminPortal() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchAddress] = useState('');
 
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-  const [userEmail, setUserEmail] = useState('');
+  const [isAdmin] = useState<boolean | null>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('frontdoor_user');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          return parsed.role === 'admin' || parsed.email === 'hamzaabdou2003@gmail.com';
+        } catch { return false; }
+      }
+    }
+    return null;
+  });
+  const [userEmail] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('frontdoor_user');
+      if (stored) {
+        try { return JSON.parse(stored).email || ''; } catch { return ''; }
+      }
+    }
+    return '';
+  });
   const router = useRouter();
   
   // New Promo Code Form State
@@ -198,24 +217,6 @@ export default function AdminPortal() {
   };
 
   useEffect(() => {
-    // Authenticate admin from localStorage
-    const stored = localStorage.getItem('frontdoor_user');
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        setUserEmail(parsed.email || '');
-        if (parsed.role === 'admin' || parsed.email === 'hamzaabdou2003@gmail.com') {
-          setIsAdmin(true);
-        } else {
-          setIsAdmin(false);
-        }
-      } catch {
-        setIsAdmin(false);
-      }
-    } else {
-      setIsAdmin(false);
-    }
-
     const t = setTimeout(() => {
       loadData();
     }, 0);

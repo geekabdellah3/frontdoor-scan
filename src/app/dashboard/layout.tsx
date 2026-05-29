@@ -11,19 +11,20 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [mounted, setMounted] = useState(false);
-  const [user, setUser] = useState<{ email: string; name: string; role: string } | null>(null);
+  const [user] = useState<{ email: string; name: string; role: string } | null>(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('frontdoor_user');
+      if (stored) {
+        try { return JSON.parse(stored); } catch { return null; }
+      }
+    }
+    return null;
+  });
   const router = useRouter();
 
   useEffect(() => {
-    setMounted(true);
-    const stored = localStorage.getItem('frontdoor_user');
-    if (stored) {
-      try {
-        setUser(JSON.parse(stored));
-      } catch (e) {
-        console.error('Failed to parse user from localStorage:', e);
-      }
-    }
+    const timeout = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timeout);
   }, []);
 
   const handleSignOut = (e: React.MouseEvent) => {
